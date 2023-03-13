@@ -33,14 +33,8 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\libs\Assembly-CSharp.dll</HintPath>
-    </Reference>
     <Reference Include="SunHaven.Core">
       <HintPath>..\libs\SunHaven.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="SunHaven.External">
-      <HintPath>..\libs\SunHaven.External.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\libs\UnityEngine.CoreModule.dll</HintPath>

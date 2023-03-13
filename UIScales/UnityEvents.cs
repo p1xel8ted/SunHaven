@@ -9,15 +9,15 @@ public partial class Plugin
 {
     private void LateUpdate()
     {
-        if (Player.Instance != null && ZoomModEnabled.Value)
+        if (Player.Instance != null && _zoomModEnabled.Value)
         {
-            Player.Instance.SetZoom(ZoomLevel.Value, true);
+            Player.Instance.SetZoom(_zoomLevel.Value, true);
         }
 
-        if (MainMenuController.Instance != null && UIModEnabled.Value)
+        if (MainMenuController.Instance != null && _uiModEnabled.Value)
         {
-            var newGameValue = InGameUiScale.Value;
-            var newMenuValue = MainMenuUiScale.Value;
+            var newGameValue = _inGameUiScale.Value;
+            var newMenuValue = _mainMenuUiScale.Value;
 
 
             if (SceneManager.GetActiveScene().name.Contains("MainMenu"))
