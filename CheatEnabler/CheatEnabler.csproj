@@ -14,11 +14,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <OutputPath>H:\Games\steamapps\common\Sun Haven\BepInEx\scripts</OutputPath>
+    <OutputPath>H:\Games\steamapps\common\Sun Haven\BepInEx\plugins</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <OutputPath>H:\Games\steamapps\common\Sun Haven\BepInEx\scripts</OutputPath>
+    <OutputPath>H:\Games\steamapps\common\Sun Haven\BepInEx\plugins</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
