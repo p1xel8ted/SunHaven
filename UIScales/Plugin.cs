@@ -20,6 +20,7 @@ namespace UIScales
         public static ConfigEntry<float> InGameUiScale;
         public static ConfigEntry<float> ZoomLevel;
         public static ConfigEntry<float> CheatConsoleScale;
+        public static ConfigEntry<bool> EnableNotifications;
         
         public static ConfigEntry<bool> Debug;
         public ConfigEntry<KeyboardShortcut> UIKeyboardShortcutIncrease { get; set; }
@@ -48,6 +49,8 @@ namespace UIScales
 
             Debug = Config.Bind("Debug", "Debug", false, "Enable debug logging. Nothing really useful to the player, but useful for me to debug issues.");
 
+            EnableNotifications = Config.Bind("Notifications", "Enable Notifications", true, "Enable notifications when changing UI scale or zoom.");
+            
             CheatConsoleScale = Config.Bind<float>("Scale", "Cheat Console Scale", 3, new ConfigDescription("Cheat console UI scale while in game.", new AcceptableValueRange<float>(0.5f, 10f)));
             if (CheatConsoleScale.Value < 0.5)
             {

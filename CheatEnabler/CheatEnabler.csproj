@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net481</TargetFramework>
     <Description></Description>
-    <Version>0.0.1</Version>
+    <Version>0.1.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <IsPackable>false</IsPackable>
@@ -11,6 +11,8 @@
     <Company>p1xel8ted</Company>
     <Product>CheatEnabler</Product>
     <PackageId>CheatEnabler</PackageId>
+    <AssemblyVersion>0.1.1</AssemblyVersion>
+    <FileVersion>0.1.1</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -36,6 +38,7 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>..\libs\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="SunHaven.Core">
       <HintPath>..\libs\SunHaven.Core.dll</HintPath>
     </Reference>

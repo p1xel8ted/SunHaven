@@ -19,12 +19,16 @@ public partial class Plugin
         newList.RemoveAll(x => x.name.Contains("BepInEx"));
         __result = newList.ToArray();
     }
-    
+
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(PlayerSettings), nameof(PlayerSettings.Initialize))]
-    public static void Player_Initialize(ref PlayerSettings __instance)
+    [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.PlayGame), typeof(int))]
+    [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.PlayGame), new Type[] { })]
+    public static void Player_Initialize(ref MainMenuController __instance)
     {
-        __instance.SetCheatsEnabled(true);
-        _log.LogWarning("Cheat Menu Enabled!");
+        if (__instance.settings != null)
+        {
+            __instance.settings.SetCheatsEnabled(true);
+            _log.LogWarning("Cheat Menu Enabled!");
+        }
     }
 }

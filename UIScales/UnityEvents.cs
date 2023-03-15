@@ -44,9 +44,12 @@ public partial class Plugin
                 SecondUICanvas.scaleFactor = InGameUiScale.Value;
             }
 
-            if (NotificationStack.Instance != null)
+            if (EnableNotifications.Value)
             {
-                NotificationStack.Instance.SendNotification("UI Scale: " + InGameUiScale.Value);
+                if (NotificationStack.Instance != null)
+                {
+                    NotificationStack.Instance.SendNotification("UI Scale: " + InGameUiScale.Value);
+                }
             }
         }
 
@@ -86,9 +89,12 @@ public partial class Plugin
                 SecondUICanvas.scaleFactor = InGameUiScale.Value;
             }
 
-            if (NotificationStack.Instance != null)
+            if (EnableNotifications.Value)
             {
-                NotificationStack.Instance.SendNotification("UI Scale: " + InGameUiScale.Value);
+                if (NotificationStack.Instance != null)
+                {
+                    NotificationStack.Instance.SendNotification("UI Scale: " + InGameUiScale.Value);
+                }
             }
         }
 
@@ -108,10 +114,12 @@ public partial class Plugin
                 Player.Instance.SetZoom(ZoomLevel.Value, true);
             }
 
-
-            if (NotificationStack.Instance != null)
+            if (EnableNotifications.Value)
             {
-                NotificationStack.Instance.SendNotification("Zoom Level: " + ZoomLevel.Value);
+                if (NotificationStack.Instance != null)
+                {
+                    NotificationStack.Instance.SendNotification("Zoom Level: " + ZoomLevel.Value);
+                }
             }
         }
 
@@ -130,9 +138,12 @@ public partial class Plugin
                 Player.Instance.SetZoom(ZoomLevel.Value, true);
             }
 
-            if (NotificationStack.Instance != null)
+            if (EnableNotifications.Value)
             {
-                NotificationStack.Instance.SendNotification("Zoom Level: " + ZoomLevel.Value);
+                if (NotificationStack.Instance != null)
+                {
+                    NotificationStack.Instance.SendNotification("Zoom Level: " + ZoomLevel.Value);
+                }
             }
         }
     }
