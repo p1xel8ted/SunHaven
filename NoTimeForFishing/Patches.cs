@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using DG.Tweening;
 using HarmonyLib;
+using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using Wish;
 
 namespace NoTimeForFishing;
@@ -9,6 +12,17 @@ namespace NoTimeForFishing;
 [HarmonyPatch]
 public static class Patches
 {
+    //the game unloads objects when quitting to menu, and BepInEx gets caught up in it, which kills any mods that use BepInEx. This fixes that.
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Scene), nameof(Scene.GetRootGameObjects), new Type[] { })]
+    public static void Scene_GetRootGameObjects(ref GameObject[] __result)
+    {
+        var newList = __result.ToList();
+        newList.RemoveAll(x => x.name.Contains("BepInEx"));
+        __result = newList.ToArray();
+    }
+    
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DialogueController), nameof(DialogueController.PushDialogue))]
     public static bool PushDialogue(ref DialogueController __instance, ref DialogueNode dialogue, ref UnityAction onComplete, ref bool animateOnComplete, ref bool ignoreDialogueOnGoing)
