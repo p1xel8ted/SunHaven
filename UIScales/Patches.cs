@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
@@ -38,7 +37,11 @@ public static class Patches
     {
         if (__instance.name.Equals("UI", StringComparison.InvariantCultureIgnoreCase))
         {
-            Plugin.LOG.LogWarning($"UI CanvasScaler.OnEnable: Name:{__instance.name}");
+            if (Plugin.Debug.Value)
+            {
+                Plugin.LOG.LogWarning($"UI CanvasScaler.OnEnable: Name:{__instance.name}");
+            }
+
             Plugin.UICanvas = __instance;
             Plugin.UICanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
             Plugin.UICanvas.SetScaleFactor(Plugin.InGameUiScale.Value);
@@ -47,7 +50,11 @@ public static class Patches
 
         if (__instance.name.Equals("Quantum Console", StringComparison.InvariantCultureIgnoreCase))
         {
-            Plugin.LOG.LogWarning($"CheatConsole CanvasScaler.OnEnable: Name:{__instance.name}");
+            if (Plugin.Debug.Value)
+            {
+                Plugin.LOG.LogWarning($"CheatConsole CanvasScaler.OnEnable: Name:{__instance.name}");
+            }
+
             Plugin.QuantumCanvas = __instance;
             Plugin.QuantumCanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
             Plugin.QuantumCanvas.SetScaleFactor(Plugin.CheatConsoleScale.Value);
@@ -56,7 +63,11 @@ public static class Patches
 
         if (__instance.name.Equals("Canvas", StringComparison.InvariantCultureIgnoreCase))
         {
-            Plugin.LOG.LogWarning($"MainMenu CanvasScaler.OnEnable: Name:{__instance.name}");
+            if (Plugin.Debug.Value)
+            {
+                Plugin.LOG.LogWarning($"MainMenu CanvasScaler.OnEnable: Name:{__instance.name}");
+            }
+
             Plugin.MainMenuCanvas = __instance;
             Plugin.MainMenuCanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
             Plugin.MainMenuCanvas.SetScaleFactor(Plugin.MainMenuUiScale.Value);
@@ -73,7 +84,7 @@ public static class Patches
         newList.RemoveAll(x => x.name.Contains("BepInEx"));
         __result = newList.ToArray();
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Player), nameof(Player.SetZoom))]
     public static void Player_SetZoom()
@@ -89,10 +100,11 @@ public static class Patches
         Player.Instance.OverrideCameraZoomLevel = false;
         Player.Instance.SetZoom(Plugin.ZoomLevel.Value, true);
 
-        Plugin.CinematicBlackBars = GameObject.Find("Player(Clone)/UI/CinematicBlackBars");
-        Plugin.CinematicBlackBars.gameObject.SetActive(false);
+        if (Plugin.Debug.Value)
+        {
+            Plugin.LOG.LogWarning($"SecondUICanvas Player.InitializeAsOwner: Name:{__instance.name}");
+        }
 
-        Plugin.LOG.LogWarning($"SecondUICanvas Player.InitializeAsOwner: Name:{__instance.name}");
         Plugin.SecondUICanvas = GameObject.Find("Player(Clone)/UI").GetComponent<CanvasScaler>();
         Plugin.SecondUICanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
         Plugin.SecondUICanvas.SetScaleFactor(Plugin.InGameUiScale.Value);

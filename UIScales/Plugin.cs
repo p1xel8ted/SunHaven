@@ -16,57 +16,68 @@ namespace UIScales
         private const string PluginName = "UIScales";
         private const string PluginVersion = "0.1.3";
 
-        internal static ConfigEntry<float> MainMenuUiScale;
-        internal static ConfigEntry<float> InGameUiScale;
-        internal static ConfigEntry<float> ZoomLevel;
-        internal static ConfigEntry<float> CheatConsoleScale;
-        internal static ManualLogSource LOG { get; private set; }
+        public static ConfigEntry<float> MainMenuUiScale;
+        public static ConfigEntry<float> InGameUiScale;
+        public static ConfigEntry<float> ZoomLevel;
+        public static ConfigEntry<float> CheatConsoleScale;
         
+        public static ConfigEntry<bool> Debug;
+        public ConfigEntry<KeyboardShortcut> UIKeyboardShortcutIncrease { get; set; }
+        public ConfigEntry<KeyboardShortcut> UIKeyboardShortcutDecrease { get; set; }
+        public ConfigEntry<KeyboardShortcut> ZoomKeyboardShortcutIncrease { get; set; }
+        public ConfigEntry<KeyboardShortcut> ZoomKeyboardShortcutDecrease { get; set; }
+        internal static ManualLogSource LOG { get; private set; }
+
         internal static bool ZoomNeedsUpdating = true;
 
         internal static CanvasScaler UICanvas { get; set; }
         internal static CanvasScaler SecondUICanvas { get; set; }
         public static CanvasScaler QuantumCanvas { get; set; }
         public static CanvasScaler MainMenuCanvas { get; set; }
-        public static GameObject CinematicBlackBars { get; set; }
 
         private void Awake()
         {
             LOG = new ManualLogSource("Log");
             BepInEx.Logging.Logger.Sources.Add(LOG);
 
-            CheatConsoleScale = Config.Bind<float>("Scale", "CheatConsoleScale", 3, "Cheat console UI scale while in game.");
+            UIKeyboardShortcutIncrease = Config.Bind("Keyboard Shortcuts", "UI Scale Increase", new KeyboardShortcut(KeyCode.Keypad8, KeyCode.LeftControl));
+            UIKeyboardShortcutDecrease = Config.Bind("Keyboard Shortcuts", "UI Scale Decrease", new KeyboardShortcut(KeyCode.Keypad2, KeyCode.LeftControl));
+
+            ZoomKeyboardShortcutIncrease = Config.Bind("Keyboard Shortcuts", "Zoom Level Increase", new KeyboardShortcut(KeyCode.Keypad8));
+            ZoomKeyboardShortcutDecrease = Config.Bind("Keyboard Shortcuts", "Zoom Level Decrease", new KeyboardShortcut(KeyCode.Keypad2));
+
+            Debug = Config.Bind("Debug", "Debug", false, "Enable debug logging. Nothing really useful to the player, but useful for me to debug issues.");
+
+            CheatConsoleScale = Config.Bind<float>("Scale", "Cheat Console Scale", 3, new ConfigDescription("Cheat console UI scale while in game.", new AcceptableValueRange<float>(0.5f, 10f)));
             if (CheatConsoleScale.Value < 0.5)
             {
                 CheatConsoleScale.Value = 0.5f;
-          
             }
 
-            InGameUiScale = Config.Bind<float>("Scale", "GameUIScale", 3, "UI scale while in game.");
+            InGameUiScale = Config.Bind<float>("Scale", "Game UI Scale", 3, new ConfigDescription("UI scale while in game.", new AcceptableValueRange<float>(0.5f, 10f)));
             if (InGameUiScale.Value < 0.5)
             {
                 InGameUiScale.Value = 0.5f;
-          
             }
-            
-            MainMenuUiScale = Config.Bind<float>("Scale", "MenuUIScale", 2, "UI scale while at the main menu.");
+
+
+            MainMenuUiScale = Config.Bind<float>("Scale", "Menu UI Scale", 2, new ConfigDescription("UI scale while at the main menu.", new AcceptableValueRange<float>(0.5f, 10f)));
             if (MainMenuUiScale.Value < 0.5)
             {
-                MainMenuUiScale.Value = 0.5f;  
-              
+                MainMenuUiScale.Value = 0.5f;
             }
-            
-            ZoomLevel = Config.Bind<float>("Scale", "ZoomLevel", 2, "Zoom level while in game.");
+
+            ZoomLevel = Config.Bind<float>("Scale", "Zoom Level", 2, new ConfigDescription("Zoom level while in game.", new AcceptableValueRange<float>(0.5f, 10f)));
             if (ZoomLevel.Value < 0.5)
             {
-                ZoomLevel.Value = 0.5f;  
+                ZoomLevel.Value = 0.5f;
                 ZoomNeedsUpdating = true;
             }
-            
-            Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(),PluginGuid);
+
+            Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
             LOG.LogWarning($"Plugin {PluginName} is loaded!");
         }
-        
+
         private void OnDestroy()
         {
             LOG.LogError($"I've been destroyed!");
