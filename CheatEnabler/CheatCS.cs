@@ -20,7 +20,7 @@ namespace CheatEnabler
         [FormerlySerializedAs("no_clip")] public bool noClip;
 
         [Command]
-        private void adddevitems()
+        private void Adddevitems()
         {
             Player.Instance.Inventory.AddItem(0x7533, 1, true);
             Player.Instance.Inventory.AddItem(0x7534, 1, true);
@@ -30,33 +30,33 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void addexp(string profession, float amount)
+        private void Addexp(string profession, float amount)
         {
             var professionType = (ProfessionType) Enum.Parse(typeof(ProfessionType), profession, true);
             Player.Instance.AddEXP(professionType, amount);
         }
 
         [Command]
-        private void additem(string item, int amount = 1)
+        private void Additem(string item, int amount = 1)
         {
             var d = ItemDatabase.GetID(item);
             Player.Instance.Inventory.AddItem((d != -1 ? d : int.Parse(item)), amount, true);
         }
 
         [Command]
-        private void addmoney(int amount)
+        private void Addmoney(int amount)
         {
             Player.Instance.AddMoney(amount);
         }
 
         [Command]
-        public void addpermenentstatbonus(string stat, float amount)
+        public void Addpermenentstatbonus(string stat, float amount)
         {
             GameSave.CurrentCharacter.AddStatBonus((StatType) Enum.Parse(typeof(StatType), stat.RemoveWhitespace().ToLower(), true), amount);
         }
 
         [Command]
-        private void addrangeofitems(string item, int amount, int range = 10)
+        private void Addrangeofitems(string item, int amount, int range = 10)
         {
             var d = ItemDatabase.GetID(item);
             for (var i = 0; i < range; i++)
@@ -66,19 +66,19 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void addstat(string stat, float amount)
+        private void Addstat(string stat, float amount)
         {
             Player.Instance.Stats.Add((StatType) Enum.Parse(typeof(StatType), stat.RemoveWhitespace().ToLower(), true), amount);
         }
 
         [Command]
-        private void addtime(float time)
+        private void Addtime(float time)
         {
             SingletonBehaviour<DayCycle>.Instance.AddTime(time);
         }
 
         [Command]
-        private void allitems()
+        private void Allitems()
         {
             ItemDatabase.DebugItemList();
         }
@@ -97,19 +97,19 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void despawnpet()
+        private void Despawnpet()
         {
             SingletonBehaviour<PetManager>.Instance.DespawnPet(Player.Instance);
         }
 
         [Command]
-        private void enabledaycycle(bool enable)
+        private void Enabledaycycle(bool enable)
         {
             PlaySettingsManager.PlaySettings.enableDayCycle = enable;
         }
 
         [Command]
-        private void getrelationships()
+        private void Getrelationships()
         {
             foreach (var relationship in SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.relationships)
             {
@@ -118,24 +118,23 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void getstat(string stat)
+        private void Getstat(string stat)
         {
             Debug.Log(Player.Instance.GetStat((StatType) Enum.Parse(typeof(StatType), stat.RemoveWhitespace().ToLower(), true)));
         }
 
         [Command]
-        public void godmode(bool active)
+        public void Godmode(bool active)
         {
-            noclip(active);
-            setstat("movespeed", active ? 4 : 1);
-            setstat("jump", (active ? 1.75f : 1f));
+            Noclip(active);
+            Setstat("movespeed", active ? 4 : 1);
+            Setstat("jump", (active ? 1.75f : 1f));
             godMode = active;
         }
 
         [Command]
-        private void marryNPC(string npc)
+        private void MarryNpc(string npc)
         {
-            NPCAI nPCAI;
             var progressStringCharacter = SingletonBehaviour<GameSave>.Instance.GetProgressStringCharacter("MarriedWith");
             if (!progressStringCharacter.IsNullOrWhitespace())
             {
@@ -146,15 +145,15 @@ namespace CheatEnabler
                 SingletonBehaviour<NPCManager>.Instance.GetRealNPC(progressStringCharacter).GenerateCycle();
             }
 
-            if (SingletonBehaviour<NPCManager>.Instance._npcs.TryGetValue(npc, out nPCAI))
+            if (SingletonBehaviour<NPCManager>.Instance._npcs.TryGetValue(npc, out var nPcai))
             {
-                setrelationship(npc, 100);
-                nPCAI.MarryPlayer();
+                Setrelationship(npc, 100);
+                nPcai.MarryPlayer();
             }
         }
 
         [Command]
-        public void noclip(bool active)
+        public void Noclip(bool active)
         {
             Player.Instance.GetComponent<Collider2D>().isTrigger = active;
             noClip = active;
@@ -172,39 +171,46 @@ namespace CheatEnabler
         //     PlayerInput.AllowArrowKeys = true;
         // }
 
+        [Command()]
+        private void Savegame()
+        {
+            SingletonBehaviour<GameSave>.Instance.SaveGame();
+            SingletonBehaviour<NotificationStack>.Instance.SendNotification("Game Saved!");
+        }
+
         [Command]
-        private void resetalldecoration()
+        private void Resetalldecoration()
         {
             SingletonBehaviour<GameSave>.Instance.ResetDecorations();
         }
 
         [Command]
-        private void resetanimals()
+        private void Resetanimals()
         {
             SingletonBehaviour<NPCManager>.Instance.DeleteAnimals();
         }
 
         [Command]
-        private void resetcharacterprogress(string progress)
+        private void Resetcharacterprogress(string progress)
         {
             SingletonBehaviour<GameSave>.Instance.SetProgressBoolCharacter(progress, false);
         }
 
         [Command]
-        private void resetfarminginfo()
+        private void Resetfarminginfo()
         {
             SingletonBehaviour<GameSave>.Instance.ResetFarmingInfo();
         }
 
         [Command]
-        private void resetfoodstats()
+        private void Resetfoodstats()
         {
             Player.Instance.SetBaseStats();
             SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.foodStats = new Dictionary<int, int>();
         }
 
         [Command]
-        private void resethelpnotifications(string mailName)
+        private void Resethelpnotifications(string mailName)
         {
             SingletonBehaviour<GameSave>.Instance.SetProgressBoolCharacter("UsedWateringCan", false);
             SingletonBehaviour<GameSave>.Instance.SetProgressBoolCharacter("UsedHoe", false);
@@ -219,18 +225,17 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void resetinventory()
+        private void Resetinventory()
         {
             Player.Instance.Inventory.ClearInventory();
         }
 
         [Command]
-        private void resetmail()
+        private void Resetmail()
         {
             var allMail = MailManager.AllMail;
-            for (var i = 0; i < allMail.Length; i++)
+            foreach (var mailAsset in allMail)
             {
-                var mailAsset = allMail[i];
                 SingletonBehaviour<GameSave>.Instance.SetProgressBoolCharacter(mailAsset.name, false);
             }
 
@@ -238,19 +243,19 @@ namespace CheatEnabler
         }
 
         [Command]
-        public void resetmoney()
+        public void Resetmoney()
         {
             SingletonBehaviour<GameSave>.Instance.CurrentWorld.coins = 0;
         }
 
         [Command]
-        public void resetpermanentstatbonuses()
+        public void Resetpermanentstatbonuses()
         {
             GameSave.CurrentCharacter.StatBonuses.Clear();
         }
 
         [Command]
-        private void resetprogress()
+        private void Resetprogress()
         {
             SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.progress = new Dictionary<int, byte[]>();
             SingletonBehaviour<GameSave>.Instance.CurrentSave.worldData.progress = new Dictionary<int, byte[]>();
@@ -258,18 +263,17 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void resetquests()
+        private void Resetquests()
         {
-            int i;
-            bool flag;
             try
             {
                 GameSave.CurrentCharacter.questData = new Dictionary<string, Dictionary<string, byte[]>>();
                 var allQuests = QuestManager.AllQuests;
+                int i;
                 for (i = 0; i < allQuests.Length; i++)
                 {
                     var questAsset = allQuests[i];
-                    if (SingletonBehaviour<GameSave>.Instance.TryGetProgressBoolCharacter(questAsset.name, out flag))
+                    if (SingletonBehaviour<GameSave>.Instance.TryGetProgressBoolCharacter(questAsset.name, out _))
                     {
                         SingletonBehaviour<GameSave>.Instance.SetProgressBoolCharacter(questAsset.name, false);
                     }
@@ -281,12 +285,12 @@ namespace CheatEnabler
                 }
 
                 SingletonBehaviour<QuestManager>.Instance.Initialize();
-                var nPCAIArray = FindObjectsOfType<NPCAI>();
-                for (i = 0; i < nPCAIArray.Length; i++)
+                var nPcaiArray = FindObjectsOfType<NPCAI>();
+                for (i = 0; i < nPcaiArray.Length; i++)
                 {
-                    var nPCAI = nPCAIArray[i];
-                    nPCAI.GenerateQuestAndCycle();
-                    nPCAI.GetDialogueTree();
+                    var nPcai = nPcaiArray[i];
+                    nPcai.GenerateQuestAndCycle();
+                    nPcai.GetDialogueTree();
                 }
             }
             catch (Exception exception)
@@ -297,18 +301,17 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void resetrelationships()
+        private void Resetrelationships()
         {
             SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.relationships = new Dictionary<string, float>();
         }
 
         [Command]
-        private void resetskills()
+        private void Resetskills()
         {
             var values = (ProfessionType[]) Enum.GetValues(typeof(ProfessionType));
-            for (var i = 0; i < values.Length; i++)
+            foreach (var nums in values)
             {
-                var nums = values[i];
                 Player.Instance.SetEXP(nums, 0f);
                 GameSave.CurrentCharacter.professions[nums].nodes = new Dictionary<int, int>();
                 SingletonBehaviour<GameSave>.Instance.SetProgressIntCharacter(string.Concat(nums, "SkillPoints"), 0);
@@ -316,32 +319,32 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void resetworldprogress(string progress)
+        private void Resetworldprogress(string progress)
         {
             SingletonBehaviour<GameSave>.Instance.SetProgressBoolWorld(progress, false);
         }
 
         [Command]
-        private void sendmail(string mailName)
+        private void Sendmail(string mailName)
         {
             Player.Instance.SendMail(SingletonBehaviour<MailManager>.Instance.GetMail(mailName), true);
         }
 
         [Command]
-        private void setcharacterprogress(string progress)
+        private void Setcharacterprogress(string progress)
         {
             SingletonBehaviour<GameSave>.Instance.SetProgressBoolCharacter(progress, true);
         }
 
         [Command]
-        private void setday(int day)
+        private void Setday(int day)
         {
             SingletonBehaviour<DayCycle>.Instance.SetDay(day);
             StartCoroutine(DelayInitializeScene());
         }
 
         [Command]
-        private void setdaya()
+        private void Setdaya()
         {
             SingletonBehaviour<GameSave>.Instance.SetProgressBoolWorld("DayA", true);
             SingletonBehaviour<GameSave>.Instance.SetProgressBoolWorld("DayB", false);
@@ -350,7 +353,7 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void setdayb()
+        private void Setdayb()
         {
             SingletonBehaviour<GameSave>.Instance.SetProgressBoolWorld("DayA", false);
             SingletonBehaviour<GameSave>.Instance.SetProgressBoolWorld("DayB", true);
@@ -359,7 +362,7 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void setdayrain()
+        private void Setdayrain()
         {
             SingletonBehaviour<GameSave>.Instance.SetProgressBoolWorld("DayA", false);
             SingletonBehaviour<GameSave>.Instance.SetProgressBoolWorld("DayB", false);
@@ -368,7 +371,7 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void setdayspeed(int speed)
+        private void Setdayspeed(int speed)
         {
             var speed1 = Speed.x1;
             if (speed <= 1)
@@ -399,52 +402,50 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void setexp(string profession, float amount)
+        private void Setexp(string profession, float amount)
         {
             var professionType = (ProfessionType) Enum.Parse(typeof(ProfessionType), profession, true);
             Player.Instance.SetEXP(professionType, amount);
         }
 
         [Command]
-        private void sethealth(int health)
+        private void Sethealth(int health)
         {
             if (health > Player.Instance.GetStat(StatType.Mana))
             {
-                setstat("health", health);
+                Setstat("health", health);
             }
 
             Player.Instance.Heal(health - Player.Instance.Health);
         }
 
         [Command]
-        private void setmana(int mana)
+        private void Setmana(int mana)
         {
             if (mana > Player.Instance.GetStat(StatType.Mana))
             {
-                setstat("mana", mana);
+                Setstat("mana", mana);
             }
 
             Player.Instance.AddMana(mana - Player.Instance.Mana);
         }
 
         [Command]
-        private void setmaxfoodstats(int amount)
+        private void Setmaxfoodstats(int amount)
         {
             try
             {
                 Player.Instance.SetBaseStats();
                 SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.foodStats = new Dictionary<int, int>();
                 var itemDataArray = ItemDatabase.items;
-                for (var i = 0; i < itemDataArray.Length; i++)
+                foreach (var itemDatum in itemDataArray)
                 {
-                    var itemDatum = itemDataArray[i];
                     if (itemDatum != null)
                     {
                         var foodDatum = itemDatum as FoodData;
-                        var foodDatum1 = foodDatum;
                         if (foodDatum != null)
                         {
-                            GameSave.CurrentCharacter.foodStats[foodDatum1.id] = amount;
+                            GameSave.CurrentCharacter.foodStats[foodDatum.id] = amount;
                         }
                     }
                 }
@@ -459,13 +460,13 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void setnpcquest(string npcName)
+        private void Setnpcquest(string npcName)
         {
             SingletonBehaviour<NPCManager>.Instance.GetNPC(npcName).GenerateRandomQuest(true);
         }
 
         [Command]
-        private void setpreplaceddecorations()
+        private void Setpreplaceddecorations()
         {
             foreach (var list in SingletonBehaviour<GameManager>.Instance.objects.ToList())
             {
@@ -477,13 +478,13 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void setrelationship(string npc, int amount)
+        private void Setrelationship(string npc, int amount)
         {
             SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.Relationships[npc] = amount;
         }
 
         [Command]
-        private void setseason(string season)
+        private void Setseason(string season)
         {
             var season1 = (Season) Enum.Parse(typeof(Season), season, true);
             SingletonBehaviour<DayCycle>.Instance.SetSeason(season1);
@@ -492,13 +493,13 @@ namespace CheatEnabler
         }
 
         [Command]
-        public void setstat(string stat, float amount)
+        public void Setstat(string stat, float amount)
         {
             Player.Instance.Stats.Set((StatType) Enum.Parse(typeof(StatType), stat.RemoveWhitespace().ToLower(), true), amount);
         }
 
         [Command]
-        private void settime(float hour)
+        private void Settime(float hour)
         {
             var instance = SingletonBehaviour<DayCycle>.Instance;
             var time = SingletonBehaviour<DayCycle>.Instance.Time;
@@ -515,12 +516,12 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void setuiactive(bool active)
+        private void Setuiactive(bool active)
         {
-            var gameObject = Utilities.FindObject(GameObject.Find("Player"), "ActionBar");
-            if (gameObject != null)
+            var o = Utilities.FindObject(GameObject.Find("Player"), "ActionBar");
+            if (o != null)
             {
-                gameObject.SetActive(active);
+                o.SetActive(active);
             }
 
             var gameObject1 = Utilities.FindObject(GameObject.Find("Player(Clone)"), "ActionBar");
@@ -605,12 +606,12 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void setuiactivebutactionbar(bool active)
+        private void Setuiactivebutactionbar(bool active)
         {
-            var gameObject = Utilities.FindObject(GameObject.Find("Player"), "ExpBars");
-            if (gameObject != null)
+            var o = Utilities.FindObject(GameObject.Find("Player"), "ExpBars");
+            if (o != null)
             {
-                gameObject.SetActive(active);
+                o.SetActive(active);
             }
 
             var gameObject1 = Utilities.FindObject(GameObject.Find("Player(Clone)"), "ExpBars");
@@ -671,49 +672,28 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void setworldprogress(string progress)
+        private void Setworldprogress(string progress)
         {
             SingletonBehaviour<GameSave>.Instance.SetProgressBoolWorld(progress, true);
         }
 
         [Command]
-        private void setzoom(int zoomLevel)
+        private void Setzoom(int zoomLevel)
         {
-            var single = 7.5f;
-            switch (zoomLevel)
+            var single = zoomLevel switch
             {
-                case 1:
-                {
-                    single = 22.5f;
-                    break;
-                }
-                case 2:
-                {
-                    single = 11.25f;
-                    break;
-                }
-                case 3:
-                {
-                    single = 7.5f;
-                    break;
-                }
-                case 4:
-                {
-                    single = 5.625f;
-                    break;
-                }
-                default:
-                {
-                    single = 7.5f;
-                    break;
-                }
-            }
+                1 => 22.5f,
+                2 => 11.25f,
+                3 => 7.5f,
+                4 => 5.625f,
+                _ => 7.5f
+            };
 
             Player.Instance.CameraZoomLevel = single;
         }
 
         [Command]
-        private void skipday()
+        private void Skipday()
         {
             PlaySettingsManager.PlaySettings.skipEndOfDayScreen = true;
             SingletonBehaviour<DayCycle>.Instance.AddTime(1f);
@@ -721,7 +701,7 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void skipday(int days)
+        private void Skipday(int days)
         {
             PlaySettingsManager.PlaySettings.skipEndOfDayScreen = true;
             StartCoroutine(SkipDayRoutine(days));
@@ -741,7 +721,7 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void skipintro()
+        private void Skipintro()
         {
             var trainIntroCutscene = FindObjectOfType<TrainIntroCutscene>();
             if (trainIntroCutscene)
@@ -785,24 +765,23 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void skiptonpccycle(string npc, int cycle)
+        private void Skiptonpccycle(string npc, int cycle)
         {
-            NPCAI nPCAI;
-            if (SingletonBehaviour<NPCManager>.Instance._npcs.TryGetValue(npc, out nPCAI))
+            if (SingletonBehaviour<NPCManager>.Instance._npcs.TryGetValue(npc, out var nPcai))
             {
                 for (var i = 0; i < 16; i++)
                 {
                     SingletonBehaviour<GameSave>.Instance.SetProgressBoolCharacter(string.Concat(npc, " Cycle ", i), i < cycle);
                 }
 
-                nPCAI.GenerateCycle(true);
+                nPcai.GenerateCycle(true);
             }
         }
 
         [Command]
-        private void skiptoworldquest(int breakpoint)
+        private void Skiptoworldquest(int breakpoint)
         {
-            resetquests();
+            Resetquests();
             if (breakpoint == 1)
             {
                 Player.Instance.QuestList.StartQuest("TheSunDragonsProtection1Quest");
@@ -860,9 +839,9 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void skiptoworldquestnelvari(int breakpoint)
+        private void Skiptoworldquestnelvari(int breakpoint)
         {
-            resetquests();
+            Resetquests();
             if (breakpoint == 0)
             {
                 Player.Instance.QuestList.StartQuest("TheSunDragonsProtection1Quest");
@@ -964,9 +943,9 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void skiptoworldquestwithergate(int breakpoint)
+        private void Skiptoworldquestwithergate(int breakpoint)
         {
-            skiptoworldquest(9);
+            Skiptoworldquest(9);
             if (breakpoint == 1)
             {
                 Player.Instance.QuestList.StartQuest("TheSunDragonsProtection8Quest");
@@ -1111,95 +1090,38 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void spawnpet(string petname)
+        private void Spawnpet(string petname)
         {
             SingletonBehaviour<PetManager>.Instance.SpawnPet(petname, Player.Instance, null);
         }
 
         [Command]
-        private void startquest(string questname)
+        private void Startquest(string questname)
         {
             Player.Instance.QuestList.StartQuest(questname);
         }
 
         [Command]
-        private void teleport(string sceneName)
+        private void Teleport(string sceneName)
         {
-            Vector2 vector2;
             var lower = sceneName.Trim().ToLower();
-            switch (lower)
+            var vector2 = lower switch
             {
-                case "playerhouse1":
-                {
-                    vector2 = new Vector2(48f, 68f);
-                    break;
-                }
-                case "Tier1House0":
-                {
-                    vector2 = new Vector2(48f, 68f);
-                    break;
-                }
-                case "throneroom":
-                {
-                    vector2 = new Vector2(21.36f, -2f);
-                    break;
-                }
-                case "forest":
-                {
-                    vector2 = new Vector2(21.67f, 7.5f);
-                    break;
-                }
-                case "portalroom":
-                {
-                    vector2 = new Vector2(23.5f, 14.14214f);
-                    break;
-                }
-                case "shoppingcenter":
-                {
-                    vector2 = new Vector2(61.81f, 25f);
-                    break;
-                }
-                case "wishingwell":
-                {
-                    vector2 = new Vector2(55f, 63f);
-                    break;
-                }
-                case "town":
-                {
-                    vector2 = new Vector2(67.41667f, 306.7076f);
-                    break;
-                }
-                case "town1":
-                {
-                    vector2 = new Vector2(67.41667f, 306.7076f);
-                    break;
-                }
-                case "town2":
-                {
-                    vector2 = new Vector2(67.41667f, 306.7076f);
-                    break;
-                }
-                case "town5":
-                {
-                    vector2 = new Vector2(67.41667f, 306.7076f);
-                    break;
-                }
-                case "withergaterooftopfarm":
-                {
-                    vector2 = new Vector2(126.125f, 83.6743f);
-                    break;
-                }
-                case "foresta":
-                {
-                    vector2 = new Vector2(284.7917f, 355.3212f);
-                    break;
-                }
-                default:
-                {
-                    vector2 = (lower == "nelvari6" ? new Vector2(320.3333f, 98.76098f) : Vector2.zero);
-                    break;
-                }
-            }
+                "playerhouse1" => new Vector2(48f, 68f),
+                "Tier1House0" => new Vector2(48f, 68f),
+                "throneroom" => new Vector2(21.36f, -2f),
+                "forest" => new Vector2(21.67f, 7.5f),
+                "portalroom" => new Vector2(23.5f, 14.14214f),
+                "shoppingcenter" => new Vector2(61.81f, 25f),
+                "wishingwell" => new Vector2(55f, 63f),
+                "town" => new Vector2(67.41667f, 306.7076f),
+                "town1" => new Vector2(67.41667f, 306.7076f),
+                "town2" => new Vector2(67.41667f, 306.7076f),
+                "town5" => new Vector2(67.41667f, 306.7076f),
+                "withergaterooftopfarm" => new Vector2(126.125f, 83.6743f),
+                "foresta" => new Vector2(284.7917f, 355.3212f),
+                _ => (lower == "nelvari6" ? new Vector2(320.3333f, 98.76098f) : Vector2.zero)
+            };
 
             SingletonBehaviour<ScenePortalManager>.Instance.ChangeScene(vector2, sceneName, null, null, () =>
             {
@@ -1213,10 +1135,8 @@ namespace CheatEnabler
 
                     var single = 0f;
                     var scenePortalSpot = scenePortalSpotArray[0];
-                    var scenePortalSpotArray1 = scenePortalSpotArray;
-                    for (var i = 0; i < scenePortalSpotArray1.Length; i++)
+                    foreach (var scenePortalSpot1 in scenePortalSpotArray)
                     {
-                        var scenePortalSpot1 = scenePortalSpotArray1[i];
                         if (scenePortalSpot1.transform.position.x > single)
                         {
                             single = scenePortalSpot1.transform.position.x;
@@ -1229,7 +1149,8 @@ namespace CheatEnabler
                     {
                         var vector3 = scenePortalSpot.transform.position;
                         vector3.z = 0f;
-                        Player.Instance.SetPosition(vector3 + (component.size.x > component.size.y ? Vector3.up * 2f : Vector3.left * 2f));
+                        var size = component.size;
+                        Player.Instance.SetPosition(vector3 + (size.x > size.y ? Vector3.up * 2f : Vector3.left * 2f));
                         return;
                     }
 
@@ -1241,7 +1162,7 @@ namespace CheatEnabler
         }
 
         [Command]
-        private void unlockmines()
+        private void Unlockmines()
         {
             for (var i = 0; i < 55; i++)
             {
