@@ -2,6 +2,7 @@
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using UnityEngine;
 
 namespace CheatEnabler
 {
@@ -10,25 +11,26 @@ namespace CheatEnabler
     {
         private const string PluginGuid = "p1xel8ted.sunhaven.cheatenabler";
         private const string PluginName = "CheatEnabler";
-        private const string PluginVersion = "0.1.1";
-        private static ManualLogSource _log;
+        private const string PluginVersion = "0.1.3";
+        internal static ManualLogSource LOG;
 
         private void Awake()
         {
-            _log = new ManualLogSource("Log");
-            BepInEx.Logging.Logger.Sources.Add(_log);
+            LOG = new ManualLogSource("Log");
+            BepInEx.Logging.Logger.Sources.Add(LOG);
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
-            _log.LogWarning($"Plugin {PluginName} is loaded!");
+            LOG.LogWarning($"Plugin {PluginName} is loaded!");
+            gameObject.AddComponent<QuantumConsoleManager>();
         }
 
         private void OnDestroy()
         {
-            _log.LogError($"I've been destroyed!");
+            LOG.LogError("I've been destroyed!");
         }
 
         private void OnDisable()
         {
-            _log.LogError($"I've been disabled!");
+            LOG.LogError("I've been disabled!");
         }
     }
 }

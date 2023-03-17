@@ -21,23 +21,77 @@ public static class Patches
         newList.RemoveAll(x => x.name.Contains("BepInEx"));
         __result = newList.ToArray();
     }
-    
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(FishingRod), nameof(FishingRod.HasFish), typeof(Fish))]
+    public static void FishingRod_HasFish(ref Fish fish, ref FishingRod __instance)
+    {
+        if (Plugin.AutoReel.Value)
+        {
+            if (Plugin.Debug.Value)
+            {
+                Plugin.LOG.LogWarning($"Attempting to auto-loot {fish.name}...");
+            }
+
+            __instance.UseDown1();
+        }
+    }
+
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DialogueController), nameof(DialogueController.PushDialogue))]
     public static bool PushDialogue(ref DialogueController __instance, ref DialogueNode dialogue, ref UnityAction onComplete, ref bool animateOnComplete, ref bool ignoreDialogueOnGoing)
     {
-        if (!Plugin.DisableCaughtFishWindow.Value) return true;
-
-        if (dialogue.dialogueText.Any(line => line.ToLowerInvariant().Contains("caught")))
+        if (!Player.Instance.IsFishing)
         {
-            onComplete.Invoke();
-            return false;
+            if (Plugin.Debug.Value)
+            {
+                Plugin.LOG.LogWarning("Player isn't fishing! Let dialogue run like normal...");
+            }
+
+            return true;
+        }
+
+        if (Plugin.Debug.Value)
+        {
+            Plugin.LOG.LogWarning("Player is fishing! Modify dialogue if their settings allow...");
+        }
+
+        var caughtFish = dialogue.dialogueText.Any(line => line.ToLowerInvariant().Contains("caught"));
+        var caughtMuseum = dialogue.dialogueText.Any(line => line.ToLowerInvariant().Contains("museum"));
+
+        if (caughtFish)
+        {
+            if (caughtMuseum)
+            {
+                if (Plugin.Debug.Value)
+                {
+                    Plugin.LOG.LogWarning("Caught a fish and a museum piece!");
+                }
+
+                if (Plugin.DisableCaughtFishMuseumWindow.Value)
+                {
+                    onComplete?.Invoke();
+                    return false;
+                }
+            }
+            else
+            {
+                if (Plugin.Debug.Value)
+                {
+                    Plugin.LOG.LogWarning("Caught just a fish!");
+                }
+
+                if (Plugin.DisableCaughtFishWindow.Value)
+                {
+                    onComplete?.Invoke();
+                    return false;
+                }
+            }
         }
 
         return true;
     }
-
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(FishingRod), nameof(FishingRod.UseDown1))]
@@ -48,20 +102,21 @@ public static class Patches
         {
             return true;
         }
+
         if (__instance._fishing)
         {
             if (__instance.ReadyForFish)
             {
                 if (!__instance._bobber.MiniGameInProgress)
                 {
-                    __instance.wonMiniGame = true;
-                    __instance._frameRate = 8f;
-                    __instance.ReadyForFish = false;
-                    __instance.Reeling = true;
-                    __instance._fishing = !__instance._fishing;
-                    __instance._swingAnimation = (__instance._fishing ? SwingAnimation.VerticalSlash : SwingAnimation.Pull);
+                     __instance.wonMiniGame = true;
+                    // __instance._frameRate = 8f;
+                    // __instance.ReadyForFish = false;
+                    // __instance.Reeling = true;
+                    // __instance._fishing = !__instance._fishing;
+                    // __instance._swingAnimation = (__instance._fishing ? SwingAnimation.VerticalSlash : SwingAnimation.Pull);
                     var rod = __instance;
-                    DOVirtual.DelayedCall(__instance.ActionDelay / __instance.AttackSpeed(), delegate
+                    DOVirtual.DelayedCall(Plugin.InstantAutoReel.Value ? 0 : __instance.ActionDelay / __instance.AttackSpeed(), delegate
                     {
                         rod.Action(rod.pos);
                         rod.SendFishingState(3);

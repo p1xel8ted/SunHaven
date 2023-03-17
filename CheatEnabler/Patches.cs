@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using HarmonyLib;
+using QFSW.QC;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Wish;
@@ -21,14 +22,12 @@ public partial class Plugin
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.PlayGame), typeof(int))]
-    [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.PlayGame), new Type[] { })]
-    public static void Player_Initialize(ref MainMenuController __instance)
+    [HarmonyPatch(typeof(QuestManager), nameof(QuestManager.UpdateQuestItems))]
+    public static void Enable_Cheat_Menu()
     {
-        if (__instance.settings != null)
-        {
-            __instance.settings.SetCheatsEnabled(true);
-            _log.LogWarning("Cheat Menu Enabled!");
-        }
+        Settings.EnableCheats = true;
+        QuantumConsole.Instance.GenerateCommands = true;
+        QuantumConsole.Instance.Initialize();
+        LOG.LogWarning("Cheat Menu Enabled...");
     }
 }

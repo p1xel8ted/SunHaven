@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheatEnabler", "CheatEnable
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoTimeForFishing", "NoTimeForFishing\NoTimeForFishing.csproj", "{CCB1B95A-1593-4B13-BEFC-EE95040FFE71}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeamlessSave", "SeamlessSave\SeamlessSave.csproj", "{0F39AB9B-18D1-4545-9968-F53C9397EF8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{CCB1B95A-1593-4B13-BEFC-EE95040FFE71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCB1B95A-1593-4B13-BEFC-EE95040FFE71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCB1B95A-1593-4B13-BEFC-EE95040FFE71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F39AB9B-18D1-4545-9968-F53C9397EF8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F39AB9B-18D1-4545-9968-F53C9397EF8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F39AB9B-18D1-4545-9968-F53C9397EF8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F39AB9B-18D1-4545-9968-F53C9397EF8B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
