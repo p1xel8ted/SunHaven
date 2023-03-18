@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoTimeForFishing", "NoTimeF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeamlessSave", "SeamlessSave\SeamlessSave.csproj", "{0F39AB9B-18D1-4545-9968-F53C9397EF8B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveEasy", "LiveEasy\LiveEasy.csproj", "{56CFC0AD-5AF0-47C4-9F30-9743B8C7A9B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{0F39AB9B-18D1-4545-9968-F53C9397EF8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F39AB9B-18D1-4545-9968-F53C9397EF8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F39AB9B-18D1-4545-9968-F53C9397EF8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56CFC0AD-5AF0-47C4-9F30-9743B8C7A9B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56CFC0AD-5AF0-47C4-9F30-9743B8C7A9B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56CFC0AD-5AF0-47C4-9F30-9743B8C7A9B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56CFC0AD-5AF0-47C4-9F30-9743B8C7A9B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
