@@ -58,21 +58,31 @@ public static class Patches
             Plugin.LOG.LogWarning($"{message}");
         }
     }
-    
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(FishingRod), nameof(FishingRod.Use1))]
     private static void FishingRod_Use1(ref FishingRod __instance)
     {
-        __instance.powerIncreaseSpeed = Plugin.FishingRodCastSpeed.Value;
+        if (Plugin.ModifyFishingRodCastSpeed.Value)
+        {
+            __instance.powerIncreaseSpeed = Plugin.FishingRodCastSpeed.Value;
+        }
     }
-    
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Bobber), nameof(Bobber.GenerateWinArea))]
     private static void Bobber_GenerateWinArea(ref FishingMiniGame miniGame)
     {
-        miniGame.winAreaSize = Math.Min(1f, miniGame.winAreaSize * Plugin.MiniGameWinAreaMultiplier.Value);
-        miniGame.barMovementSpeed = Math.Min(Plugin.MiniGameMaxSpeed.Value, miniGame.barMovementSpeed);
-        miniGame.sweetSpots[0].sweetSpotSize = Math.Min(1f, miniGame.sweetSpots[0].sweetSpotSize * Plugin.MiniGameWinAreaMultiplier.Value);
+        if (Plugin.ModifyMiniGameWinAreaMultiplier.Value)
+        {
+            miniGame.winAreaSize = Math.Min(1f, miniGame.winAreaSize * Plugin.MiniGameWinAreaMultiplier.Value);
+            miniGame.sweetSpots[0].sweetSpotSize = Math.Min(1f, miniGame.sweetSpots[0].sweetSpotSize * Plugin.MiniGameWinAreaMultiplier.Value);
+        }
+
+        if (Plugin.ModifyMiniGameSpeed.Value)
+        {
+            miniGame.barMovementSpeed = Math.Min(Plugin.MiniGameMaxSpeed.Value, miniGame.barMovementSpeed);
+        }
     }
 
 
@@ -100,9 +110,16 @@ public static class Patches
             Plugin.LOG.LogWarning("FishSpawnManager Start: Adjusting fish spawn multiplier and spawn limit...");
         }
 
-        FishSpawnManager.fishSpawnGlobalMultiplier = Plugin.FishSpawnMultiplier.Value;
-        FishSpawnManager.Instance.spawnLimit = Plugin.FishSpawnLimit.Value;
-        ___spawnLimit = Plugin.FishSpawnLimit.Value;
+        if (Plugin.ModifyFishSpawnMultiplier.Value)
+        {
+            FishSpawnManager.fishSpawnGlobalMultiplier = Plugin.FishSpawnMultiplier.Value;
+        }
+
+        if (Plugin.ModifyFishSpawnLimit.Value)
+        {
+            FishSpawnManager.Instance.spawnLimit = Plugin.FishSpawnLimit.Value;
+            ___spawnLimit = Plugin.FishSpawnLimit.Value;
+        }
     }
 
 
@@ -229,10 +246,19 @@ public static class Patches
     [HarmonyPatch(typeof(Fish), nameof(Fish.TargetBobber))]
     public static IEnumerable<CodeInstruction> Fish_TargetBobber_Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase originalMethod)
     {
-        var inner = typeof(Fish).GetNestedType("<>c__DisplayClass0_0__1", AccessTools.all)
-                    ?? throw new Exception("Inner Not Found");
+        List<FieldInfo> colliders = new();
+        colliders.Clear();
+        var innerTypes = typeof(Fish).GetNestedTypes(AccessTools.all);
+        var innerColliders = innerTypes.Where(type => type.GetFields(AccessTools.all).Any(field => field.FieldType == typeof(Collider2D))).ToList();
+        colliders.AddRange(innerColliders.SelectMany(type => type.GetFields(AccessTools.all).Where(field => field.FieldType == typeof(Collider2D))));
 
-        var field = AccessTools.Field(inner, "collider");
+        if (colliders.Count == 0)
+        {
+            Plugin.LOG.LogError($"Failed to find any colliders in {originalMethod.Name}");
+            return instructions.AsEnumerable();
+        }
+
+        var field = colliders[0];
 
         return new CodeMatcher(instructions)
             .MatchForward(false,
