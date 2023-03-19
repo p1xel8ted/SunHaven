@@ -173,6 +173,7 @@
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelopment_005CSunHavenMods_005Clibs_005CTelepathy_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelopment_005CSunHavenMods_005Clibs_005CUnityEngine_002EAudioModule_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelopment_005CSunHavenMods_005Clibs_005CUnityEngine_002EJSONSerializeModule_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelopment_005CSunHavenMods_005Clibs_005CUnity_002ETextMeshPro_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelopment_005CSunHavenMods_005Clibs_005Cwhere_002Dallocations_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelopment_005CSunHavenMods_005Clibs_005CZeroFormatter_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelopment_005CSunHavenMods_005Clibs_005CZeroFormatter_002EInterfaces_002Edll/@EntryIndexedValue">True</s:Boolean>
@@ -184,6 +185,10 @@
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelopment_005CSunHaven_005Clibs_005CUnityEngine_002ECoreModule_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelopment_005CSunHaven_005Clibs_005CUnityEngine_002EUI_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=0f39ab9b_002D18d1_002D4545_002D9968_002Df53c9397ef8b_0023SeamlessSave/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=82aa2ad4_002D8264_002D4400_002Dace3_002D401ce26764a5_0023CheatEnabler/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=977fb946_002D2a30_002D43d8_002Dae7c_002Dde76e5c2bbc7_0023KeepAlive/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=ccb1b95a_002D1593_002D4b13_002Dbefc_002Dee95040ffe71_0023NoTimeForFishing/@EntryIndexedValue">True</s:Boolean>
+	
 	
 	
 	
