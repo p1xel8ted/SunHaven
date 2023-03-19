@@ -1,6 +1,4 @@
-﻿
-using System.Collections;
-using Wish;
+﻿using Wish;
 
 namespace LiveEasy;
 
@@ -10,14 +8,8 @@ public partial class Plugin
     {
         if (SaveShortcut.Value.IsUp() && Player.Instance != null)
         {
-            StartCoroutine(SaveGame());
+            GameSave.Instance.SaveGame();
+            NotificationStack.Instance.SendNotification("Game Saved!");
         }
-    }
-    
-    private static IEnumerator SaveGame()
-    {
-        GameSave.Instance.SaveGame();
-        NotificationStack.Instance.SendNotification("Game Saved!");
-        yield break;
     }
 }
