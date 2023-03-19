@@ -74,17 +74,7 @@ public static class Patches
             Plugin.MainMenuCanvas.scaleFactor = Plugin.MainMenuUiScale.Value;
         }
     }
-
-    //the game unloads objects when quitting to menu, and BepInEx gets caught up in it, which kills any mods that use BepInEx. This fixes that.
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(Scene), nameof(Scene.GetRootGameObjects), new Type[] { })]
-    public static void Scene_GetRootGameObjects(ref GameObject[] __result)
-    {
-        var newList = __result.ToList();
-        newList.RemoveAll(x => x.name.Contains("BepInEx"));
-        __result = newList.ToArray();
-    }
-
+    
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Player), nameof(Player.SetZoom))]
     public static void Player_SetZoom()

@@ -15,16 +15,6 @@ namespace NoTimeForFishing;
 [HarmonyPatch]
 public static class Patches
 {
-    //the game unloads objects when quitting to menu, and BepInEx gets caught up in it, which kills any mods that use BepInEx. This fixes that.
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(Scene), nameof(Scene.GetRootGameObjects), new Type[] { })]
-    public static void Scene_GetRootGameObjects(ref GameObject[] __result)
-    {
-        var newList = __result.ToList();
-        newList.RemoveAll(x => x.name.Contains("BepInEx"));
-        __result = newList.ToArray();
-    }
-
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Bobber), nameof(Bobber.OnEnable))]
@@ -206,7 +196,7 @@ public static class Patches
                         rod.Action(rod.pos);
                         rod.SendFishingState(3);
                         rod.CancelFishingAnimation();
-                        rod.StartCoroutine(rod.ResetFishingRodRoutine());
+                        rod._canUseFishingRod = true;
                     }, false);
 
                     return false;

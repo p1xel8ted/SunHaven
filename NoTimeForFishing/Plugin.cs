@@ -87,12 +87,12 @@ namespace NoTimeForFishing
 
         private void OnDestroy()
         {
-            LOG.LogError("I've been destroyed!");
+            LOG.LogError($"{PluginName} has been destroyed!");
         }
 
         private void OnDisable()
         {
-            LOG.LogError("I've been disabled!");
+            LOG.LogError($"{PluginName} has been disabled!");
         }
     }
 }

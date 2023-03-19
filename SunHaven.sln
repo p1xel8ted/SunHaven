@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeamlessSave", "SeamlessSav
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveEasy", "LiveEasy\LiveEasy.csproj", "{56CFC0AD-5AF0-47C4-9F30-9743B8C7A9B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeepAlive", "KeepAlive\KeepAlive.csproj", "{977FB946-2A30-43D8-AE7C-DE76E5C2BBC7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{56CFC0AD-5AF0-47C4-9F30-9743B8C7A9B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56CFC0AD-5AF0-47C4-9F30-9743B8C7A9B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56CFC0AD-5AF0-47C4-9F30-9743B8C7A9B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{977FB946-2A30-43D8-AE7C-DE76E5C2BBC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{977FB946-2A30-43D8-AE7C-DE76E5C2BBC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{977FB946-2A30-43D8-AE7C-DE76E5C2BBC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{977FB946-2A30-43D8-AE7C-DE76E5C2BBC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
