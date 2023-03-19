@@ -184,6 +184,9 @@
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelopment_005CSunHaven_005Clibs_005CUnityEngine_002ECoreModule_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=H_003A_005COneDrive_005CDevelopment_005CSunHaven_005Clibs_005CUnityEngine_002EUI_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=0f39ab9b_002D18d1_002D4545_002D9968_002Df53c9397ef8b_0023SeamlessSave/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=82aa2ad4_002D8264_002D4400_002Dace3_002D401ce26764a5_0023CheatEnabler/@EntryIndexedValue">True</s:Boolean>
+	
+	
+	
+	
 	
 	</wpf:ResourceDictionary>

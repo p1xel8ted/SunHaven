@@ -15,7 +15,6 @@ namespace NoTimeForFishing;
 [HarmonyPatch]
 public static class Patches
 {
-
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Bobber), nameof(Bobber.OnEnable))]
     private static void Bobber_Patches(ref Bobber __instance)
@@ -128,8 +127,25 @@ public static class Patches
             __instance.UseDown1();
         }
     }
-
-
+    
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(FishingRod), nameof(FishingRod.Action))]
+    [HarmonyPatch(typeof(FishingRod), nameof(FishingRod.CheckForWater))]
+    [HarmonyPatch(typeof(FishingRod), nameof(FishingRod.GetBobberHeight))]
+    public static void FishingRod_CastDistance(ref FishingRod __instance)
+    {
+        if (!Plugin.EnhanceBaseCastLength.Value) return;
+        __instance.throwDistance = 6;
+    }
+    
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Fish), nameof(Fish.TargetBobber))]
+    public static void FishingRod_TargetBobber(ref Bobber bobber)
+    {
+        if (!Plugin.InstantAttraction.Value) return;
+        bobber.FishingRod.fishAttractionRate = -100;
+    }
+    
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DialogueController), nameof(DialogueController.PushDialogue))]
     public static bool PushDialogue(ref DialogueController __instance, ref DialogueNode dialogue, ref UnityAction onComplete, ref bool animateOnComplete, ref bool ignoreDialogueOnGoing)
@@ -213,19 +229,25 @@ public static class Patches
         const float baseMoveSpeed = 1.25f;
         var newSpeed = baseMoveSpeed;
 
-        Plugin.LOG.LogWarning("\nOriginal base path move speed: " + baseMoveSpeed);
-        Plugin.LOG.LogWarning("\nPassed in default path move speed: " + defaultSpeed);
+        var message = $"\nOriginal base path move speed: {baseMoveSpeed}";
+
+        message += $"\nPassed in default path move speed: {defaultSpeed}";
 
         if (Plugin.DoubleBaseFishSwimSpeed.Value)
         {
             newSpeed = baseMoveSpeed * 2f;
-            Plugin.LOG.LogWarning("\nNew base path move speed: " + newSpeed);
+            message += $"\nNew base path move speed: {newSpeed}";
         }
 
         if (SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.Professions[ProfessionType.Fishing].GetNode("Fishing1b"))
         {
             newSpeed *= 1.3f;
-            Plugin.LOG.LogWarning("\nNew base path move speed (talented): " + newSpeed);
+            message += $"\nNew base path move speed (talented): {newSpeed}";
+        }
+
+        if (Plugin.Debug.Value)
+        {
+            Plugin.LOG.LogWarning(message);
         }
 
         return newSpeed;
@@ -244,7 +266,7 @@ public static class Patches
 
         if (colliders.Count == 0)
         {
-            Plugin.LOG.LogError($"Failed to find any colliders in {originalMethod.Name}");
+            Plugin.LOG.LogError($"Failed to find any colliders in {originalMethod.Name}. Fish swim speed will not be modified.");
             return instructions.AsEnumerable();
         }
 
