@@ -1,15 +1,14 @@
-﻿using System;
+﻿using QFSW.QC;
+using Sirenix.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using QFSW.QC;
-using Sirenix.Utilities;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Wish;
 
-namespace CheatEnabler
-{
+namespace CheatEnabler {
     [CommandPrefix("/")]
     public class QuantumConsoleManager : MonoBehaviour
     {
@@ -518,79 +517,79 @@ namespace CheatEnabler
         [Command]
         private void Setuiactive(bool active)
         {
-            var o = Utilities.FindObject(GameObject.Find("Player"), "ActionBar");
+            var o = Wish.Utilities.FindObject(GameObject.Find("Player"), "ActionBar");
             if (o != null)
             {
                 o.SetActive(active);
             }
 
-            var gameObject1 = Utilities.FindObject(GameObject.Find("Player(Clone)"), "ActionBar");
+            var gameObject1 = Wish.Utilities.FindObject(GameObject.Find("Player(Clone)"), "ActionBar");
             if (gameObject1 != null)
             {
                 gameObject1.SetActive(active);
             }
 
-            var gameObject2 = Utilities.FindObject(GameObject.Find("Player"), "ExpBars");
+            var gameObject2 = Wish.Utilities.FindObject(GameObject.Find("Player"), "ExpBars");
             if (gameObject2 != null)
             {
                 gameObject2.SetActive(active);
             }
 
-            var gameObject3 = Utilities.FindObject(GameObject.Find("Player(Clone)"), "ExpBars");
+            var gameObject3 = Wish.Utilities.FindObject(GameObject.Find("Player(Clone)"), "ExpBars");
             if (gameObject3 != null)
             {
                 gameObject3.SetActive(active);
             }
 
-            var gameObject4 = Utilities.FindObject(GameObject.Find("Player"), "QuestTracking");
+            var gameObject4 = Wish.Utilities.FindObject(GameObject.Find("Player"), "QuestTracking");
             if (gameObject4 != null)
             {
                 gameObject4.SetActive(active);
             }
 
-            var gameObject5 = Utilities.FindObject(GameObject.Find("Player(Clone)"), "QuestTracking");
+            var gameObject5 = Wish.Utilities.FindObject(GameObject.Find("Player(Clone)"), "QuestTracking");
             if (gameObject5 != null)
             {
                 gameObject5.SetActive(active);
             }
 
-            var gameObject6 = Utilities.FindObject(GameObject.Find("Player"), "QuestTracker");
+            var gameObject6 = Wish.Utilities.FindObject(GameObject.Find("Player"), "QuestTracker");
             if (gameObject6 != null)
             {
                 gameObject6.SetActive(active);
             }
 
-            var gameObject7 = Utilities.FindObject(GameObject.Find("Player(Clone)"), "QuestTracker");
+            var gameObject7 = Wish.Utilities.FindObject(GameObject.Find("Player(Clone)"), "QuestTracker");
             if (gameObject7 != null)
             {
                 gameObject7.SetActive(active);
             }
 
-            var gameObject8 = Utilities.FindObject(GameObject.Find("Player"), "HelpNotifications");
+            var gameObject8 = Wish.Utilities.FindObject(GameObject.Find("Player"), "HelpNotifications");
             if (gameObject8 != null)
             {
                 gameObject8.SetActive(active);
             }
 
-            var gameObject9 = Utilities.FindObject(GameObject.Find("Player(Clone)"), "HelpNotifications");
+            var gameObject9 = Wish.Utilities.FindObject(GameObject.Find("Player(Clone)"), "HelpNotifications");
             if (gameObject9 != null)
             {
                 gameObject9.SetActive(active);
             }
 
-            var gameObject10 = Utilities.FindObject(GameObject.Find("Player"), "NotificationStack");
+            var gameObject10 = Wish.Utilities.FindObject(GameObject.Find("Player"), "NotificationStack");
             if (gameObject10 != null)
             {
                 gameObject10.SetActive(active);
             }
 
-            var gameObject11 = Utilities.FindObject(GameObject.Find("Player(Clone)"), "NotificationStack");
+            var gameObject11 = Wish.Utilities.FindObject(GameObject.Find("Player(Clone)"), "NotificationStack");
             if (gameObject11 != null)
             {
                 gameObject11.SetActive(active);
             }
 
-            var gameObject12 = Utilities.FindObject(GameObject.Find("Manager"), "UI");
+            var gameObject12 = Wish.Utilities.FindObject(GameObject.Find("Manager"), "UI");
             if (gameObject12 != null)
             {
                 gameObject12.SetActive(active);
@@ -608,55 +607,55 @@ namespace CheatEnabler
         [Command]
         private void Setuiactivebutactionbar(bool active)
         {
-            var o = Utilities.FindObject(GameObject.Find("Player"), "ExpBars");
+            var o = Wish.Utilities.FindObject(GameObject.Find("Player"), "ExpBars");
             if (o != null)
             {
                 o.SetActive(active);
             }
 
-            var gameObject1 = Utilities.FindObject(GameObject.Find("Player(Clone)"), "ExpBars");
+            var gameObject1 = Wish.Utilities.FindObject(GameObject.Find("Player(Clone)"), "ExpBars");
             if (gameObject1 != null)
             {
                 gameObject1.SetActive(active);
             }
 
-            var gameObject2 = Utilities.FindObject(GameObject.Find("Player"), "QuestTracking");
+            var gameObject2 = Wish.Utilities.FindObject(GameObject.Find("Player"), "QuestTracking");
             if (gameObject2 != null)
             {
                 gameObject2.SetActive(active);
             }
 
-            var gameObject3 = Utilities.FindObject(GameObject.Find("Player(Clone)"), "QuestTracking");
+            var gameObject3 = Wish.Utilities.FindObject(GameObject.Find("Player(Clone)"), "QuestTracking");
             if (gameObject3 != null)
             {
                 gameObject3.SetActive(active);
             }
 
-            var gameObject4 = Utilities.FindObject(GameObject.Find("Player"), "HelpNotifications");
+            var gameObject4 = Wish.Utilities.FindObject(GameObject.Find("Player"), "HelpNotifications");
             if (gameObject4 != null)
             {
                 gameObject4.SetActive(active);
             }
 
-            var gameObject5 = Utilities.FindObject(GameObject.Find("Player(Clone)"), "HelpNotifications");
+            var gameObject5 = Wish.Utilities.FindObject(GameObject.Find("Player(Clone)"), "HelpNotifications");
             if (gameObject5 != null)
             {
                 gameObject5.SetActive(active);
             }
 
-            var gameObject6 = Utilities.FindObject(GameObject.Find("Player"), "NotificationStack");
+            var gameObject6 = Wish.Utilities.FindObject(GameObject.Find("Player"), "NotificationStack");
             if (gameObject6 != null)
             {
                 gameObject6.SetActive(active);
             }
 
-            var gameObject7 = Utilities.FindObject(GameObject.Find("Player(Clone)"), "NotificationStack");
+            var gameObject7 = Wish.Utilities.FindObject(GameObject.Find("Player(Clone)"), "NotificationStack");
             if (gameObject7 != null)
             {
                 gameObject7.SetActive(active);
             }
 
-            var gameObject8 = Utilities.FindObject(GameObject.Find("Manager"), "UI");
+            var gameObject8 = Wish.Utilities.FindObject(GameObject.Find("Manager"), "UI");
             if (gameObject8 != null)
             {
                 gameObject8.SetActive(active);

@@ -1,6 +1,6 @@
 ﻿using Wish;
 
-namespace LiveEasy;
+namespace EasyLiving;
 
 public partial class Plugin
 {

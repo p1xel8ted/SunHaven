@@ -17,8 +17,15 @@ public static class Patches
     [HarmonyPatch(typeof(Scene), nameof(Scene.GetRootGameObjects), new Type[] { })]
     public static void Scene_GetRootGameObjects(ref GameObject[] __result)
     {
-        var newList = __result.ToList();
-        newList.RemoveAll(x => x.name.Contains("BepInEx"));
-        __result = newList.ToArray();
+        var index = 0;
+        for (var i = 0; i < __result.Length; i++)
+        {
+            if (!__result[i].name.Contains("BepInEx"))
+            {
+                __result[index++] = __result[i];
+            }
+        }
+        
+        Array.Resize(ref __result, index);
     }
 }

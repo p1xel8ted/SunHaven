@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net481</TargetFramework>
     <Description>UI Scale Modifier For Sun Haven</Description>
-    <Version>0.1.3</Version>
+    <Version>0.1.5</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <IsPackable>false</IsPackable>
@@ -11,8 +11,8 @@
     <Company>p1xel8ted</Company>
     <Product>UIScales</Product>
     <PackageId>UIScales</PackageId>
-    <AssemblyVersion>0.1.3</AssemblyVersion>
-    <FileVersion>0.1.3</FileVersion>
+    <AssemblyVersion>0.1.5</AssemblyVersion>
+    <FileVersion>0.1.5</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -24,14 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.*" />
-    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
-    <PackageReference Include="UnityEngine.Modules" Version="2019.3.15" IncludeAssets="compile" />
-  </ItemGroup>
-  
-  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
   </ItemGroup>
   
   <ItemGroup>
@@ -40,6 +33,12 @@
     </Reference>
     <Reference Include="SunHaven.Core">
       <HintPath>..\libs\SunHaven.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>..\libs\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\libs\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AudioModule">
       <HintPath>..\libs\UnityEngine.AudioModule.dll</HintPath>

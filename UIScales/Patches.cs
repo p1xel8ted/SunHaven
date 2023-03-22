@@ -33,51 +33,79 @@ public static class Patches
     [HarmonyPatch(typeof(CanvasScaler), nameof(CanvasScaler.OnEnable))]
     public static void CanvasScaler_OnEnable(ref CanvasScaler __instance)
     {
-        if (__instance.name.Equals("UI", StringComparison.InvariantCultureIgnoreCase))
+        if (Plugin.UICanvas == null)
         {
-            if (Plugin.Debug.Value)
+            if (__instance.name.Equals("UI", StringComparison.InvariantCultureIgnoreCase))
             {
-                Plugin.LOG.LogWarning($"UI CanvasScaler.OnEnable: Name:{__instance.name}");
-            }
+                if (Plugin.Debug.Value)
+                {
+                    Plugin.LOG.LogWarning($"UI CanvasScaler.OnEnable: Name:{__instance.name}");
+                }
 
-            Plugin.UICanvas = __instance;
-            Plugin.UICanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-            Plugin.UICanvas.SetScaleFactor(Plugin.InGameUiScale.Value);
-            Plugin.UICanvas.scaleFactor = Plugin.InGameUiScale.Value;
+                Plugin.UICanvas = __instance;
+                Plugin.UICanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+                Plugin.UICanvas.SetScaleFactor(Plugin.InGameUiScale.Value);
+                Plugin.UICanvas.scaleFactor = Plugin.InGameUiScale.Value;
+            }
         }
 
-        if (__instance.name.Equals("Quantum Console", StringComparison.InvariantCultureIgnoreCase))
+        if (Plugin.QuantumCanvas == null)
         {
-            if (Plugin.Debug.Value)
+            if (__instance.name.Equals("Quantum Console", StringComparison.InvariantCultureIgnoreCase))
             {
-                Plugin.LOG.LogWarning($"CheatConsole CanvasScaler.OnEnable: Name:{__instance.name}");
-            }
+                if (Plugin.Debug.Value)
+                {
+                    Plugin.LOG.LogWarning($"CheatConsole CanvasScaler.OnEnable: Name:{__instance.name}");
+                }
 
-            Plugin.QuantumCanvas = __instance;
-            Plugin.QuantumCanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-            Plugin.QuantumCanvas.SetScaleFactor(Plugin.CheatConsoleScale.Value);
-            Plugin.QuantumCanvas.scaleFactor = Plugin.CheatConsoleScale.Value;
+                Plugin.QuantumCanvas = __instance;
+                Plugin.QuantumCanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+                Plugin.QuantumCanvas.SetScaleFactor(Plugin.CheatConsoleScale.Value);
+                Plugin.QuantumCanvas.scaleFactor = Plugin.CheatConsoleScale.Value;
+            }
         }
 
-        if (__instance.name.Equals("Canvas", StringComparison.InvariantCultureIgnoreCase))
+        if (Plugin.MainMenuCanvas == null)
         {
-            if (Plugin.Debug.Value)
+            if (__instance.name.Equals("Canvas", StringComparison.InvariantCultureIgnoreCase))
             {
-                Plugin.LOG.LogWarning($"MainMenu CanvasScaler.OnEnable: Name:{__instance.name}");
-            }
+                if (Plugin.Debug.Value)
+                {
+                    Plugin.LOG.LogWarning($"MainMenu CanvasScaler.OnEnable: Name:{__instance.name}");
+                }
 
-            Plugin.MainMenuCanvas = __instance;
-            Plugin.MainMenuCanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-            Plugin.MainMenuCanvas.SetScaleFactor(Plugin.MainMenuUiScale.Value);
-            Plugin.MainMenuCanvas.scaleFactor = Plugin.MainMenuUiScale.Value;
+                Plugin.MainMenuCanvas = __instance;
+                Plugin.MainMenuCanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+                Plugin.MainMenuCanvas.SetScaleFactor(Plugin.MainMenuUiScale.Value);
+                Plugin.MainMenuCanvas.scaleFactor = Plugin.MainMenuUiScale.Value;
+            }
         }
     }
-    
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Player), nameof(Player.SetZoom))]
+    public static void Player_SetZoom_Prefix(ref float zoomLevel, ref bool immediate)
+    {
+        if (Plugin.Debug.Value)
+        {
+            Plugin.LOG.LogWarning($"PlayerSetZoom running: overriding requested zoom level.");
+        }
+      
+        zoomLevel = Plugin.ZoomLevel.Value;
+    }
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Player), nameof(Player.SetZoom))]
-    public static void Player_SetZoom()
+    public static void Player_SetZoom_Postfix()
     {
         Plugin.ZoomNeedsUpdating = false;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Player), nameof(Player.ResetPlayerCamera), new Type[] { })]
+    public static void Player_ResetPlayerCamera()
+    {
+        Plugin.ZoomNeedsUpdating = true;
     }
 
 
@@ -97,5 +125,16 @@ public static class Patches
         Plugin.SecondUICanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
         Plugin.SecondUICanvas.SetScaleFactor(Plugin.InGameUiScale.Value);
         Plugin.SecondUICanvas.scaleFactor = Plugin.InGameUiScale.Value;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(SettingsUI), nameof(SettingsUI.Start))]
+    public static void SettingsUI_Start()
+    {
+        var zoomSlider = GameObject.Find("Player(Clone)/UI/Inventory/Settings/SettingsScroll View_Video/Viewport/Content/Setting_ZoomLevel");
+        if(zoomSlider != null && zoomSlider.activeSelf)
+        {
+            zoomSlider.gameObject.SetActive(false);
+        }
     }
 }

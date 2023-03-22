@@ -24,20 +24,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.*" />
-    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
-    <PackageReference Include="UnityEngine.Modules" Version="2019.3.15" IncludeAssets="compile" />
-  </ItemGroup>
-  
-  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
   </ItemGroup>
   
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="QFSW.QC">
-      <HintPath>..\..\..\..\Games\steamapps\common\Sun Haven\Sun Haven_Data\Managed\QFSW.QC.dll</HintPath>
+      <HintPath>..\libs\QFSW.QC.dll</HintPath>
     </Reference>
     <Reference Include="Sirenix.Serialization">
       <HintPath>..\libs\Sirenix.Serialization.dll</HintPath>
@@ -48,8 +40,14 @@
     <Reference Include="SunHaven.Core">
       <HintPath>..\libs\SunHaven.Core.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\libs\UnityEngine.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\libs\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule">
+      <HintPath>..\libs\UnityEngine.Physics2DModule.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
