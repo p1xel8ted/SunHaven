@@ -3,6 +3,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,7 +20,7 @@ namespace UIScales
         public static ConfigEntry<float> InGameUiScale;
         public static ConfigEntry<float> ZoomLevel;
         public static ConfigEntry<float> CheatConsoleScale;
-        public static ConfigEntry<bool> EnableNotifications;
+        private static ConfigEntry<bool> _enableNotifications;
         
         public static ConfigEntry<bool> Debug;
         public ConfigEntry<KeyboardShortcut> UIKeyboardShortcutIncrease { get; set; }
@@ -27,13 +28,11 @@ namespace UIScales
         public ConfigEntry<KeyboardShortcut> ZoomKeyboardShortcutIncrease { get; set; }
         public ConfigEntry<KeyboardShortcut> ZoomKeyboardShortcutDecrease { get; set; }
         internal static ManualLogSource LOG { get; private set; }
-
-        internal static bool ZoomNeedsUpdating = true;
-
-        internal static CanvasScaler UICanvas { get; set; }
-        internal static CanvasScaler SecondUICanvas { get; set; }
-        public static CanvasScaler QuantumCanvas { get; set; }
-        public static CanvasScaler MainMenuCanvas { get; set; }
+        
+        [CanBeNull] internal static CanvasScaler UIOneCanvas { get; set; }
+        [CanBeNull] internal static CanvasScaler UITwoCanvas { get; set; }
+        [CanBeNull] public static CanvasScaler QuantumCanvas { get; set; }
+        [CanBeNull] public static CanvasScaler MainMenuCanvas { get; set; }
 
         private void Awake()
         {
@@ -48,33 +47,19 @@ namespace UIScales
 
             Debug = Config.Bind("Debug", "Debug", false, "Enable debug logging. Nothing really useful to the player, but useful for me to debug issues.");
 
-            EnableNotifications = Config.Bind("Notifications", "Enable Notifications", true, "Enable notifications when changing UI scale or zoom.");
+            _enableNotifications = Config.Bind("Notifications", "Enable Notifications", true, "Enable notifications when changing UI scale or zoom.");
             
             CheatConsoleScale = Config.Bind<float>("Scale", "Cheat Console Scale", 3, new ConfigDescription("Cheat console UI scale while in game.", new AcceptableValueRange<float>(0.5f, 10f)));
-            if (CheatConsoleScale.Value < 0.5)
-            {
-                CheatConsoleScale.Value = 0.5f;
-            }
+            CheatConsoleScale.Value = Mathf.Max(CheatConsoleScale.Value, 0.5f);
 
             InGameUiScale = Config.Bind<float>("Scale", "Game UI Scale", 3, new ConfigDescription("UI scale while in game.", new AcceptableValueRange<float>(0.5f, 10f)));
-            if (InGameUiScale.Value < 0.5)
-            {
-                InGameUiScale.Value = 0.5f;
-            }
+            InGameUiScale.Value = Mathf.Max(InGameUiScale.Value, 0.5f);
 
-
-            MainMenuUiScale = Config.Bind<float>("Scale", "Menu UI Scale", 2, new ConfigDescription("UI scale while at the main menu.", new AcceptableValueRange<float>(0.5f, 10f)));
-            if (MainMenuUiScale.Value < 0.5)
-            {
-                MainMenuUiScale.Value = 0.5f;
-            }
+            MainMenuUiScale = Config.Bind<float>("Scale", "Main Menu UI Scale", 2, new ConfigDescription("UI scale while at the main menu.", new AcceptableValueRange<float>(0.5f, 10f)));
+            MainMenuUiScale.Value = Mathf.Max(MainMenuUiScale.Value, 0.5f);
 
             ZoomLevel = Config.Bind<float>("Scale", "Zoom Level", 2, new ConfigDescription("Zoom level while in game.", new AcceptableValueRange<float>(0.5f, 10f)));
-            if (ZoomLevel.Value < 0.5)
-            {
-                ZoomLevel.Value = 0.5f;
-                ZoomNeedsUpdating = true;
-            }
+            ZoomLevel.Value = Mathf.Max(ZoomLevel.Value, 0.5f);
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
             LOG.LogWarning($"Plugin {PluginName} is loaded!");
@@ -88,6 +73,18 @@ namespace UIScales
         private void OnDisable()
         {
             LOG.LogError($"{PluginName} has been disabled!");
+        }
+        
+        internal static string GetGameObjectPath(GameObject obj)
+        {
+            var path = obj.name;
+            var parent = obj.transform.parent;
+            while (parent != null)
+            {
+                path = parent.name + "/" + path;
+                parent = parent.parent;
+            }
+            return path;
         }
     }
 }

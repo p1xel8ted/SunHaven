@@ -1,6 +1,7 @@
 ﻿using System;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Wish;
 
@@ -28,58 +29,54 @@ public static class Patches
         rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
     }
 
-
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CanvasScaler), nameof(CanvasScaler.OnEnable))]
     public static void CanvasScaler_OnEnable(ref CanvasScaler __instance)
     {
-        if (Plugin.UICanvas == null)
+        if (Plugin.UIOneCanvas != null && Plugin.UITwoCanvas != null && Plugin.QuantumCanvas != null && Plugin.MainMenuCanvas != null)
         {
-            if (__instance.name.Equals("UI", StringComparison.InvariantCultureIgnoreCase))
-            {
-                if (Plugin.Debug.Value)
-                {
-                    Plugin.LOG.LogWarning($"UI CanvasScaler.OnEnable: Name:{__instance.name}");
-                }
-
-                Plugin.UICanvas = __instance;
-                Plugin.UICanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-                Plugin.UICanvas.SetScaleFactor(Plugin.InGameUiScale.Value);
-                Plugin.UICanvas.scaleFactor = Plugin.InGameUiScale.Value;
-            }
+            return;
         }
 
-        if (Plugin.QuantumCanvas == null)
-        {
-            if (__instance.name.Equals("Quantum Console", StringComparison.InvariantCultureIgnoreCase))
-            {
-                if (Plugin.Debug.Value)
-                {
-                    Plugin.LOG.LogWarning($"CheatConsole CanvasScaler.OnEnable: Name:{__instance.name}");
-                }
+        var name = __instance.name;
+        var path = Plugin.GetGameObjectPath(__instance.gameObject);
 
+        switch (name)
+        {
+            case "UI" when Plugin.UIOneCanvas == null && path.Equals("Manager/UI"):
+                Plugin.LOG.LogError($"Found top left and right UI!");
+                Plugin.UIOneCanvas = __instance;
+                ConfigureCanvasScaler(Plugin.UIOneCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.InGameUiScale.Value);
+                break;
+            case "UI" when Plugin.UITwoCanvas == null && path.Equals("Player(Clone)/UI"):
+            {
+                Plugin.LOG.LogError($"Found action bars/quest log etc!");
+                Plugin.UITwoCanvas = __instance;
+                ConfigureCanvasScaler(Plugin.UITwoCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.InGameUiScale.Value);
+                break;
+            }
+            case "Quantum Console" when path.Equals("SharedManager/Quantum Console"):
+                Plugin.LOG.LogError($"Found cheat console!");
                 Plugin.QuantumCanvas = __instance;
-                Plugin.QuantumCanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-                Plugin.QuantumCanvas.SetScaleFactor(Plugin.CheatConsoleScale.Value);
-                Plugin.QuantumCanvas.scaleFactor = Plugin.CheatConsoleScale.Value;
-            }
-        }
-
-        if (Plugin.MainMenuCanvas == null)
-        {
-            if (__instance.name.Equals("Canvas", StringComparison.InvariantCultureIgnoreCase))
-            {
-                if (Plugin.Debug.Value)
-                {
-                    Plugin.LOG.LogWarning($"MainMenu CanvasScaler.OnEnable: Name:{__instance.name}");
-                }
-
+                ConfigureCanvasScaler(Plugin.QuantumCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.CheatConsoleScale.Value);
+                break;
+            case "Canvas" when path.Equals("Canvas") && SceneManager.GetActiveScene().name == "MainMenu":
+                Plugin.LOG.LogError($"Found menu??");
                 Plugin.MainMenuCanvas = __instance;
-                Plugin.MainMenuCanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-                Plugin.MainMenuCanvas.SetScaleFactor(Plugin.MainMenuUiScale.Value);
-                Plugin.MainMenuCanvas.scaleFactor = Plugin.MainMenuUiScale.Value;
-            }
+                ConfigureCanvasScaler(Plugin.MainMenuCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.MainMenuUiScale.Value);
+                break;
         }
+    }
+
+    private static void ConfigureCanvasScaler(CanvasScaler canvasScaler, CanvasScaler.ScaleMode scaleMode, float scaleFactor)
+    {
+        if (canvasScaler == null)
+        {
+            return;
+        }
+
+        canvasScaler.uiScaleMode = scaleMode;
+        canvasScaler.scaleFactor = scaleFactor;
     }
 
     [HarmonyPrefix]
@@ -90,22 +87,16 @@ public static class Patches
         {
             Plugin.LOG.LogWarning($"PlayerSetZoom running: overriding requested zoom level.");
         }
-      
+
         zoomLevel = Plugin.ZoomLevel.Value;
     }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(Player), nameof(Player.SetZoom))]
-    public static void Player_SetZoom_Postfix()
-    {
-        Plugin.ZoomNeedsUpdating = false;
-    }
-
+    
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Player), nameof(Player.ResetPlayerCamera), new Type[] { })]
     public static void Player_ResetPlayerCamera()
     {
-        Plugin.ZoomNeedsUpdating = true;
+        Player.Instance.OverrideCameraZoomLevel = false;
+        Player.Instance.SetZoom(Plugin.ZoomLevel.Value, true);
     }
 
 
@@ -120,11 +111,6 @@ public static class Patches
         {
             Plugin.LOG.LogWarning($"SecondUICanvas Player.InitializeAsOwner: Name:{__instance.name}");
         }
-
-        Plugin.SecondUICanvas = GameObject.Find("Player(Clone)/UI").GetComponent<CanvasScaler>();
-        Plugin.SecondUICanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-        Plugin.SecondUICanvas.SetScaleFactor(Plugin.InGameUiScale.Value);
-        Plugin.SecondUICanvas.scaleFactor = Plugin.InGameUiScale.Value;
     }
 
     [HarmonyPostfix]
@@ -132,7 +118,7 @@ public static class Patches
     public static void SettingsUI_Start()
     {
         var zoomSlider = GameObject.Find("Player(Clone)/UI/Inventory/Settings/SettingsScroll View_Video/Viewport/Content/Setting_ZoomLevel");
-        if(zoomSlider != null && zoomSlider.activeSelf)
+        if (zoomSlider != null && zoomSlider.activeSelf)
         {
             zoomSlider.gameObject.SetActive(false);
         }

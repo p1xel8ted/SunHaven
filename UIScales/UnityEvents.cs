@@ -1,6 +1,6 @@
 ﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using Wish;
 
 namespace UIScales;
@@ -9,142 +9,86 @@ public partial class Plugin
 {
     private void Update()
     {
+        var isMainMenu = SceneManager.GetActiveScene().name.Equals("MainMenu", StringComparison.InvariantCultureIgnoreCase);
+
+        UpdateUiScale(isMainMenu);
+        UpdateZoomLevel();
+        UpdateCanvasScaleFactors();
+    }
+
+    private void UpdateUiScale(bool isMainMenu)
+    {
+        float scaleAdjustment = 0;
+
         if (UIKeyboardShortcutIncrease.Value.IsUp())
         {
-            if (SceneManager.GetActiveScene().name.Equals("MainMenu", StringComparison.InvariantCultureIgnoreCase))
-            {
-                MainMenuUiScale.Value += 0.25f;
-                if (MainMenuUiScale.Value < 0.5)
-                {
-                    MainMenuUiScale.Value = 0.5f;
-                }
-
-                if (MainMenuCanvas != null)
-                {
-                    MainMenuCanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-                    MainMenuCanvas.scaleFactor = MainMenuUiScale.Value;
-                }
-            }
-
-            InGameUiScale.Value += 0.25f;
-            if (InGameUiScale.Value < 0.5)
-            {
-                InGameUiScale.Value = 0.5f;
-            }
-
-            if (UICanvas != null)
-            {
-                UICanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-                UICanvas.scaleFactor = InGameUiScale.Value;
-            }
-
-            if (SecondUICanvas != null)
-            {
-                SecondUICanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-                SecondUICanvas.scaleFactor = InGameUiScale.Value;
-            }
-
-            if (EnableNotifications.Value)
-            {
-                if (NotificationStack.Instance != null)
-                {
-                    NotificationStack.Instance.SendNotification("UI Scale: " + InGameUiScale.Value);
-                }
-            }
+            scaleAdjustment = 0.25f;
+        }
+        else if (UIKeyboardShortcutDecrease.Value.IsUp())
+        {
+            scaleAdjustment = -0.25f;
         }
 
-        if (UIKeyboardShortcutDecrease.Value.IsUp())
+        if (scaleAdjustment != 0)
         {
-            if (SceneManager.GetActiveScene().name.Equals("MainMenu", StringComparison.InvariantCultureIgnoreCase))
+            if (isMainMenu)
             {
-                MainMenuUiScale.Value -= 0.25f;
-                if (MainMenuUiScale.Value < 0.5)
-                {
-                    MainMenuUiScale.Value = 0.5f;
-                }
-
-                if (MainMenuCanvas != null)
-                {
-                    MainMenuCanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-                    MainMenuCanvas.scaleFactor = MainMenuUiScale.Value;
-                }
+                MainMenuUiScale.Value += scaleAdjustment;
+                MainMenuUiScale.Value = Mathf.Max(Mathf.Round(MainMenuUiScale.Value / 0.25f) * 0.25f, 0.5f);
             }
 
+            InGameUiScale.Value += scaleAdjustment;
+            InGameUiScale.Value = Mathf.Max(Mathf.Round(InGameUiScale.Value / 0.25f) * 0.25f, 0.5f);
 
-            InGameUiScale.Value -= 0.25f;
-            if (InGameUiScale.Value < 0.5)
+            if (_enableNotifications.Value && NotificationStack.Instance != null)
             {
-                InGameUiScale.Value = 0.5f;
-            }
-
-            if (UICanvas != null)
-            {
-                UICanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-                UICanvas.scaleFactor = InGameUiScale.Value;
-            }
-
-            if (SecondUICanvas != null)
-            {
-                SecondUICanvas.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-                SecondUICanvas.scaleFactor = InGameUiScale.Value;
-            }
-
-            if (EnableNotifications.Value)
-            {
-                if (NotificationStack.Instance != null)
-                {
-                    NotificationStack.Instance.SendNotification("UI Scale: " + InGameUiScale.Value);
-                }
+                NotificationStack.Instance.SendNotification("UI Scale: " + InGameUiScale.Value);
             }
         }
+    }
 
-
-        if (ZoomKeyboardShortcutDecrease.Value.IsUp())
+    private void UpdateZoomLevel()
+    {
+        if (ZoomKeyboardShortcutIncrease.Value.IsUp() || ZoomKeyboardShortcutDecrease.Value.IsUp())
         {
-            ZoomNeedsUpdating = true;
-            ZoomLevel.Value -= 0.25f;
-            if (ZoomLevel.Value < 0.5)
-            {
-                ZoomLevel.Value = 0.5f;
-            }
+            // ZoomNeedsUpdating = true;
+            var zoomAdjustment = ZoomKeyboardShortcutIncrease.Value.IsUp() ? 0.25f : -0.25f;
+            ZoomLevel.Value += zoomAdjustment;
+            ZoomLevel.Value = Mathf.Max(Mathf.Round(ZoomLevel.Value / 0.25f) * 0.25f, 0.5f);
 
-            if (Player.Instance != null && ZoomNeedsUpdating)
+            if (Player.Instance != null)
             {
                 Player.Instance.OverrideCameraZoomLevel = false;
                 Player.Instance.SetZoom(ZoomLevel.Value, true);
             }
 
-            if (EnableNotifications.Value)
+            if (_enableNotifications.Value && NotificationStack.Instance != null)
             {
-                if (NotificationStack.Instance != null)
-                {
-                    NotificationStack.Instance.SendNotification("Zoom Level: " + ZoomLevel.Value);
-                }
+                NotificationStack.Instance.SendNotification("Zoom Level: " + ZoomLevel.Value);
             }
         }
+    }
 
-        if (ZoomKeyboardShortcutIncrease.Value.IsUp())
+    private static void UpdateCanvasScaleFactors()
+    {
+        if (MainMenuCanvas != null)
         {
-            ZoomNeedsUpdating = true;
-            ZoomLevel.Value += 0.25f;
-            if (ZoomLevel.Value < 0.5)
-            {
-                ZoomLevel.Value = 0.5f;
-            }
+            MainMenuCanvas.scaleFactor = MainMenuUiScale.Value;
+        }
 
-            if (Player.Instance != null && ZoomNeedsUpdating)
-            {
-                Player.Instance.OverrideCameraZoomLevel = false;
-                Player.Instance.SetZoom(ZoomLevel.Value, true);
-            }
+        if (UIOneCanvas != null)
+        {
+            UIOneCanvas.scaleFactor = InGameUiScale.Value;
+        }
 
-            if (EnableNotifications.Value)
-            {
-                if (NotificationStack.Instance != null)
-                {
-                    NotificationStack.Instance.SendNotification("Zoom Level: " + ZoomLevel.Value);
-                }
-            }
+        if (UITwoCanvas != null)
+        {
+            UITwoCanvas.scaleFactor = InGameUiScale.Value;
+        }
+
+        if (QuantumCanvas != null)
+        {
+            QuantumCanvas.scaleFactor = CheatConsoleScale.Value;
         }
     }
 }

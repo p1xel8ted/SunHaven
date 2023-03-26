@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 using Wish;
 using Object = UnityEngine.Object;
 
@@ -14,6 +14,39 @@ public static class Patches
 {
     private static GameObject _newButton;
 
+    private static string GetGameObjectPath(GameObject obj)
+    {
+        var path = obj.name;
+        var parent = obj.transform.parent;
+        while (parent != null)
+        {
+            path = parent.name + "/" + path;
+            parent = parent.parent;
+        }
+        return path;
+    }
+    
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(UIHandler), nameof(UIHandler.ShowOvernightUI))]
+    public static bool UIHandler_ShowOvernightUI(ref UIHandler __instance)
+    {
+        __instance.completeOvernight = true;
+        __instance._overnightUI.SetActive(false);
+        __instance.timeStartedOvernight = Time.time;
+        return false;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ScrollRect), nameof(ScrollRect.OnEnable))]
+    [HarmonyPatch(typeof(ScrollRect), nameof(ScrollRect.LateUpdate))]
+    public static void ScrollRect_Initialize(ref ScrollRect __instance)
+    {
+        if(GetGameObjectPath(__instance.gameObject) != "Player(Clone)/UI/QuestTracker/Scroll View") return;
+
+        var viewport = __instance.viewport.GetComponent<RectTransform>();
+        var viewportHeight = Mathf.RoundToInt(Plugin.AdjustQuestTrackerHeightView.Value);
+        viewport.sizeDelta = new Vector2(viewport.sizeDelta.x, viewportHeight);
+    }
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DialogueController), nameof(DialogueController.PushDialogue), typeof(DialogueNode), typeof(UnityAction), typeof(bool), typeof(bool))]
