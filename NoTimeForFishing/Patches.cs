@@ -7,7 +7,7 @@ using DG.Tweening;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
+
 using Wish;
 
 namespace NoTimeForFishing;
@@ -127,7 +127,7 @@ public static class Patches
             __instance.UseDown1();
         }
     }
-    
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(FishingRod), nameof(FishingRod.Action))]
     [HarmonyPatch(typeof(FishingRod), nameof(FishingRod.CheckForWater))]
@@ -137,7 +137,7 @@ public static class Patches
         if (!Plugin.EnhanceBaseCastLength.Value) return;
         __instance.throwDistance = 6;
     }
-    
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Fish), nameof(Fish.TargetBobber))]
     public static void FishingRod_TargetBobber(ref Bobber bobber)
@@ -145,7 +145,7 @@ public static class Patches
         if (!Plugin.InstantAttraction.Value) return;
         bobber.FishingRod.fishAttractionRate = -100;
     }
-    
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DialogueController), nameof(DialogueController.PushDialogue))]
     public static bool PushDialogue(ref DialogueController __instance, ref DialogueNode dialogue, ref UnityAction onComplete, ref bool animateOnComplete, ref bool ignoreDialogueOnGoing)
@@ -272,22 +272,43 @@ public static class Patches
 
         var field = colliders[0];
 
-        return new CodeMatcher(instructions)
-            .MatchForward(false,
-                new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(Fish), nameof(Fish._targetBobber))),
-                new CodeMatch(OpCodes.Ldarg_2))
-            .Advance(1)
-            .InsertAndAdvance(new[]
+        var codes = new List<CodeInstruction>(instructions);
+        var foundMatchingSequence = false;
+
+        for (var i = 0; i < codes.Count - 2; i++)
+        {
+            if (codes[i].opcode == OpCodes.Stfld && (FieldInfo) codes[i].operand == AccessTools.Field(typeof(Fish), nameof(Fish._targetBobber)) &&
+                codes[i + 1].opcode == OpCodes.Ldarg_2)
             {
-                new CodeInstruction(OpCodes.Ldarg_0),
-                new CodeInstruction(OpCodes.Ldarg_0),
-                new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(Fish), nameof(Fish._pathMoveSpeed))),
-                new CodeInstruction(OpCodes.Ldloc_0),
-                new CodeInstruction(OpCodes.Ldfld, field),
-                new CodeInstruction(OpCodes.Ldarg_2),
-                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Patches), nameof(Patches.GetPathMoveSpeed))),
-                new CodeInstruction(OpCodes.Stfld, AccessTools.Field(typeof(Fish), nameof(Fish._pathMoveSpeed))),
-            })
-            .InstructionEnumeration();
+                foundMatchingSequence = true;
+
+                var insertInstructions = new List<CodeInstruction>
+                {
+                    new(OpCodes.Ldarg_0),
+                    new(OpCodes.Ldarg_0),
+                    new(OpCodes.Ldfld, AccessTools.Field(typeof(Fish), nameof(Fish._pathMoveSpeed))),
+                    new(OpCodes.Ldloc_0),
+                    new(OpCodes.Ldfld, field),
+                    new(OpCodes.Ldarg_2),
+                    new(OpCodes.Call, AccessTools.Method(typeof(Patches), nameof(GetPathMoveSpeed))),
+                    new(OpCodes.Stfld, AccessTools.Field(typeof(Fish), nameof(Fish._pathMoveSpeed))),
+                };
+
+                codes.InsertRange(i + 2, insertInstructions);
+                break;
+            }
+        }
+
+        if (foundMatchingSequence)
+        {
+            Plugin.LOG.LogWarning($"Found the matching opcode sequence in {originalMethod.Name}. Fish swim speed will modified.");
+        }
+        else
+        {
+            Plugin.LOG.LogError($"Failed to find the matching opcode sequence in {originalMethod.Name}. Fish swim speed will not be modified.");
+        }
+
+
+        return codes.AsEnumerable();
     }
 }

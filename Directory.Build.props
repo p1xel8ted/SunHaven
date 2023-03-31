@@ -6,10 +6,16 @@
 
   <!--Base Settings-->
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+   <Description>$(MSBuildProjectName)</Description>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
       <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+       <IsPackable>false</IsPackable>
+           <Authors>p1xel8ted</Authors>
+    <Company>$(Authors)</Company>
+    <Product>$(MSBuildProjectName)</Product>
+    <PackageId>$(MSBuildProjectName)</PackageId>
   </PropertyGroup>
 
   <!--Default all references to CopyLocal False.-->
@@ -19,5 +25,20 @@
     <PackageReference><Private>False</Private></PackageReference>
   </ItemDefinitionGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>H:\Games\steamapps\common\Sun Haven\BepInEx\plugins\$(MSBuildProjectName)</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>H:\Games\steamapps\common\Sun Haven\BepInEx\plugins\$(MSBuildProjectName)</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Core" Version="5.*" />
+  </ItemGroup>
 
 </Project>

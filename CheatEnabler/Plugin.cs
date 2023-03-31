@@ -10,7 +10,7 @@ namespace CheatEnabler
     {
         private const string PluginGuid = "p1xel8ted.sunhaven.cheatenabler";
         private const string PluginName = "CheatEnabler";
-        private const string PluginVersion = "0.1.4";
+        private const string PluginVersion = "0.1.5";
         internal static ManualLogSource LOG;
 
         private void Awake()

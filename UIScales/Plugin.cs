@@ -14,7 +14,7 @@ namespace UIScales
     {
         private const string PluginGuid = "p1xel8ted.sunhaven.uiscales";
         private const string PluginName = "UIScales";
-        private const string PluginVersion = "0.1.5";
+        private const string PluginVersion = "0.1.6";
 
         public static ConfigEntry<float> MainMenuUiScale;
         public static ConfigEntry<float> InGameUiScale;

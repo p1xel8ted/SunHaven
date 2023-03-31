@@ -5,7 +5,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using Wish;
+using Button = UnityEngine.UI.Button;
 using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace EasyLiving;
 
@@ -23,25 +25,33 @@ public static class Patches
             path = parent.name + "/" + path;
             parent = parent.parent;
         }
+
         return path;
     }
-    
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(UIHandler), nameof(UIHandler.ShowOvernightUI))]
-    public static bool UIHandler_ShowOvernightUI(ref UIHandler __instance)
-    {
-        __instance.completeOvernight = true;
-        __instance._overnightUI.SetActive(false);
-        __instance.timeStartedOvernight = Time.time;
-        return false;
-    }
+
+    private static readonly WriteOnce<Vector2> OriginalSize = new();
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ScrollRect), nameof(ScrollRect.OnEnable))]
     [HarmonyPatch(typeof(ScrollRect), nameof(ScrollRect.LateUpdate))]
     public static void ScrollRect_Initialize(ref ScrollRect __instance)
     {
-        if(GetGameObjectPath(__instance.gameObject) != "Player(Clone)/UI/QuestTracker/Scroll View") return;
+        if (GetGameObjectPath(__instance.gameObject) != "Player(Clone)/UI/QuestTracker/Scroll View") return;
+        
+        if (!Plugin.EnableAdjustQuestTrackerHeightView.Value)
+        {
+            if (OriginalSize.Value != Vector2.zero)
+            {
+                __instance.viewport.GetComponent<RectTransform>().sizeDelta = OriginalSize.Value;
+            }
+            
+            return;
+        }
+
+        if (OriginalSize.Value == Vector2.zero)
+        {
+            OriginalSize.Value = __instance.viewport.GetComponent<RectTransform>().sizeDelta;
+        }
 
         var viewport = __instance.viewport.GetComponent<RectTransform>();
         var viewportHeight = Mathf.RoundToInt(Plugin.AdjustQuestTrackerHeightView.Value);
@@ -63,7 +73,6 @@ public static class Patches
         return true;
     }
 
-
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Crop), nameof(Crop.ReceiveDamage))]
     public static bool Crop_ReceiveDamage(ref Crop __instance, ref DamageInfo damageInfo, ref DamageHit __result)
@@ -78,7 +87,7 @@ public static class Patches
         if (!__instance.FullyGrown)
         {
             __instance.DestroyCrop();
-            if (UnityEngine.Random.value < 0.50f)
+            if (Random.value < 0.50f)
             {
                 __instance.DropSeeds();
             }
@@ -119,7 +128,7 @@ public static class Patches
         pop.text = "Exit to Desktop";
 
 
-        _newButton.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() =>
+        _newButton.GetComponent<Button>().onClick.AddListener(() =>
         {
             NotificationStack.Instance.SendNotification($"Game Saved! Exiting...");
             GC.Collect();
