@@ -17,7 +17,7 @@ public partial class Plugin : BaseUnityPlugin
     private static ConfigEntry<bool> EnableSaveShortcut { get; set; }
     public static ConfigEntry<bool> SkipMuseumMissingItemsDialogue { get; private set; }
     public static ConfigEntry<bool> AllowRemovalOfGrowingCrops { get; private set; }
-
+    public static ConfigEntry<bool> UnityLogging { get; private set; }
     public static ConfigEntry<bool> RemoveUnneededButtonsInMainMenu { get; private set; }
     public static ConfigEntry<bool> AddQuitToDesktopButton { get; private set; }
     public static ConfigEntry<bool> EnableAdjustQuestTrackerHeightView { get; private set; }
@@ -27,6 +27,12 @@ public partial class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
+        UnityLogging = Config.Bind("Debug", "Unity Logging", false, new ConfigDescription("Toggle Unity logging. Useful for debugging.", null, new ConfigurationManagerAttributes {IsAdvanced = true, Order = -1}));
+        UnityLogging.SettingChanged += (_, _) =>
+        {
+            Debug.unityLogger.logEnabled = UnityLogging.Value;
+        };
+        Debug.unityLogger.logEnabled = UnityLogging.Value;
         EnableSaveShortcut = Config.Bind("Keyboard Shortcuts", "Enable Quick Save", true, new ConfigDescription("Enable quick saving via the keybind below.", null, new ConfigurationManagerAttributes {Order = 7}));
         SaveShortcut = Config.Bind("Keyboard Shortcuts", "Quick Save", new KeyboardShortcut(KeyCode.F5), new ConfigDescription("Keybind to press to manual save game. Note that it doesnt save location, just progress.", null, new ConfigurationManagerAttributes {Order = 6}));
         SkipMuseumMissingItemsDialogue = Config.Bind("Museum", "Skip Missing Items Dialogue", true, new ConfigDescription("Skip the 'missing items' dialogue when you interact with a museum display.", null, new ConfigurationManagerAttributes {Order = 5}));

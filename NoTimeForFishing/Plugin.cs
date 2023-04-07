@@ -12,7 +12,7 @@ namespace NoTimeForFishing
     {
         private const string PluginGuid = "p1xel8ted.sunhaven.notimeforfishing";
         private const string PluginName = "No Time For Fishing!";
-        private const string PluginVersion = "0.0.3";
+        private const string PluginVersion = "0.0.4";
 
         public static ConfigEntry<bool> DisableCaughtFishWindow;
         public static ConfigEntry<bool> SkipFishingMiniGame;
@@ -91,45 +91,74 @@ namespace NoTimeForFishing
             LOG.LogWarning($"Plugin {PluginName} is loaded!");
         }
 
+        private static bool _showConfirmationDialog = false;
+
+        private static void DisplayConfirmationDialog()
+        {
+            GUILayout.Label("Are you sure you want to reset to default settings?");
+
+            GUILayout.BeginHorizontal();
+            {
+                if (GUILayout.Button("Yes", GUILayout.ExpandWidth(true)))
+                {
+                    RecommendedSettingsAction();
+                }
+
+                if (GUILayout.Button("No", GUILayout.ExpandWidth(true)))
+                {
+                    _showConfirmationDialog = false;
+                }
+            }
+            GUILayout.EndHorizontal();
+        }
+
         private static void RecommendedButtonDrawer(ConfigEntryBase entry)
         {
-            var button = GUILayout.Button("Recommended Settings", GUILayout.ExpandWidth(true));
-            if (!button) return;
-            
-            void RecommendedSettingsAction()
+            if (_showConfirmationDialog)
             {
-                //Bobber sction
-                DoubleBaseBobberAttractionRadius.Value = true;
-                InstantAttraction.Value = true;
-                
-                //Fish section
-                NoMoreNibbles.Value = true;
-                DoubleBaseFishSwimSpeed.Value = true;
-                ModifyFishSpawnLimit.Value = true;
-                FishSpawnLimit.Value = 1500;
-                ModifyFishSpawnMultiplier.Value = true;
-                FishSpawnMultiplier.Value = 1500;
-
-                //Fishing Rod section
-                AutoReel.Value = true;
-                InstantAutoReel.Value = true;
-                EnhanceBaseCastLength.Value = true;
-                ModifyFishingRodCastSpeed.Value = true;
-                FishingRodCastSpeed.Value = 5;
-
-                //Mini-Game section
-                SkipFishingMiniGame.Value = true;
-                ModifyMiniGameSpeed.Value = true;
-                MiniGameMaxSpeed.Value = 0.1f;
-                ModifyMiniGameWinAreaMultiplier.Value = true;
-                MiniGameWinAreaMultiplier.Value = 20f;
-
-                //Miscellaneous section
-                DisableCaughtFishWindow.Value = true;
-                Debug.Value = false;
+                DisplayConfirmationDialog();
             }
+            else
+            {
+                var button = GUILayout.Button("Recommended Settings", GUILayout.ExpandWidth(true));
+                if (!button) return;
+                
+                RecommendedSettingsAction();
+            }
+        }
 
-            RecommendedSettingsAction();
+        private static void RecommendedSettingsAction()
+        {
+            _showConfirmationDialog = true;
+            //Bobber section
+            DoubleBaseBobberAttractionRadius.Value = true;
+            InstantAttraction.Value = true;
+
+            //Fish section
+            NoMoreNibbles.Value = true;
+            DoubleBaseFishSwimSpeed.Value = true;
+            ModifyFishSpawnLimit.Value = true;
+            FishSpawnLimit.Value = 1500;
+            ModifyFishSpawnMultiplier.Value = true;
+            FishSpawnMultiplier.Value = 1500;
+
+            //Fishing Rod section
+            AutoReel.Value = true;
+            InstantAutoReel.Value = true;
+            EnhanceBaseCastLength.Value = true;
+            ModifyFishingRodCastSpeed.Value = true;
+            FishingRodCastSpeed.Value = 5;
+
+            //Mini-Game section
+            SkipFishingMiniGame.Value = true;
+            ModifyMiniGameSpeed.Value = true;
+            MiniGameMaxSpeed.Value = 0.1f;
+            ModifyMiniGameWinAreaMultiplier.Value = true;
+            MiniGameWinAreaMultiplier.Value = 20f;
+
+            //Miscellaneous section
+            DisableCaughtFishWindow.Value = true;
+            Debug.Value = false;
         }
 
         private void OnDestroy()

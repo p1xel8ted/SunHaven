@@ -207,14 +207,16 @@ public static class Patches
                     __instance._fishing = !__instance._fishing;
                     __instance._swingAnimation = (__instance._fishing ? SwingAnimation.VerticalSlash : SwingAnimation.Pull);
                     var rod = __instance;
+  
                     DOVirtual.DelayedCall(Plugin.InstantAutoReel.Value ? 0 : __instance.ActionDelay / __instance.AttackSpeed(), delegate
                     {
                         rod.Action(rod.pos);
                         rod.SendFishingState(3);
                         rod.CancelFishingAnimation();
                         rod._canUseFishingRod = true;
+                       
                     }, false);
-
+                  
                     return false;
                 }
             }
