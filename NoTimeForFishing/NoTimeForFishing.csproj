@@ -5,7 +5,7 @@
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
   </PropertyGroup>
-
+  <Import Project="..\zip.target" />
   <ItemGroup>
     <Reference Include="DOTween">
       <HintPath>..\libs\DOTween.dll</HintPath>
@@ -28,5 +28,8 @@
     <Reference Include="UnityEngine.Physics2DModule">
       <HintPath>..\libs\UnityEngine.Physics2DModule.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="BepInEx.Core" Version="5.4.21" />
   </ItemGroup>
 </Project>

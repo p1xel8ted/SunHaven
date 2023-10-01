@@ -3,15 +3,15 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 
-namespace KeepAlive;
+namespace AutoTool;
 
 [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
 public class Plugin : BaseUnityPlugin
 {
-    private const string PluginGuid = "p1xel8ted.sunhaven.keepalive";
-    private const string PluginName = "KeepAlive";
-    private const string PluginVersion = "0.0.2";
-    private static ManualLogSource LOG { get; set; }
+    private const string PluginGuid = "p1xel8ted.sunhaven.autotool";
+    private const string PluginName = "AutoTool";
+    private const string PluginVersion = "0.0.1";
+    internal static ManualLogSource LOG { get; set; }
 
     private void Awake()
     {
