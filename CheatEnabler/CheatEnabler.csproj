@@ -1,28 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <Version>0.1.5</Version>
-    <AssemblyVersion>$(Version)</AssemblyVersion>
-    <FileVersion>$(Version)</FileVersion>
-  </PropertyGroup>
-  <Import Project="..\zip.target" />
-  <ItemGroup>
-    <Reference Include="QFSW.QC">
-      <HintPath>..\libs\QFSW.QC.dll</HintPath>
-    </Reference>
-    <Reference Include="Sirenix.Serialization">
-      <HintPath>..\libs\Sirenix.Serialization.dll</HintPath>
-    </Reference>
-    <Reference Include="SunHaven.Core">
-      <HintPath>..\libs\SunHaven.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\libs\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\libs\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="BepInEx.Core" Version="5.4.21" />
-  </ItemGroup>
+    <PropertyGroup>
+        <Version>0.1.5</Version>
+        <AssemblyVersion>$(Version)</AssemblyVersion>
+        <FileVersion>$(Version)</FileVersion>
+    </PropertyGroup>
+    <Import Project="..\zip.target"/>
+    <ItemGroup>
+        <Reference Include="QFSW.QC">
+            <HintPath>..\libs\QFSW.QC.dll</HintPath>
+        </Reference>
+        <Reference Include="Sirenix.Serialization">
+            <HintPath>..\libs\Sirenix.Serialization.dll</HintPath>
+        </Reference>
+        <Reference Include="SunHaven.Core">
+            <HintPath>..\libs\SunHaven.Core.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine">
+            <HintPath>..\libs\UnityEngine.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>..\libs\UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Update="BepInEx.Core" Version="5.4.21"/>
+    </ItemGroup>
 </Project>

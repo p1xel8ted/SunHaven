@@ -7,7 +7,6 @@ using DG.Tweening;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Events;
-
 using Wish;
 
 namespace NoTimeForFishing;
@@ -15,6 +14,63 @@ namespace NoTimeForFishing;
 [HarmonyPatch]
 public static class Patches
 {
+    private static int MaxFishCount { get; set; }
+
+    //fix
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Map), nameof(Map.UpdatePlayerImagePosition))]
+    private static bool Map_UpdatePlayerImagePosition(ref Map __instance)
+    {
+        return __instance is not null && Player.Instance is not null;
+    }
+
+    private static int GetBubbleSpellCap()
+    {
+        var fishingSkill = GameSave.Fishing.GetNodeAmount("Fishing7a");
+        var amount = fishingSkill switch
+        {
+            1 => Plugin.IncreaseBubbleSpellCap.Value ? 8 : 6,
+            2 => Plugin.IncreaseBubbleSpellCap.Value ? 10 : 8,
+            3 => Plugin.IncreaseBubbleSpellCap.Value ? 12 : 10,
+            _ => Plugin.IncreaseBubbleSpellCap.Value ? 6 : 4
+        };
+        return amount;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(FishingBubble), nameof(FishingBubble.Awake))]
+    public static void FishingBubble_Awake(ref FishingBubble __instance)
+    {
+        if (!Plugin.ModifyBubbleSpell.Value) return;
+        var fishingSkill = GameSave.Fishing.GetNodeAmount("Fishing7a");
+        MaxFishCount = GetBubbleSpellCap();
+        Plugin.LOG.LogWarning(
+            $"BubbleSkillLevel: {fishingSkill}/3, Max fish count: {MaxFishCount}.");
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Tooltip), nameof(Tooltip.SetText))]
+    public static void Tooltip_SetText(ref string name, ref string description, int lineHeight = 100)
+    {
+        if (!Plugin.ModifyBubbleSpell.Value) return;
+        if (name.Contains("Bubble Net"))
+        {
+            var low = Plugin.IncreaseBubbleSpellCap.Value ? 8 : 6;
+            var medium = Plugin.IncreaseBubbleSpellCap.Value ? 10 : 8;
+            var high = Plugin.IncreaseBubbleSpellCap.Value ? 12 : 10;
+            description +=
+                $" \nThe bubble can hold a maximum of <color=#F8F377>{low}</color>/<color=#cdfb41>{medium}</color>/<color=#3FFB45>{high}</color> fish.";
+        }
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(FishingBubble), nameof(FishingBubble.OnTriggerEnter2D))]
+    private static bool OnTriggerEnter2D(ref FishingBubble __instance, ref Collider2D col)
+    {
+        if (!Plugin.ModifyBubbleSpell.Value) return true;
+        return __instance.items.Count < MaxFishCount;
+    }
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Bobber), nameof(Bobber.OnEnable))]
     private static void Bobber_Patches(ref Bobber __instance)
@@ -65,7 +121,8 @@ public static class Patches
         if (Plugin.ModifyMiniGameWinAreaMultiplier.Value)
         {
             miniGame.winAreaSize = Math.Min(1f, miniGame.winAreaSize * Plugin.MiniGameWinAreaMultiplier.Value);
-            miniGame.sweetSpots[0].sweetSpotSize = Math.Min(1f, miniGame.sweetSpots[0].sweetSpotSize * Plugin.MiniGameWinAreaMultiplier.Value);
+            miniGame.sweetSpots[0].sweetSpotSize = Math.Min(1f,
+                miniGame.sweetSpots[0].sweetSpotSize * Plugin.MiniGameWinAreaMultiplier.Value);
         }
 
         if (Plugin.ModifyMiniGameSpeed.Value)
@@ -148,7 +205,8 @@ public static class Patches
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DialogueController), nameof(DialogueController.PushDialogue))]
-    public static bool PushDialogue(ref DialogueController __instance, ref DialogueNode dialogue, ref UnityAction onComplete, ref bool animateOnComplete, ref bool ignoreDialogueOnGoing)
+    public static bool PushDialogue(ref DialogueController __instance, ref DialogueNode dialogue,
+        ref UnityAction onComplete, ref bool animateOnComplete, ref bool ignoreDialogueOnGoing)
     {
         if (!Player.Instance.IsFishing)
         {
@@ -205,18 +263,19 @@ public static class Patches
                     __instance.ReadyForFish = false;
                     __instance.Reeling = true;
                     __instance._fishing = !__instance._fishing;
-                    __instance._swingAnimation = (__instance._fishing ? SwingAnimation.VerticalSlash : SwingAnimation.Pull);
+                    __instance._swingAnimation =
+                        (__instance._fishing ? SwingAnimation.VerticalSlash : SwingAnimation.Pull);
                     var rod = __instance;
-  
-                    DOVirtual.DelayedCall(Plugin.InstantAutoReel.Value ? 0 : __instance.ActionDelay / __instance.AttackSpeed(), delegate
-                    {
-                        rod.Action(rod.pos);
-                        rod.SendFishingState(3);
-                        rod.CancelFishingAnimation();
-                        rod._canUseFishingRod = true;
-                       
-                    }, false);
-                  
+
+                    DOVirtual.DelayedCall(
+                        Plugin.InstantAutoReel.Value ? 0 : __instance.ActionDelay / __instance.AttackSpeed(), delegate
+                        {
+                            rod.Action(rod.pos);
+                            rod.SendFishingState(3);
+                            rod.CancelFishingAnimation();
+                            rod._canUseFishingRod = true;
+                        }, false);
+
                     return false;
                 }
             }
@@ -241,7 +300,8 @@ public static class Patches
             message += $"\nNew base path move speed: {newSpeed}";
         }
 
-        if (SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.Professions[ProfessionType.Fishing].GetNode("Fishing1b"))
+        if (SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.Professions[ProfessionType.Fishing]
+            .GetNode("Fishing1b"))
         {
             newSpeed *= 1.3f;
             message += $"\nNew base path move speed (talented): {newSpeed}";
@@ -258,17 +318,21 @@ public static class Patches
 
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(Fish), nameof(Fish.TargetBobber))]
-    public static IEnumerable<CodeInstruction> Fish_TargetBobber_Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase originalMethod)
+    public static IEnumerable<CodeInstruction> Fish_TargetBobber_Transpiler(IEnumerable<CodeInstruction> instructions,
+        MethodBase originalMethod)
     {
         List<FieldInfo> colliders = new();
         colliders.Clear();
         var innerTypes = typeof(Fish).GetNestedTypes(AccessTools.all);
-        var innerColliders = innerTypes.Where(type => type.GetFields(AccessTools.all).Any(field => field.FieldType == typeof(Collider2D))).ToList();
-        colliders.AddRange(innerColliders.SelectMany(type => type.GetFields(AccessTools.all).Where(field => field.FieldType == typeof(Collider2D))));
+        var innerColliders = innerTypes.Where(type =>
+            type.GetFields(AccessTools.all).Any(field => field.FieldType == typeof(Collider2D))).ToList();
+        colliders.AddRange(innerColliders.SelectMany(type =>
+            type.GetFields(AccessTools.all).Where(field => field.FieldType == typeof(Collider2D))));
 
         if (colliders.Count == 0)
         {
-            Plugin.LOG.LogError($"Failed to find any colliders in {originalMethod.Name}. Fish swim speed will not be modified.");
+            Plugin.LOG.LogError(
+                $"Failed to find any colliders in {originalMethod.Name}. Fish swim speed will not be modified.");
             return instructions.AsEnumerable();
         }
 
@@ -279,7 +343,8 @@ public static class Patches
 
         for (var i = 0; i < codes.Count - 2; i++)
         {
-            if (codes[i].opcode == OpCodes.Stfld && (FieldInfo) codes[i].operand == AccessTools.Field(typeof(Fish), nameof(Fish._targetBobber)) &&
+            if (codes[i].opcode == OpCodes.Stfld && (FieldInfo) codes[i].operand ==
+                AccessTools.Field(typeof(Fish), nameof(Fish._targetBobber)) &&
                 codes[i + 1].opcode == OpCodes.Ldarg_2)
             {
                 foundMatchingSequence = true;
@@ -303,11 +368,13 @@ public static class Patches
 
         if (foundMatchingSequence)
         {
-            Plugin.LOG.LogWarning($"Found the matching opcode sequence in {originalMethod.Name}. Fish swim speed will modified.");
+            Plugin.LOG.LogWarning(
+                $"Found the matching opcode sequence in {originalMethod.Name}. Fish swim speed will modified.");
         }
         else
         {
-            Plugin.LOG.LogError($"Failed to find the matching opcode sequence in {originalMethod.Name}. Fish swim speed will not be modified.");
+            Plugin.LOG.LogError(
+                $"Failed to find the matching opcode sequence in {originalMethod.Name}. Fish swim speed will not be modified.");
         }
 
 

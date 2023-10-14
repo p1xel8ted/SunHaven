@@ -12,7 +12,7 @@ namespace NoTimeForFishing
     {
         private const string PluginGuid = "p1xel8ted.sunhaven.notimeforfishing";
         private const string PluginName = "No Time For Fishing!";
-        private const string PluginVersion = "0.0.4";
+        private const string PluginVersion = "0.0.5";
 
         public static ConfigEntry<bool> DisableCaughtFishWindow;
         public static ConfigEntry<bool> SkipFishingMiniGame;
@@ -33,6 +33,10 @@ namespace NoTimeForFishing
         internal static ConfigEntry<bool> ModifyMiniGameSpeed;
         internal static ConfigEntry<float> MiniGameMaxSpeed;
 
+
+        internal static ConfigEntry<bool> ModifyBubbleSpell;
+        internal static ConfigEntry<bool> IncreaseBubbleSpellCap;
+
         internal static ConfigEntry<bool> ModifyMiniGameWinAreaMultiplier;
         internal static ConfigEntry<float> MiniGameWinAreaMultiplier;
         internal static ConfigEntry<bool> DoubleBaseFishSwimSpeed;
@@ -44,6 +48,8 @@ namespace NoTimeForFishing
 
         public static ConfigEntry<bool> Debug;
 
+        private static bool _showConfirmationDialog = false;
+
         internal static ManualLogSource LOG { get; set; }
 
 
@@ -52,94 +58,145 @@ namespace NoTimeForFishing
             LOG = new ManualLogSource("Log");
             BepInEx.Logging.Logger.Sources.Add(LOG);
 
-            //Bobber section
-            DoubleBaseBobberAttractionRadius = Config.Bind("Bobber", "Double Base Bobber Attraction Radius", true,
+// 01. Bobber Dynamics
+            InstantAttraction = Config.Bind("01. Bobber Dynamics", "Immediate Fish Attraction", true,
+                new ConfigDescription("Ensures that fish are instantly attracted to the bobber.", null,
+                    new ConfigurationManagerAttributes {Order = 100}));
+
+            DoubleBaseBobberAttractionRadius = Config.Bind("01. Bobber Dynamics", "Extended Bobber Attraction Radius",
+                true,
                 new ConfigDescription(
-                    "Doubles the base radius of the bobber attraction. Your talent bonus' are applied afterwards.",
-                    null, new ConfigurationManagerAttributes {Order = 2}));
-            InstantAttraction = Config.Bind("Bobber", "Enable Instant Attraction", true,
-                new ConfigDescription("Fish are immediately drawn to the bobber.", null,
-                    new ConfigurationManagerAttributes {Order = 1}));
+                    "Enhances the base attraction radius of the bobber. Talent bonuses are applied afterward.",
+                    null, new ConfigurationManagerAttributes {Order = 99}));
 
-            //Fish section
-            NoMoreNibbles = Config.Bind("Fish", "No More Nibbles", true,
-                new ConfigDescription("Disable nibbling and fleeing behavior for fish.", null,
-                    new ConfigurationManagerAttributes {Order = 6}));
-            DoubleBaseFishSwimSpeed = Config.Bind("Fish", "Double Base Fish Swim Speed", true,
+// 02. Fish Behavior & Spawning
+            NoMoreNibbles = Config.Bind("02. Fish Behavior & Spawning", "Disable Nibbling Behavior", true,
+                new ConfigDescription("Prevents fish from nibbling and fleeing.", null,
+                    new ConfigurationManagerAttributes {Order = 98}));
+
+            DoubleBaseFishSwimSpeed = Config.Bind("02. Fish Behavior & Spawning", "Enhanced Fish Swim Speed", true,
                 new ConfigDescription(
-                    "Double the base speed at which fish swim to the bobber. Your talent bonus' are applied afterwards.",
-                    null, new ConfigurationManagerAttributes {Order = 5}));
-            ModifyFishSpawnLimit = Config.Bind("Fish", "Modify Fish Spawn Limit", true,
-                new ConfigDescription("Modify the maximum number of fish that can spawn.", null,
-                    new ConfigurationManagerAttributes {Order = 4}));
-            FishSpawnLimit = Config.Bind("Fish", "Fish Spawn Limit", 1500,
-                new ConfigDescription("Adjust the maximum number of fish that can spawn.",
-                    new AcceptableValueRange<int>(1, 1500), new ConfigurationManagerAttributes {Order = 3}));
-            ModifyFishSpawnMultiplier = Config.Bind("Fish", "Modify Fish Spawn Multiplier", true,
-                new ConfigDescription("Modify the number of fish that spawn.", null,
-                    new ConfigurationManagerAttributes {Order = 2}));
-            FishSpawnMultiplier = Config.Bind("Fish", "Fish Spawn Multiplier", 1500,
-                new ConfigDescription("Adjust the number of fish that spawn.", new AcceptableValueRange<int>(1, 1500),
-                    new ConfigurationManagerAttributes {Order = 1}));
+                    "Boosts the base speed of fish movement towards the bobber. Talent bonuses are applied afterward.",
+                    null, new ConfigurationManagerAttributes {Order = 97}));
 
+            ModifyFishSpawnLimit = Config.Bind("02. Fish Behavior & Spawning", "Adjustable Fish Population Cap", true,
+                new ConfigDescription("Toggle the ability to set a maximum fish population.", null,
+                    new ConfigurationManagerAttributes {Order = 96}));
 
-            //Fishing Rod section
-            AutoReel = Config.Bind("Fishing Rod", "Auto Reel", true,
-                new ConfigDescription("Automatically reel in fish when they bite.", null,
-                    new ConfigurationManagerAttributes {Order = 5}));
-            InstantAutoReel = Config.Bind("Fishing Rod", "Instant Auto Reel", true,
-                new ConfigDescription("Reel in fish instantly when they bite.", null,
-                    new ConfigurationManagerAttributes {Order = 4}));
-            EnhanceBaseCastLength = Config.Bind("Fishing Rod", "Enhance Base Cast Length", true,
+            FishSpawnLimit = Config.Bind("02. Fish Behavior & Spawning", "Fish Population Limit", 1500,
+                new ConfigDescription("Determine the maximum fish population in the game environment.",
+                    new AcceptableValueRange<int>(1, 1500), new ConfigurationManagerAttributes {Order = 95}));
+
+            ModifyFishSpawnMultiplier = Config.Bind("02. Fish Behavior & Spawning", "Fish Spawn Rate Modifier", true,
+                new ConfigDescription("Toggle the ability to adjust the fish spawn rate.", null,
+                    new ConfigurationManagerAttributes {Order = 94}));
+
+            FishSpawnMultiplier = Config.Bind("02. Fish Behavior & Spawning", "Fish Spawn Rate", 1500,
+                new ConfigDescription("Set the rate at which fish spawn in the environment.",
+                    new AcceptableValueRange<int>(1, 1500), new ConfigurationManagerAttributes {Order = 93}));
+
+// 03. Rod Capabilities
+            ModifyFishingRodCastSpeed = Config.Bind("03. Rod Capabilities", "Adjustable Rod Casting Speed", true,
+                new ConfigDescription("Toggle the ability to modify the fishing rod's casting speed.", null,
+                    new ConfigurationManagerAttributes {Order = 92}));
+
+            FishingRodCastSpeed = Config.Bind("03. Rod Capabilities", "Rod Casting Speed", 5,
                 new ConfigDescription(
-                    "Enhances the base casting length of the fishing rod. Your talent bonus' are applied afterwards.",
-                    null, new ConfigurationManagerAttributes {Order = 3}));
-            ModifyFishingRodCastSpeed = Config.Bind("Fishing Rod", "Modify Fishing Rod Cast Speed", true,
+                    "Set the base casting speed of the fishing rod. Talent bonuses are applied afterward.",
+                    new AcceptableValueRange<int>(1, 10), new ConfigurationManagerAttributes {Order = 91}));
+
+            EnhanceBaseCastLength = Config.Bind("03. Rod Capabilities", "Extended Rod Cast Length", true,
                 new ConfigDescription(
-                    "Modify the base casting speed of the fishing rod. Your talent bonus' are applied afterwards.",
-                    null, new ConfigurationManagerAttributes {Order = 2}));
-            FishingRodCastSpeed = Config.Bind("Fishing Rod", "Fishing Rod Cast Speed", 5,
+                    "Boosts the base casting distance of the fishing rod. Talent bonuses are applied afterward.",
+                    null, new ConfigurationManagerAttributes {Order = 90}));
+
+            InstantAutoReel = Config.Bind("03. Rod Capabilities", "Instant Automatic Reeling", true,
+                new ConfigDescription("Ensures fish are reeled in immediately upon biting. The reeling animation will not play.", null,
+                    new ConfigurationManagerAttributes {Order = 89}));
+            InstantAutoReel.SettingChanged += (_, _) =>
+            {
+                if (InstantAutoReel.Value)
+                {
+                    AutoReel.Value = false;
+                }
+            };
+
+            AutoReel = Config.Bind("03. Rod Capabilities", "Automatic Reeling", true,
+                new ConfigDescription("The rod will automatically reel in fish upon a successful bite. The reeling animation will play.", null,
+                    new ConfigurationManagerAttributes {Order = 87}));
+            AutoReel.SettingChanged += (_, _) =>
+            {
+                if (AutoReel.Value)
+                {
+                    InstantAutoReel.Value = false;
+                }
+            };
+
+// 04. Mini-Game Adjustments
+            SkipFishingMiniGame = Config.Bind("04. Mini-Game Adjustments", "Bypass Fishing Mini-Game", true,
+                new ConfigDescription("Omits the fishing mini-game entirely for quicker fishing.", null,
+                    new ConfigurationManagerAttributes {Order = 86}));
+
+            ModifyMiniGameSpeed = Config.Bind("04. Mini-Game Adjustments", "Adjustable Mini-Game Speed", true,
+                new ConfigDescription("Toggle the ability to modify the fishing mini-game's speed.", null,
+                    new ConfigurationManagerAttributes {Order = 85}));
+
+            MiniGameMaxSpeed = Config.Bind("04. Mini-Game Adjustments", "Mini-Game Maximum Speed", 0.1f,
+                new ConfigDescription("Set the maximum playable speed for the fishing mini-game.",
+                    new AcceptableValueRange<float>(0.1f, 1f), new ConfigurationManagerAttributes {Order = 84}));
+
+            ModifyMiniGameWinAreaMultiplier = Config.Bind("04. Mini-Game Adjustments", "Adjustable Winning Zone Size",
+                true,
                 new ConfigDescription(
-                    "Adjust the base casting speed of the fishing rod. Your talent bonus' are applied afterwards.",
-                    new AcceptableValueRange<int>(1, 10), new ConfigurationManagerAttributes {Order = 1}));
+                    "Toggle the ability to adjust the size of the successful catch zone in the mini-game.", null,
+                    new ConfigurationManagerAttributes {Order = 83}));
+
+            MiniGameWinAreaMultiplier = Config.Bind("04. Mini-Game Adjustments", "Winning Zone Size in Mini-Game", 20f,
+                new ConfigDescription("Determine the size of the successful catch zone in the mini-game.",
+                    new AcceptableValueRange<float>(1, 20), new ConfigurationManagerAttributes {Order = 82}));
+
+// 05. Spell Adjustments
+            ModifyBubbleSpell = Config.Bind("05. Spell Adjustments", "Customize Bubble Spell", true,
+                new ConfigDescription(
+                    "Modify the bubble spell to cap the number of fish the bubble can contain based on your skill level. Check Bubble Spell tooltip for details.",
+                    null,
+                    new ConfigurationManagerAttributes {Order = 81}));
+            IncreaseBubbleSpellCap = Config.Bind("05. Spell Adjustments", "Increase Bubble Spell Cap", true,
+                new ConfigDescription(
+                    "Increase the bubble spell's cap. Check Bubble Spell tooltip for details.",
+                    null,
+                    new ConfigurationManagerAttributes {Order = 80}));
 
 
-            //Mini-Game section
-            SkipFishingMiniGame = Config.Bind("Mini-Game", "Skip Fishing Mini Game", true,
-                new ConfigDescription("Skip the fishing mini-game entirely.", null,
-                    new ConfigurationManagerAttributes {Order = 5}));
-            ModifyMiniGameSpeed = Config.Bind("Mini-Game", "Modify Mini Game Speed", true,
-                new ConfigDescription("Modify the speed of the fishing mini-game.", null,
-                    new ConfigurationManagerAttributes {Order = 4}));
-            MiniGameMaxSpeed = Config.Bind("Mini-Game", "Mini Game Max Speed", 0.1f,
-                new ConfigDescription("Adjust the maximum speed of the fishing mini-game.",
-                    new AcceptableValueRange<float>(0.1f, 1f), new ConfigurationManagerAttributes {Order = 3}));
-            ModifyMiniGameWinAreaMultiplier = Config.Bind("Mini-Game", "Modify Mini Game Win Area Multiplier", true,
-                new ConfigDescription("Modify the size of the winning area in the fishing mini-game.", null,
-                    new ConfigurationManagerAttributes {Order = 2}));
-            MiniGameWinAreaMultiplier = Config.Bind("Mini-Game", "Mini Game Win Area Multiplier", 20f,
-                new ConfigDescription("Adjust the size of the winning area in the fishing mini-game.",
-                    new AcceptableValueRange<float>(1, 20), new ConfigurationManagerAttributes {Order = 1}));
+// 06. General Settings
+            DisableCaughtFishWindow = Config.Bind("06. General Settings", "Disable Fish Catch Display", true,
+                new ConfigDescription(
+                    "Deactivates the pop-up window displaying information about the fish you've caught.", null,
+                    new ConfigurationManagerAttributes {Order = 79}));
 
+            Debug = Config.Bind("06. General Settings", "Enable Debug Logging", false,
+                new ConfigDescription("Activate debugging for more detailed logs and insights.", null,
+                    new ConfigurationManagerAttributes {Order = 78}));
 
-            //Miscellaneous section
-            DisableCaughtFishWindow = Config.Bind("Miscellaneous", "Disable Caught Fish Window", true,
-                new ConfigDescription("Disable the window that displays information about caught fish.", null,
-                    new ConfigurationManagerAttributes {Order = 2}));
-            Debug = Config.Bind("Miscellaneous", "Debug", false,
-                new ConfigDescription("Enable debug for logging.", null,
-                    new ConfigurationManagerAttributes {Order = 1}));
-
-            Config.Bind("Miscellaneous", "Reset to Recommended", true,
-                new ConfigDescription("Set the mod to p1xel8ted's default settings.", null,
+            Config.Bind("06. General Settings", "Revert to Default Settings", true,
+                new ConfigDescription("Reset all configurations to the mod's default settings.", null,
                     new ConfigurationManagerAttributes
-                        {HideDefaultButton = true, CustomDrawer = RecommendedButtonDrawer}));
+                        {Order = 77, HideDefaultButton = true, CustomDrawer = RecommendedButtonDrawer}));
+
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
             LOG.LogWarning($"Plugin {PluginName} is loaded!");
         }
 
-        private static bool _showConfirmationDialog = false;
+        private void OnDisable()
+        {
+            LOG.LogError($"{PluginName} has been disabled!");
+        }
+
+        private void OnDestroy()
+        {
+            LOG.LogError($"{PluginName} has been destroyed!");
+        }
 
         private static void DisplayConfirmationDialog()
         {
@@ -179,11 +236,11 @@ namespace NoTimeForFishing
 
         private static void RecommendedSettingsAction()
         {
-            //Bobber section
+            // 01. Bobber Dynamics
             DoubleBaseBobberAttractionRadius.Value = true;
             InstantAttraction.Value = true;
 
-            //Fish section
+            // 02. Fish Behavior & Spawning
             NoMoreNibbles.Value = true;
             DoubleBaseFishSwimSpeed.Value = true;
             ModifyFishSpawnLimit.Value = true;
@@ -191,33 +248,26 @@ namespace NoTimeForFishing
             ModifyFishSpawnMultiplier.Value = true;
             FishSpawnMultiplier.Value = 1500;
 
-            //Fishing Rod section
+            // 03. Rod Capabilities
             AutoReel.Value = true;
             InstantAutoReel.Value = true;
             EnhanceBaseCastLength.Value = true;
             ModifyFishingRodCastSpeed.Value = true;
             FishingRodCastSpeed.Value = 5;
 
-            //Mini-Game section
+            // 04. Mini-Game Adjustments
             SkipFishingMiniGame.Value = true;
             ModifyMiniGameSpeed.Value = true;
             MiniGameMaxSpeed.Value = 0.1f;
             ModifyMiniGameWinAreaMultiplier.Value = true;
             MiniGameWinAreaMultiplier.Value = 20f;
 
-            //Miscellaneous section
+            // 05. Bubble Spell Adjustments
+            ModifyBubbleSpell.Value = true;
+
+            // 06. General Settings
             DisableCaughtFishWindow.Value = true;
             Debug.Value = false;
-        }
-
-        private void OnDestroy()
-        {
-            LOG.LogError($"{PluginName} has been destroyed!");
-        }
-
-        private void OnDisable()
-        {
-            LOG.LogError($"{PluginName} has been disabled!");
         }
     }
 }
