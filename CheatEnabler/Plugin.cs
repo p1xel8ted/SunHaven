@@ -10,16 +10,19 @@ namespace CheatEnabler
     {
         private const string PluginGuid = "p1xel8ted.sunhaven.cheatenabler";
         private const string PluginName = "CheatEnabler";
-        private const string PluginVersion = "0.1.5";
-        internal static ManualLogSource LOG;
+        private const string PluginVersion = "0.1.6";
+        private static ManualLogSource LOG { get; set; }
+        private static CheatCs CheatCsInstance { get; set; }
 
         private void Awake()
         {
-            LOG = new ManualLogSource("Log");
+            LOG = new ManualLogSource("Cheat Enabler");
             BepInEx.Logging.Logger.Sources.Add(LOG);
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
-            LOG.LogWarning($"Plugin {PluginName} is loaded!");
-            gameObject.AddComponent<CheatCs>();
+            LOG.LogInfo($"Plugin {PluginName} is loaded!");
+            CheatCsInstance = gameObject.AddComponent<CheatCs>();
+            DontDestroyOnLoad(this);
+            DontDestroyOnLoad(CheatCsInstance);
         }
 
         private void OnDestroy()

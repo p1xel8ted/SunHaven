@@ -33,7 +33,7 @@ public static class Patches
     [HarmonyPatch(typeof(CanvasScaler), nameof(CanvasScaler.OnEnable))]
     public static void CanvasScaler_OnEnable(ref CanvasScaler __instance)
     {
-        if (Plugin.UIOneCanvas != null && Plugin.UITwoCanvas != null && Plugin.QuantumCanvas != null && Plugin.MainMenuCanvas != null)
+        if (Plugin.UIOneCanvas is not null && Plugin.UITwoCanvas is not null && Plugin.QuantumCanvas is not null && Plugin.MainMenuCanvas is not null)
         {
             return;
         }
@@ -44,24 +44,24 @@ public static class Patches
         switch (name)
         {
             case "UI" when Plugin.UIOneCanvas == null && path.Equals("Manager/UI"):
-                Plugin.LOG.LogError($"Found top left and right UI!");
+                Plugin.LOG.LogInfo($"Found top left and right UI!");
                 Plugin.UIOneCanvas = __instance;
                 ConfigureCanvasScaler(Plugin.UIOneCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.InGameUiScale.Value);
                 break;
             case "UI" when Plugin.UITwoCanvas == null && path.Equals("Player(Clone)/UI"):
             {
-                Plugin.LOG.LogError($"Found action bars/quest log etc!");
+                Plugin.LOG.LogInfo($"Found action bars/quest log etc!");
                 Plugin.UITwoCanvas = __instance;
                 ConfigureCanvasScaler(Plugin.UITwoCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.InGameUiScale.Value);
                 break;
             }
             case "Quantum Console" when path.Equals("SharedManager/Quantum Console"):
-                Plugin.LOG.LogError($"Found cheat console!");
+                Plugin.LOG.LogInfo($"Found cheat console!");
                 Plugin.QuantumCanvas = __instance;
                 ConfigureCanvasScaler(Plugin.QuantumCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.CheatConsoleScale.Value);
                 break;
             case "Canvas" when path.Equals("Canvas") && SceneManager.GetActiveScene().name == "MainMenu":
-                Plugin.LOG.LogError($"Found menu??");
+                Plugin.LOG.LogInfo($"Found menu??");
                 Plugin.MainMenuCanvas = __instance;
                 ConfigureCanvasScaler(Plugin.MainMenuCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.MainMenuUiScale.Value);
                 break;
@@ -85,7 +85,7 @@ public static class Patches
     {
         if (Plugin.Debug.Value)
         {
-            Plugin.LOG.LogWarning($"PlayerSetZoom running: overriding requested zoom level.");
+            Plugin.LOG.LogInfo($"PlayerSetZoom running: overriding requested zoom level.");
         }
 
         zoomLevel = Plugin.ZoomLevel.Value;
@@ -109,7 +109,7 @@ public static class Patches
 
         if (Plugin.Debug.Value)
         {
-            Plugin.LOG.LogWarning($"SecondUICanvas Player.InitializeAsOwner: Name:{__instance.name}");
+            Plugin.LOG.LogInfo($"SecondUICanvas Player.InitializeAsOwner: Name:{__instance.name}");
         }
     }
 

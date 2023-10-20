@@ -44,7 +44,7 @@ public static class Patches
         if (!Plugin.ModifyBubbleSpell.Value) return;
         var fishingSkill = GameSave.Fishing.GetNodeAmount("Fishing7a");
         MaxFishCount = GetBubbleSpellCap();
-        Plugin.LOG.LogWarning(
+        Plugin.LOG.LogInfo(
             $"BubbleSkillLevel: {fishingSkill}/3, Max fish count: {MaxFishCount}.");
     }
 
@@ -100,7 +100,7 @@ public static class Patches
         __instance.bobberRadius = radius;
         if (Plugin.Debug.Value)
         {
-            Plugin.LOG.LogWarning($"{message}");
+            Plugin.LOG.LogInfo($"{message}");
         }
     }
 
@@ -140,7 +140,7 @@ public static class Patches
         {
             if (Plugin.Debug.Value)
             {
-                Plugin.LOG.LogWarning("Player is fishing and no more nibbles true!");
+                Plugin.LOG.LogInfo("Player is fishing and no more nibbles true!");
             }
 
             __result = false;
@@ -153,7 +153,7 @@ public static class Patches
     {
         if (Plugin.Debug.Value)
         {
-            Plugin.LOG.LogWarning("FishSpawnManager Start: Adjusting fish spawn multiplier and spawn limit...");
+            Plugin.LOG.LogInfo("FishSpawnManager Start: Adjusting fish spawn multiplier and spawn limit...");
         }
 
         if (Plugin.ModifyFishSpawnMultiplier.Value)
@@ -178,7 +178,7 @@ public static class Patches
         {
             if (Plugin.Debug.Value)
             {
-                Plugin.LOG.LogWarning($"Attempting to auto-loot {fish.name}...");
+                Plugin.LOG.LogInfo($"Attempting to auto-loot {fish.name}...");
             }
 
             __instance.UseDown1();
@@ -212,7 +212,7 @@ public static class Patches
         {
             if (Plugin.Debug.Value)
             {
-                Plugin.LOG.LogWarning("Player isn't fishing! Let dialogue run like normal...");
+                Plugin.LOG.LogInfo("Player isn't fishing! Let dialogue run like normal...");
             }
 
             return true;
@@ -220,7 +220,7 @@ public static class Patches
 
         if (Plugin.Debug.Value)
         {
-            Plugin.LOG.LogWarning("Player is fishing! Modify dialogue if their settings allow...");
+            Plugin.LOG.LogInfo("Player is fishing! Modify dialogue if their settings allow...");
         }
 
         var caughtFish = dialogue.dialogueText.Any(line => line.ToLowerInvariant().Contains("caught"));
@@ -229,7 +229,7 @@ public static class Patches
         {
             if (Plugin.Debug.Value)
             {
-                Plugin.LOG.LogWarning("Caught just a fish!");
+                Plugin.LOG.LogInfo("Caught just a fish!");
             }
 
             if (Plugin.DisableCaughtFishWindow.Value)
@@ -368,7 +368,7 @@ public static class Patches
 
         if (foundMatchingSequence)
         {
-            Plugin.LOG.LogWarning(
+            Plugin.LOG.LogInfo(
                 $"Found the matching opcode sequence in {originalMethod.Name}. Fish swim speed will modified.");
         }
         else

@@ -2,29 +2,32 @@
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace KeepAlive;
-
-[HarmonyPatch]
-[HarmonyPriority(1)]
-public static class Patches
+namespace KeepAlive
 {
-    //the game manually unloads all loaded objects when quitting to menu, and BepInEx gets caught up in it, which kills any mods that use BepInEx. This fixes that.
-    //hiding the bepinex object doesnt appear to make a difference
-    [HarmonyPostfix]
+    [HarmonyPatch]
     [HarmonyPriority(1)]
-    [HarmonyPatch(typeof(Scene), nameof(Scene.GetRootGameObjects), new Type[] { })]
-    public static void Scene_GetRootGameObjects(ref GameObject[] __result)
+    public static class Patches
     {
-        var index = 0;
-        for (var i = 0; i < __result.Length; i++)
+        private const string BepInEx = "bepinex";
+
+        [HarmonyPostfix]
+        [HarmonyPriority(1)]
+        [HarmonyPatch(typeof(Scene), nameof(Scene.GetRootGameObjects), new Type[] { })]
+        public static void Scene_GetRootGameObjects(ref GameObject[] __result)
         {
-            if (!__result[i].name.Contains("BepInEx"))
+            var objectList = new List<GameObject>(__result);
+            var items = objectList.FindAll(a => a.name.ToLowerInvariant().Contains(BepInEx));
+
+            if (items.Count > 0)
             {
-                __result[index++] = __result[i];
+                var savedItemNames = string.Join(", ", items.Select(i => i.name));
+                Plugin.LOG.LogInfo($"Prevented the following items from being modified: {savedItemNames}");
             }
+
+            __result = objectList.ToArray();
         }
-        
-        Array.Resize(ref __result, index);
     }
 }

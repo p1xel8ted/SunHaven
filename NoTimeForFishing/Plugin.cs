@@ -12,7 +12,7 @@ namespace NoTimeForFishing
     {
         private const string PluginGuid = "p1xel8ted.sunhaven.notimeforfishing";
         private const string PluginName = "No Time For Fishing!";
-        private const string PluginVersion = "0.0.5";
+        private const string PluginVersion = "0.0.6";
 
         public static ConfigEntry<bool> DisableCaughtFishWindow;
         public static ConfigEntry<bool> SkipFishingMiniGame;
@@ -55,7 +55,8 @@ namespace NoTimeForFishing
 
         private void Awake()
         {
-            LOG = new ManualLogSource("Log");
+            DontDestroyOnLoad(this);
+            LOG = new ManualLogSource("No Time For Fishing");
             BepInEx.Logging.Logger.Sources.Add(LOG);
 
 // 01. Bobber Dynamics
@@ -185,7 +186,7 @@ namespace NoTimeForFishing
 
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
-            LOG.LogWarning($"Plugin {PluginName} is loaded!");
+            LOG.LogInfo($"Plugin {PluginName} is loaded!");
         }
 
         private void OnDisable()

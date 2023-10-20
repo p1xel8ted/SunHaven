@@ -14,6 +14,6 @@ public partial class Plugin
         Settings.EnableCheats = true;
         QuantumConsole.Instance.GenerateCommands = true;
         QuantumConsole.Instance.Initialize();
-        LOG.LogWarning("Cheat Menu Enabled...");
+        LOG.LogInfo("Cheat Menu Enabled...");
     }
 }

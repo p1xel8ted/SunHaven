@@ -14,7 +14,7 @@ namespace UIScales
     {
         private const string PluginGuid = "p1xel8ted.sunhaven.uiscales";
         private const string PluginName = "UIScales";
-        private const string PluginVersion = "0.1.6";
+        private const string PluginVersion = "0.1.7";
 
         public static ConfigEntry<float> MainMenuUiScale;
         public static ConfigEntry<float> InGameUiScale;
@@ -36,7 +36,8 @@ namespace UIScales
 
         private void Awake()
         {
-            LOG = new ManualLogSource("Log");
+            DontDestroyOnLoad(this);
+            LOG = new ManualLogSource("UI Scales");
             BepInEx.Logging.Logger.Sources.Add(LOG);
 
             UIKeyboardShortcutIncrease = Config.Bind("Keyboard Shortcuts", "UI Scale Increase", new KeyboardShortcut(KeyCode.Keypad8, KeyCode.LeftControl));
@@ -62,7 +63,7 @@ namespace UIScales
             ZoomLevel.Value = Mathf.Max(ZoomLevel.Value, 0.5f);
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
-            LOG.LogWarning($"Plugin {PluginName} is loaded!");
+            LOG.LogInfo($"Plugin {PluginName} is loaded!");
         }
 
         private void OnDestroy()

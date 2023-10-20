@@ -130,7 +130,13 @@ public static class Patches
 
         _newButton.GetComponent<Button>().onClick.AddListener(() =>
         {
+            if (UIHandler.unloadingGame)
+            {
+                return;
+            }
+            Time.timeScale = 1f;
             NotificationStack.Instance.SendNotification($"Game Saved! Exiting...");
+            SingletonBehaviour<GameSave>.Instance.SaveGame(true);
             GC.Collect();
             Application.Quit();
         });

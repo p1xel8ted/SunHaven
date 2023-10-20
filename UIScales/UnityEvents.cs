@@ -40,9 +40,9 @@ public partial class Plugin
             InGameUiScale.Value += scaleAdjustment;
             InGameUiScale.Value = Mathf.Max(Mathf.Round(InGameUiScale.Value / 0.25f) * 0.25f, 0.5f);
 
-            if (_enableNotifications.Value && NotificationStack.Instance != null)
+            if (_enableNotifications.Value && NotificationStack.Instance is not null)
             {
-                NotificationStack.Instance.SendNotification("UI Scale: " + InGameUiScale.Value);
+                SingletonBehaviour<NotificationStack>.Instance.SendNotification("UI Scale: " + InGameUiScale.Value);
             }
         }
     }
@@ -56,37 +56,37 @@ public partial class Plugin
             ZoomLevel.Value += zoomAdjustment;
             ZoomLevel.Value = Mathf.Max(Mathf.Round(ZoomLevel.Value / 0.25f) * 0.25f, 0.5f);
 
-            if (Player.Instance != null)
+            if (Player.Instance is not null)
             {
                 Player.Instance.OverrideCameraZoomLevel = false;
                 Player.Instance.SetZoom(ZoomLevel.Value, true);
             }
 
-            if (_enableNotifications.Value && NotificationStack.Instance != null)
+            if (_enableNotifications.Value && NotificationStack.Instance is not null)
             {
-                NotificationStack.Instance.SendNotification("Zoom Level: " + ZoomLevel.Value);
+                SingletonBehaviour<NotificationStack>.Instance.SendNotification("Zoom Level: " + ZoomLevel.Value);
             }
         }
     }
 
     private static void UpdateCanvasScaleFactors()
     {
-        if (MainMenuCanvas != null)
+        if (MainMenuCanvas is not null)
         {
             MainMenuCanvas.scaleFactor = MainMenuUiScale.Value;
         }
 
-        if (UIOneCanvas != null)
+        if (UIOneCanvas is not null)
         {
             UIOneCanvas.scaleFactor = InGameUiScale.Value;
         }
 
-        if (UITwoCanvas != null)
+        if (UITwoCanvas is not null)
         {
             UITwoCanvas.scaleFactor = InGameUiScale.Value;
         }
 
-        if (QuantumCanvas != null)
+        if (QuantumCanvas is not null)
         {
             QuantumCanvas.scaleFactor = CheatConsoleScale.Value;
         }

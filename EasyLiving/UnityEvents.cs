@@ -6,10 +6,10 @@ public partial class Plugin
 {
     private void Update()
     {
-        if (EnableSaveShortcut.Value && SaveShortcut.Value.IsUp() && Player.Instance != null)
+        if (EnableSaveShortcut.Value && SaveShortcut.Value.IsUp() && Player.Instance is not null && GameSave.Instance is not null)
         {
-            GameSave.Instance.SaveGame();
-            NotificationStack.Instance.SendNotification("Game Saved!");
+            SingletonBehaviour<GameSave>.Instance.SaveGame(true);
+            SingletonBehaviour<NotificationStack>.Instance.SendNotification("Game Saved!");
         }
     }
 }
