@@ -53,6 +53,8 @@ obj/
 
 
 # Libs
+/libs/
+/AAA_Releases/
 libs/
 libs
 lib
