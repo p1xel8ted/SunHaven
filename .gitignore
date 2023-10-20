@@ -53,14 +53,15 @@ obj/
 
 
 # Libs
-/libs/
-/AAA_Releases/
-libs/
+/libs/*
+/AAA_Releases/*
+AAA_Releases/*
+libs/*
 libs
 lib
-lib/
+lib/*
 download
-download/
+download/*
 
 # Gradle
 .idea/**/gradle.xml
