@@ -17,6 +17,14 @@ public static class Patches
     private const string WateringCan = "_watering_can";
     private const string Sword = "_sword";
     private const string Hoe = "_hoe";
+    private static int PickaxeIndex { get; set; } = -1;
+    private static int AxeIndex { get; set; } = -1;
+    private static int ScytheIndex { get; set; } = -1;
+    private static int FishingRodIndex { get; set; } = -1;
+    private static int WateringCanIndex { get; set; } = -1;
+    private static int SwordIndex { get; set; } = -1;
+    private static int HoeIndex { get; set; } = -1;
+
 
     private static readonly Dictionary<string, Action<int>> ToolIndexUpdater = new()
     {
@@ -29,22 +37,11 @@ public static class Patches
         {Hoe, index => HoeIndex = index}
     };
 
-    private static int PickaxeIndex { get; set; } = -1;
-    private static int AxeIndex { get; set; } = -1;
-    private static int ScytheIndex { get; set; } = -1;
-    private static int FishingRodIndex { get; set; } = -1;
-    private static int WateringCanIndex { get; set; } = -1;
-    private static int SwordIndex { get; set; } = -1;
-    private static int HoeIndex { get; set; } = -1;
-
-    private static Pickaxe PickaxeItem { get; set; }
-    private static Axe AxeItem { get; set; }
-    private static WateringCan WateringCanItem { get; set; }
-    private static Sword SwordItem { get; set; }
-    private static Hoe HoeItem { get; set; }
-
     internal static void UpdateToolIndexes()
     {
+        if (Player.Instance is null) return;
+        if (Player.Instance.PlayerInventory is null) return;
+
         foreach (var tool in ToolIndexUpdater.Keys)
         {
             ToolIndexUpdater[tool](-1); // Reset all indices
@@ -52,61 +49,14 @@ public static class Patches
 
         foreach (var item in Player.Instance.PlayerInventory._actionBarIcons)
         {
-            foreach (var kvp in ToolIndexUpdater.Where(kvp => item.ItemImage._image.sprite.name.Contains(kvp.Key)))
+            foreach (var kvp in ToolIndexUpdater.Where(kvp => item.ItemImage is not null && item.ItemImage._image.sprite.name.Contains(kvp.Key)))
             {
                 kvp.Value(item.ItemImage.slotIndex);
                 break;
             }
         }
-
-        foreach (var kvp in ToolIndexUpdater)
-        {
-            switch (kvp.Key)
-            {
-                case "_pickaxe":
-                    if (PickaxeIndex is not -1)
-                    {
-                        SetActionBar(PickaxeIndex);
-                        PickaxeItem = Player.Instance._useItem as Pickaxe;
-                    }
-
-                    break;
-                case "_axe":
-                    if (AxeIndex is not -1)
-                    {
-                        SetActionBar(AxeIndex);
-                        AxeItem = Player.Instance._useItem as Axe;
-                    }
-
-                    break;
-                case "_watering_can":
-                    if (WateringCanIndex is not -1)
-                    {
-                        SetActionBar(WateringCanIndex);
-                        WateringCanItem = Player.Instance._useItem as WateringCan;
-                    }
-
-                    break;
-
-                case "_sword":
-                    if (SwordIndex is not -1)
-                    {
-                        SetActionBar(SwordIndex);
-                        SwordItem = Player.Instance._useItem as Sword;
-                    }
-
-                    break;
-                case "_hoe":
-                    if (HoeIndex is not -1)
-                    {
-                        SetActionBar(HoeIndex);
-                        HoeItem = Player.Instance._useItem as Hoe;
-                    }
-
-                    break;
-            }
-        }
     }
+
 
     private static void HandleToolInteraction(int toolIndex, string errorMessage)
     {
@@ -128,6 +78,8 @@ public static class Patches
 
         if (__instance is null || collider is null) return;
 
+      //  Plugin.LOG.LogWarning($"PlayerInteractions_OnTriggerEnter2D: {collider.name}");
+
         var enemy = collider.GetComponent<EnemyAI>();
         var npc = collider.GetComponent<NPCAI>();
         var isEnemy = enemy is not null && npc is null;
@@ -135,76 +87,53 @@ public static class Patches
         var tree = collider.GetComponent<Tree>();
         var crop = collider.GetComponent<Crop>();
         var wood = collider.GetComponent<Wood>();
+        var plant = collider.GetComponent<Plant>();
 
         // Only call UpdateToolIndexes() if one of the components is found.
-        if (enemy is not null || rock is not null || tree is not null || crop is not null || wood is not null)
+        if (enemy is not null || rock is not null || tree is not null || crop is not null || wood is not null || plant is not null)
         {
             UpdateToolIndexes();
         }
 
-        if (isEnemy && Plugin.EnableAutoSword.Value)
+        if (isEnemy)
         {
-            if (SwordItem is not null && CanUse(SwordItem.toolData))
-            {
-                HandleToolInteraction(SwordIndex, "No sword on action bar!");
-            }
-            else
-            {
-                Notify("No usable sword on the action bar!", true);
-            }
+            HandleToolInteraction(SwordIndex, "No sword on action bar!");
         }
-        else if (rock && Plugin.EnableAutoPickaxe.Value)
+        else if (rock && rock.Pickaxeable)
         {
-            if (PickaxeItem is not null && CanUse(PickaxeItem.toolData))
-            {
-                HandleToolInteraction(PickaxeIndex, "No pickaxe on action bar!");
-            }
-            else
-            {
-                Notify("No usable pickaxe on the action bar!", true);
-            }
+            HandleToolInteraction(PickaxeIndex, "No pickaxe on action bar!");
         }
-        else if ((tree || wood) && Plugin.EnableAutoAxe.Value)
+        else if ((tree && tree.Axeable) || (wood && wood.Axeable))
         {
-            if (AxeItem is not null && CanUse(AxeItem.toolData))
-            {
-                HandleToolInteraction(AxeIndex, "No axe on action bar!");
-            }
-            else
-            {
-                Notify("No usable axe on the action bar!", true);
-            }
+            HandleToolInteraction(AxeIndex, "No axe on action bar!");
+        }
+        else if (plant is not null || (collider.name.Contains("foliage") && !collider.name.Contains("prop")))
+        {
+            HandleToolInteraction(ScytheIndex, "No scythe on action bar!");
         }
         else if (crop is not null)
         {
             // Specific logic for crops, as it has additional conditions
-            if ((!crop.data.watered || crop.data.onFire) && Plugin.EnableAutoWateringCan.Value)
+            if (!crop.data.watered || crop.data.onFire)
             {
-                if (WateringCanItem is not null && CanUse(WateringCanItem.toolData))
-                {
-                    HandleToolInteraction(WateringCanIndex, "No watering can on action bar!");
-                }
-                else
-                {
-                    Notify("No usable water can on the action bar!", true);
-                }
+                HandleToolInteraction(WateringCanIndex, "No watering can on action bar!");
             }
-            else if (crop.FullyGrown && Plugin.EnableAutoScythe.Value)
+            else if (crop.FullyGrown)
             {
                 HandleToolInteraction(ScytheIndex, "No scythe on action bar!");
             }
         }
-        else if (Plugin.EnableAutoFishingRod.Value && Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < 20 &&
+        else if (Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < 20 &&
                  SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Utilities.MousePositionFloat().x, (int) Utilities.MousePositionFloat().y)))
         {
             HandleToolInteraction(FishingRodIndex, "No fishing rod on action bar!");
         }
     }
 
-    private static bool CanUse(ToolData toolData)
-    {
-        return SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.Professions[toolData.profession].level >= toolData.requiredLevel;
-    }
+    // private static bool CanUse(ToolData toolData)
+    // {
+    //     return SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.Professions[toolData.profession].level >= toolData.requiredLevel;
+    // }
 
     private static void Notify(string message, bool error = false)
     {

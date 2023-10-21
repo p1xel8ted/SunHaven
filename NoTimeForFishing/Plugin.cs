@@ -55,7 +55,6 @@ namespace NoTimeForFishing
 
         private void Awake()
         {
-            DontDestroyOnLoad(this);
             LOG = new ManualLogSource("No Time For Fishing");
             BepInEx.Logging.Logger.Sources.Add(LOG);
 

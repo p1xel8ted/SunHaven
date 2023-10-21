@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
@@ -15,6 +16,42 @@ namespace EasyLiving;
 public static class Patches
 {
     private static GameObject _newButton;
+    private static bool PlayerReturnedToMenu { get; set; }
+    private static readonly WriteOnce<Vector2> OriginalSize = new();
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(UIHandler), nameof(UIHandler.ExitGame))]
+    [HarmonyPatch(typeof(UIHandler), nameof(UIHandler.ExitGameImmediate))]
+    public static void UIHandler_ExitGame()
+    {
+        PlayerReturnedToMenu = true;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.PlayGame), new Type[] { })]
+    [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.PlayGame), typeof(int))]
+    public static void MainMenuController_PlayGame()
+    {
+        PlayerReturnedToMenu = false;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.Start))]
+    public static void GameSave_LoadAllCharacters(ref MainMenuController __instance)
+    {
+        if (PlayerReturnedToMenu) return;
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            Plugin.LOG.LogWarning("LeftShift held down. Skipping load of last modified save.");
+            return;
+        }
+        var saves = SingletonBehaviour<GameSave>.Instance.Saves.OrderByDescending(save => save.worldData.saveTime).ToList();
+        var lastModifiedSave = saves.FirstOrDefault();
+        if (lastModifiedSave != null)
+        {
+            __instance.PlayGame(lastModifiedSave.characterData.characterIndex);
+        }
+    }
 
     private static string GetGameObjectPath(GameObject obj)
     {
@@ -29,22 +66,20 @@ public static class Patches
         return path;
     }
 
-    private static readonly WriteOnce<Vector2> OriginalSize = new();
-
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ScrollRect), nameof(ScrollRect.OnEnable))]
     [HarmonyPatch(typeof(ScrollRect), nameof(ScrollRect.LateUpdate))]
     public static void ScrollRect_Initialize(ref ScrollRect __instance)
     {
         if (GetGameObjectPath(__instance.gameObject) != "Player(Clone)/UI/QuestTracker/Scroll View") return;
-        
+
         if (!Plugin.EnableAdjustQuestTrackerHeightView.Value)
         {
             if (OriginalSize.Value != Vector2.zero)
             {
                 __instance.viewport.GetComponent<RectTransform>().sizeDelta = OriginalSize.Value;
             }
-            
+
             return;
         }
 
@@ -67,36 +102,6 @@ public static class Patches
         if (dialogue.dialogueText.Any(str => str.Contains("museum bundle") && str.Contains("missing items")))
         {
             onComplete?.Invoke();
-            return false;
-        }
-
-        return true;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(Crop), nameof(Crop.ReceiveDamage))]
-    public static bool Crop_ReceiveDamage(ref Crop __instance, ref DamageInfo damageInfo, ref DamageHit __result)
-    {
-        if (!Plugin.AllowRemovalOfGrowingCrops.Value) return true;
-
-        if (__instance.FullyGrown || __instance.data.onFire || __instance.data.entangled || __instance.data.frozen || damageInfo.hitType != HitType.Scythe || __instance._seedItem.pickUpAble || __instance.data.dead)
-        {
-            return true;
-        }
-
-        if (!__instance.FullyGrown)
-        {
-            __instance.DestroyCrop();
-            if (Random.value < 0.50f)
-            {
-                __instance.DropSeeds();
-            }
-
-            __result = new DamageHit
-            {
-                hit = true,
-                damageTaken = 1f
-            };
             return false;
         }
 
@@ -134,6 +139,7 @@ public static class Patches
             {
                 return;
             }
+
             Time.timeScale = 1f;
             NotificationStack.Instance.SendNotification($"Game Saved! Exiting...");
             SingletonBehaviour<GameSave>.Instance.SaveGame();

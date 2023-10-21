@@ -11,6 +11,15 @@ namespace UIScales;
 public static class Patches
 {
     [HarmonyPostfix]
+    [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.Start))]
+    public static void MainMenuController_Start(ref MainMenuController __instance)
+    {
+        Plugin.UpdateUiScale(true);
+        Plugin.UpdateZoomLevel();
+        Plugin.UpdateCanvasScaleFactors();
+    }
+    
+    [HarmonyPostfix]
     [HarmonyPatch(typeof(LoadCharacterMenu), nameof(LoadCharacterMenu.SetupSavePanels))]
     public static void LoadCharacterMenu_SetupSavePanels(ref LoadCharacterMenu __instance)
     {
@@ -37,47 +46,37 @@ public static class Patches
         {
             return;
         }
-
+    
         var name = __instance.name;
         var path = Plugin.GetGameObjectPath(__instance.gameObject);
-
+    
         switch (name)
         {
             case "UI" when Plugin.UIOneCanvas == null && path.Equals("Manager/UI"):
                 Plugin.LOG.LogInfo($"Found top left and right UI!");
                 Plugin.UIOneCanvas = __instance;
-                ConfigureCanvasScaler(Plugin.UIOneCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.InGameUiScale.Value);
+                Plugin.ConfigureCanvasScaler(Plugin.UIOneCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.InGameUiScale.Value);
                 break;
             case "UI" when Plugin.UITwoCanvas == null && path.Equals("Player(Clone)/UI"):
             {
                 Plugin.LOG.LogInfo($"Found action bars/quest log etc!");
                 Plugin.UITwoCanvas = __instance;
-                ConfigureCanvasScaler(Plugin.UITwoCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.InGameUiScale.Value);
+                Plugin.ConfigureCanvasScaler(Plugin.UITwoCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.InGameUiScale.Value);
                 break;
             }
             case "Quantum Console" when path.Equals("SharedManager/Quantum Console"):
                 Plugin.LOG.LogInfo($"Found cheat console!");
                 Plugin.QuantumCanvas = __instance;
-                ConfigureCanvasScaler(Plugin.QuantumCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.CheatConsoleScale.Value);
+                Plugin.ConfigureCanvasScaler(Plugin.QuantumCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.CheatConsoleScale.Value);
                 break;
             case "Canvas" when path.Equals("Canvas") && SceneManager.GetActiveScene().name == "MainMenu":
                 Plugin.LOG.LogInfo($"Found menu??");
                 Plugin.MainMenuCanvas = __instance;
-                ConfigureCanvasScaler(Plugin.MainMenuCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.MainMenuUiScale.Value);
+                Plugin.ConfigureCanvasScaler(Plugin.MainMenuCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.MainMenuUiScale.Value);
                 break;
         }
     }
 
-    private static void ConfigureCanvasScaler(CanvasScaler canvasScaler, CanvasScaler.ScaleMode scaleMode, float scaleFactor)
-    {
-        if (canvasScaler == null)
-        {
-            return;
-        }
-
-        canvasScaler.uiScaleMode = scaleMode;
-        canvasScaler.scaleFactor = scaleFactor;
-    }
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Player), nameof(Player.SetZoom))]

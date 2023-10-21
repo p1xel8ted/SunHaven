@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Wish;
 
 namespace UIScales;
@@ -10,13 +11,12 @@ public partial class Plugin
     private void Update()
     {
         var isMainMenu = SceneManager.GetActiveScene().name.Equals("MainMenu", StringComparison.InvariantCultureIgnoreCase);
-
         UpdateUiScale(isMainMenu);
         UpdateZoomLevel();
         UpdateCanvasScaleFactors();
     }
 
-    private void UpdateUiScale(bool isMainMenu)
+    internal static void UpdateUiScale(bool isMainMenu)
     {
         float scaleAdjustment = 0;
 
@@ -47,7 +47,7 @@ public partial class Plugin
         }
     }
 
-    private void UpdateZoomLevel()
+    internal static void UpdateZoomLevel()
     {
         if (ZoomKeyboardShortcutIncrease.Value.IsUp() || ZoomKeyboardShortcutDecrease.Value.IsUp())
         {
@@ -69,26 +69,11 @@ public partial class Plugin
         }
     }
 
-    private static void UpdateCanvasScaleFactors()
+    internal static void UpdateCanvasScaleFactors()
     {
-        if (MainMenuCanvas is not null)
-        {
-            MainMenuCanvas.scaleFactor = MainMenuUiScale.Value;
-        }
-
-        if (UIOneCanvas is not null)
-        {
-            UIOneCanvas.scaleFactor = InGameUiScale.Value;
-        }
-
-        if (UITwoCanvas is not null)
-        {
-            UITwoCanvas.scaleFactor = InGameUiScale.Value;
-        }
-
-        if (QuantumCanvas is not null)
-        {
-            QuantumCanvas.scaleFactor = CheatConsoleScale.Value;
-        }
+        ConfigureCanvasScaler(MainMenuCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, MainMenuUiScale.Value);
+        ConfigureCanvasScaler(UIOneCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, InGameUiScale.Value);
+        ConfigureCanvasScaler(UITwoCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, InGameUiScale.Value);
+        ConfigureCanvasScaler(QuantumCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, CheatConsoleScale.Value);
     }
 }

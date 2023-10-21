@@ -26,7 +26,8 @@ namespace KeepAlive
                 var savedItemNames = string.Join(", ", items.Select(i => i.name));
                 Plugin.LOG.LogInfo($"Prevented the following items from being modified: {savedItemNames}");
             }
-
+            
+            objectList.RemoveAll(a => a.name.ToLowerInvariant().Contains(BepInEx));
             __result = objectList.ToArray();
         }
     }
