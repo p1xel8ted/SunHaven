@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Wish;
 
 namespace AutoTools;
@@ -76,15 +77,21 @@ public static class Patches
     {
         if (!Plugin.EnableAutoTool.Value) return;
 
-        if (__instance is null || collider is null) return;
 
-      //  Plugin.LOG.LogWarning($"PlayerInteractions_OnTriggerEnter2D: {collider.name}");
+        if (__instance is null || collider is null || SceneSettingsManager.Instance is null || TileManager.Instance is null) return;
+        //var scene = SceneSettingsManager.Instance.sceneDictionary.FirstOrDefault(a => a.Value.sceneName == SceneManager.GetActiveScene().name);
+        if (!Plugin.EnableAutoToolOnFarmTiles.Value && TileManager.Instance.HasFarmingTile(Player.Instance.Position, ScenePortalManager.ActiveSceneIndex))
+        {
+            Plugin.LOG.LogWarning($"PlayerInteractions_OnTriggerEnter2D: Player is on a farming tile!");
+            return;
+        }
+
 
         var enemy = collider.GetComponent<EnemyAI>();
         var npc = collider.GetComponent<NPCAI>();
         var isEnemy = enemy is not null && npc is null;
         var rock = collider.GetComponent<Rock>();
-        var tree = collider.GetComponent<Tree>();
+        var tree = collider.GetComponent<Wish.Tree>();
         var crop = collider.GetComponent<Crop>();
         var wood = collider.GetComponent<Wood>();
         var plant = collider.GetComponent<Plant>();
@@ -97,36 +104,56 @@ public static class Patches
 
         if (isEnemy)
         {
-            HandleToolInteraction(SwordIndex, "No sword on action bar!");
+            if (Plugin.EnableAutoSword.Value)
+            {
+                HandleToolInteraction(SwordIndex, "No sword on action bar!");
+            }
         }
         else if (rock && rock.Pickaxeable)
         {
-            HandleToolInteraction(PickaxeIndex, "No pickaxe on action bar!");
+            if (Plugin.EnableAutoPickaxe.Value)
+            {
+                HandleToolInteraction(PickaxeIndex, "No pickaxe on action bar!");
+            }
         }
         else if ((tree && tree.Axeable) || (wood && wood.Axeable))
         {
-            HandleToolInteraction(AxeIndex, "No axe on action bar!");
+            if(Plugin.EnableAutoAxe.Value){
+                HandleToolInteraction(AxeIndex, "No axe on action bar!");
+            }
         }
         else if (plant is not null || (collider.name.Contains("foliage") && !collider.name.Contains("prop")))
         {
-            HandleToolInteraction(ScytheIndex, "No scythe on action bar!");
+            if (Plugin.EnableAutoScythe.Value)
+            {
+                HandleToolInteraction(ScytheIndex, "No scythe on action bar!");
+            }
         }
         else if (crop is not null)
         {
             // Specific logic for crops, as it has additional conditions
             if (!crop.data.watered || crop.data.onFire)
             {
-                HandleToolInteraction(WateringCanIndex, "No watering can on action bar!");
+                if (Plugin.EnableAutoWateringCan.Value)
+                {
+                    HandleToolInteraction(WateringCanIndex, "No watering can on action bar!");
+                }
             }
             else if (crop.FullyGrown)
             {
-                HandleToolInteraction(ScytheIndex, "No scythe on action bar!");
+                if (Plugin.EnableAutoScythe.Value)
+                {
+                    HandleToolInteraction(ScytheIndex, "No scythe on action bar!");
+                }
             }
         }
-        else if (Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < 20 &&
-                 SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Utilities.MousePositionFloat().x, (int) Utilities.MousePositionFloat().y)))
+        else if (Vector2.Distance(Player.Instance.ExactGraphicsPosition, Wish.Utilities.MousePositionFloat()) < 20 &&
+                 SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Wish.Utilities.MousePositionFloat().x, (int) Wish.Utilities.MousePositionFloat().y)))
         {
-            HandleToolInteraction(FishingRodIndex, "No fishing rod on action bar!");
+            if (Plugin.EnableAutoFishingRod.Value)
+            {
+                HandleToolInteraction(FishingRodIndex, "No fishing rod on action bar!");
+            }
         }
     }
 

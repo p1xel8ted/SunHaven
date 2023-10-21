@@ -15,6 +15,7 @@ namespace EasyLiving;
 [HarmonyPatch]
 public static class Patches
 {
+    private const float BaseMoveSpeed = 4.5f;
     private static GameObject _newButton;
     private static bool PlayerReturnedToMenu { get; set; }
     private static readonly WriteOnce<Vector2> OriginalSize = new();
@@ -35,12 +36,28 @@ public static class Patches
         PlayerReturnedToMenu = false;
     }
 
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Player), nameof(Player.FixedUpdate))]
+    public static void Player_FixedUpdate(ref Player __instance)
+    {
+        if (!Plugin.ApplyMoveSpeedMultiplier.Value) return;
+        __instance.moveSpeed = BaseMoveSpeed * Plugin.MoveSpeedMultiplier.Value;
+    }
+    
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Player), nameof(Player.MoveSpeed), MethodType.Getter)]
+    public static void Player_MoveSpeed(ref Player __instance, ref float __result)
+    {
+        if (!Plugin.ApplyMoveSpeedMultiplier.Value) return;
+       __result = BaseMoveSpeed * Plugin.MoveSpeedMultiplier.Value;
+    }
+    
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.Start))]
     public static void GameSave_LoadAllCharacters(ref MainMenuController __instance)
     {
         if (PlayerReturnedToMenu) return;
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift))
         {
             Plugin.LOG.LogWarning("LeftShift held down. Skipping load of last modified save.");
             return;

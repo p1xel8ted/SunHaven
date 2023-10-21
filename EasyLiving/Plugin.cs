@@ -23,11 +23,15 @@ public partial class Plugin : BaseUnityPlugin
     public static ConfigEntry<bool> AddQuitToDesktopButton { get; private set; }
     public static ConfigEntry<bool> EnableAdjustQuestTrackerHeightView { get; private set; }
     public static ConfigEntry<int> AdjustQuestTrackerHeightView { get; private set; }
-
-    internal static ManualLogSource LOG { get; set; }
+    
+    public static ConfigEntry<bool> ApplyMoveSpeedMultiplier { get; private set; }
+    public static ConfigEntry<float> MoveSpeedMultiplier { get; private set; }
+    internal static ManualLogSource LOG { get; private set; }
 
     private void Awake()
     {
+        LOG = new ManualLogSource("Easy Living");
+        BepInEx.Logging.Logger.Sources.Add(LOG);
         SceneManager.sceneLoaded += SceneManagerOnSceneLoaded;
         UnityLogging = Config.Bind("Debug", "Unity Logging", false, new ConfigDescription("Toggle Unity logging. Useful for debugging.", null, new ConfigurationManagerAttributes {IsAdvanced = true, Order = -1}));
         UnityLogging.SettingChanged += (_, _) => { Debug.unityLogger.logEnabled = UnityLogging.Value; };
@@ -39,9 +43,9 @@ public partial class Plugin : BaseUnityPlugin
         AddQuitToDesktopButton = Config.Bind("UI", "Add Quit To Desktop Button", true, new ConfigDescription("Add a 'Quit To Desktop' button to the main menu. Bottom right X.", null, new ConfigurationManagerAttributes {Order = 2}));
         EnableAdjustQuestTrackerHeightView = Config.Bind("UI", "Enable Adjust Quest Tracker Height", true, new ConfigDescription("Enable adjusting the height of the quest tracker.", null, new ConfigurationManagerAttributes {Order = 1}));
         AdjustQuestTrackerHeightView = Config.Bind("UI", "Adjust Quest Tracker Height", Display.main.systemHeight / 3, new ConfigDescription("Adjust the height of the quest tracker.", new AcceptableValueRange<int>(-2000, 2000), new ConfigurationManagerAttributes {Order = 0}));
+        ApplyMoveSpeedMultiplier = Config.Bind("Player", "Apply Move Speed Multiplier", true, new ConfigDescription("Apply a multiplier to the players base speed.", null, new ConfigurationManagerAttributes {Order = 1}));
+        MoveSpeedMultiplier = Config.Bind("Player", "Move Speed Multiplier", 1.5f, new ConfigDescription("Adjust the player's move speed.", new AcceptableValueRange<float>(1f, 10f), new ConfigurationManagerAttributes {Order = 0}));
 
-        LOG = new ManualLogSource("Easy Living");
-        BepInEx.Logging.Logger.Sources.Add(LOG);
 
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
         LOG.LogInfo($"Plugin {PluginName} is loaded!");
