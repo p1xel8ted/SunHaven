@@ -11,7 +11,7 @@ namespace CheatEnabler {
         [Command()]
         private void savegame()
         {
-            SingletonBehaviour<GameSave>.Instance.SaveGame();
+            SingletonBehaviour<GameSave>.Instance.SaveGame(true);
             SingletonBehaviour<NotificationStack>.Instance.SendNotification("Game Saved!");
         }
         

@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyLiving", "EasyLiving\Ea
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KeepAlive", "KeepAlive\KeepAlive.csproj", "{977FB946-2A30-43D8-AE7C-DE76E5C2BBC7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoTool", "AutoTool\AutoTool.csproj", "{F18B025C-BA42-45A8-AB8D-2F0467A42944}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoTools", "AutoTools\AutoTools.csproj", "{F18B025C-BA42-45A8-AB8D-2F0467A42944}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

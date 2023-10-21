@@ -136,7 +136,7 @@ public static class Patches
             }
             Time.timeScale = 1f;
             NotificationStack.Instance.SendNotification($"Game Saved! Exiting...");
-            SingletonBehaviour<GameSave>.Instance.SaveGame(true);
+            SingletonBehaviour<GameSave>.Instance.SaveGame();
             GC.Collect();
             Application.Quit();
         });
