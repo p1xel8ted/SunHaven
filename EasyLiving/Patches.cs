@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
@@ -8,7 +7,6 @@ using UnityEngine.UI;
 using Wish;
 using Button = UnityEngine.UI.Button;
 using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
 
 namespace EasyLiving;
 

@@ -4,7 +4,6 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine.SceneManagement;
-using Wish;
 
 namespace AutoTools;
 
@@ -13,9 +12,9 @@ public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "p1xel8ted.sunhaven.autotools";
     private const string PluginName = "Auto Tools";
-    private const string PluginVersion = "0.0.1";
-    internal static ManualLogSource LOG { get; private set; }
-    
+    private const string PluginVersion = "0.0.2";
+    private static ManualLogSource LOG { get; set; }
+
     internal static ConfigEntry<bool> EnableAutoTool { get; private set; }
     internal static ConfigEntry<bool> EnableAutoToolOnFarmTiles { get; private set; }
     internal static ConfigEntry<bool> EnableAutoPickaxe { get; private set; }
@@ -32,7 +31,7 @@ public class Plugin : BaseUnityPlugin
         LOG = new ManualLogSource("AutoTools");
         BepInEx.Logging.Logger.Sources.Add(LOG);
         SceneManager.sceneLoaded += SceneManagerOnSceneLoaded;
-      
+
         EnableAutoTool = Config.Bind("01. General", "Enable AutoTools", true, new ConfigDescription("Enable AutoTools.", null, new ConfigurationManagerAttributes {Order = 26}));
         EnableAutoToolOnFarmTiles = Config.Bind("01. General", "Enable AutoTools On Farm Tiles", true, new ConfigDescription("Enable AutoTools On Farm Tiles.", null, new ConfigurationManagerAttributes {Order = 25}));
         EnableAutoPickaxe = Config.Bind("02. Specific Tools", "Enable AutoPickaxe", true, new ConfigDescription("Enable AutoPickaxe.", null, new ConfigurationManagerAttributes {Order = 24}));
@@ -43,15 +42,17 @@ public class Plugin : BaseUnityPlugin
         EnableAutoSword = Config.Bind("02. Specific Tools", "Enable AutoSword", true, new ConfigDescription("Enable AutoSword.", null, new ConfigurationManagerAttributes {Order = 18}));
         EnableAutoHoe = Config.Bind("02. Specific Tools", "Enable AutoHoe", true, new ConfigDescription("Enable AutoHoe.", null, new ConfigurationManagerAttributes {Order = 17}));
         EnableDebug = Config.Bind("03. Debug", "Enable Debug", false, new ConfigDescription("Enable Debug.", null, new ConfigurationManagerAttributes {Order = 16}));
-        
+
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
-        LOG.LogWarning($"Plugin {PluginName} is loaded!");
+        LOG.LogInfo($"Plugin {PluginName} is loaded!");
     }
+
     private static void SceneManagerOnSceneLoaded(Scene arg0, LoadSceneMode arg1)
     {
         Patches.UpdateToolIndexes();
+       
     }
-
+    
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= SceneManagerOnSceneLoaded;

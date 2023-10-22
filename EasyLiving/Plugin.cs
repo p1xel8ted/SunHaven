@@ -6,7 +6,6 @@ using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Wish;
 
 namespace EasyLiving;
 

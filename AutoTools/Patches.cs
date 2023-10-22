@@ -107,7 +107,7 @@ public static class Patches
 
     private static bool IsInFarmTile()
     {
-        return TileManager.Instance.HasFarmingTile(Player.Instance.Position, ScenePortalManager.ActiveSceneIndex);
+        return TileManager.Instance.HasTileOrFarmingTile(Player.Instance.Position, ScenePortalManager.ActiveSceneIndex);
     }
 
     private static void RunToolActions(Collider2D collider)
@@ -119,7 +119,6 @@ public static class Patches
         // Plugin.LOG.LogWarning($"WateringCanIndex: {WateringCanIndex}");
         // Plugin.LOG.LogWarning($"FishingRodIndex: {FishingRodIndex}");
         // Plugin.LOG.LogWarning($"HoeIndex: {HoeIndex}");
-        
         ToolAction(SwordIndex, IsEnemy, Plugin.EnableAutoSword.Value, NoSwordOnActionBar);
         ToolAction(PickaxeIndex, Rock is not null && Rock.Pickaxeable, Plugin.EnableAutoPickaxe.Value, NoPickaxeOnActionBar);
         ToolAction(AxeIndex, (Tree is not null && Tree.Axeable) || (Wood is not null && Wood.Axeable), Plugin.EnableAutoAxe.Value, NoAxeOnActionBar);
@@ -128,7 +127,7 @@ public static class Patches
         ToolAction(FishingRodIndex, Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < 20 && SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Utilities.MousePositionFloat().x, (int) Utilities.MousePositionFloat().y)), Plugin.EnableAutoFishingRod.Value, NoFishingRodOnActionBar);
         ToolAction(HoeIndex, TileManager.Instance.IsHoeable(new Vector2Int((int) Player.Instance.ExactGraphicsPosition.x, (int) Player.Instance.ExactGraphicsPosition.y)), Plugin.EnableAutoHoe.Value, NoHoeOnActionBar);
     }
-
+    
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerInteractions), nameof(PlayerInteractions.OnTriggerEnter2D))]
     public static void PlayerInteractions_OnTriggerEnter2D(PlayerInteractions __instance, Collider2D collider)
@@ -137,7 +136,7 @@ public static class Patches
 
         if (!EnableToolSwaps(__instance, collider)) return;
 
-        if (!EnableAutoToolOnFarmTiles()) return;
+        if (IsInFarmTile() && !Plugin.EnableAutoToolOnFarmTiles.Value) return;
 
         UpdateColliders(collider);
 
@@ -161,11 +160,6 @@ public static class Patches
     private static bool EnableToolSwaps(PlayerInteractions __instance, Collider2D collider)
     {
         return __instance is not null || collider is not null || SceneSettingsManager.Instance is not null || TileManager.Instance is not null;
-    }
-
-    private static bool EnableAutoToolOnFarmTiles()
-    {
-        return !IsInFarmTile() || Plugin.EnableAutoToolOnFarmTiles.Value;
     }
 
     private static void ToolAction(int toolIndex, bool condition, bool pluginValue, string errorMessage, Func<bool> additionalCondition = null, string failedConditionMessage = null)
