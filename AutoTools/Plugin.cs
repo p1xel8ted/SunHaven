@@ -4,6 +4,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine.SceneManagement;
+using Wish;
 
 namespace AutoTools;
 
@@ -11,7 +12,7 @@ namespace AutoTools;
 public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "p1xel8ted.sunhaven.autotools";
-    private const string PluginName = "AutoTools";
+    private const string PluginName = "Auto Tools";
     private const string PluginVersion = "0.0.1";
     internal static ManualLogSource LOG { get; private set; }
     
@@ -28,10 +29,10 @@ public class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
-      SceneManager.sceneLoaded += SceneManagerOnSceneLoaded;
         LOG = new ManualLogSource("AutoTools");
         BepInEx.Logging.Logger.Sources.Add(LOG);
-
+        SceneManager.sceneLoaded += SceneManagerOnSceneLoaded;
+      
         EnableAutoTool = Config.Bind("01. General", "Enable AutoTools", true, new ConfigDescription("Enable AutoTools.", null, new ConfigurationManagerAttributes {Order = 26}));
         EnableAutoToolOnFarmTiles = Config.Bind("01. General", "Enable AutoTools On Farm Tiles", true, new ConfigDescription("Enable AutoTools On Farm Tiles.", null, new ConfigurationManagerAttributes {Order = 25}));
         EnableAutoPickaxe = Config.Bind("02. Specific Tools", "Enable AutoPickaxe", true, new ConfigDescription("Enable AutoPickaxe.", null, new ConfigurationManagerAttributes {Order = 24}));
@@ -46,10 +47,8 @@ public class Plugin : BaseUnityPlugin
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
         LOG.LogWarning($"Plugin {PluginName} is loaded!");
     }
-
     private static void SceneManagerOnSceneLoaded(Scene arg0, LoadSceneMode arg1)
     {
-        Plugin.LOG.LogWarning($"Scene loaded: {arg0.name}");
         Patches.UpdateToolIndexes();
     }
 

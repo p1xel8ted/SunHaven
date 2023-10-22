@@ -9,7 +9,7 @@ namespace CheatEnabler
     public partial class Plugin : BaseUnityPlugin
     {
         private const string PluginGuid = "p1xel8ted.sunhaven.cheatenabler";
-        private const string PluginName = "CheatEnabler";
+        private const string PluginName = "Cheat Enabler";
         private const string PluginVersion = "0.1.6";
         private static ManualLogSource LOG { get; set; }
         private static CheatCs CheatCsInstance { get; set; }

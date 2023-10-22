@@ -15,7 +15,8 @@ namespace EasyLiving;
 [HarmonyPatch]
 public static class Patches
 {
-    private const float BaseMoveSpeed = 4.5f;
+    internal const float BaseMoveSpeed = 4.5f;
+    private const string SkippingLoadOfLastModifiedSave = "Skipping load of last modified save.";
     private static GameObject _newButton;
     private static bool PlayerReturnedToMenu { get; set; }
     private static readonly WriteOnce<Vector2> OriginalSize = new();
@@ -51,15 +52,18 @@ public static class Patches
         if (!Plugin.ApplyMoveSpeedMultiplier.Value) return;
        __result = BaseMoveSpeed * Plugin.MoveSpeedMultiplier.Value;
     }
+
+    internal static bool SkipAutoLoad { get; set; }= false;
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.Start))]
     public static void GameSave_LoadAllCharacters(ref MainMenuController __instance)
     {
+        if (!Plugin.AutoLoadMostRecentSave.Value) return;
         if (PlayerReturnedToMenu) return;
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (SkipAutoLoad) 
         {
-            Plugin.LOG.LogWarning("LeftShift held down. Skipping load of last modified save.");
+            Plugin.LOG.LogWarning(SkippingLoadOfLastModifiedSave);
             return;
         }
         var saves = SingletonBehaviour<GameSave>.Instance.Saves.OrderByDescending(save => save.worldData.saveTime).ToList();

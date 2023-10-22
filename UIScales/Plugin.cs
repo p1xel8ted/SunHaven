@@ -16,7 +16,7 @@ namespace UIScales
     public partial class Plugin : BaseUnityPlugin
     {
         private const string PluginGuid = "p1xel8ted.sunhaven.uiscales";
-        private const string PluginName = "UIScales";
+        private const string PluginName = "UI Scales";
         private const string PluginVersion = "0.1.8";
 
         public static ConfigEntry<float> MainMenuUiScale;

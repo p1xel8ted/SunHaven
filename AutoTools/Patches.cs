@@ -1,24 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
 using Wish;
 
+// ReSharper disable SuggestBaseTypeForParameter
+
 namespace AutoTools;
 
 [Harmony]
+[SuppressMessage("ReSharper", "InconsistentNaming")]
 public static class Patches
 {
-    private const string Pickaxe = "_pickaxe";
+    private const string Pickaxe = "pickaxe";
     private const string Axe = "_axe";
-    private const string Scythe = "_scythe";
+    private const string Scythe = "scythe";
     private const string FishingRod = "_Fishing_Rod";
     private const string WateringCan = "_watering_can";
-    private const string Sword = "_sword";
-    private const string Hoe = "_hoe";
-
-
+    private const string Sword = "sword";
+    private const string Hoe = "hoe";
+    private const string NoSuitableToolFoundOnActionBar = $"No suitable tool found on action bar!";
+    private const string NoSwordOnActionBar = "No sword on action bar!";
+    private const string NoPickaxeOnActionBar = "No pickaxe on action bar!";
+    private const string NoAxeOnActionBar = "No axe on action bar!";
+    private const string Prop = "prop";
+    private const string Foliage = "foliage";
+    private const string NoWateringCanOnActionBar = "No watering can on action bar!";
+    private const string NoScytheOnActionBar = "No scythe on action bar!";
+    private const string NoHoeOnActionBar = "No hoe on action bar!";
+    private const string NoFishingRodOnActionBar = "No fishing rod on action bar!";
+    private const string YourWateringCanIsEmpty = "Your watering can is empty!";
+    
     private static readonly Dictionary<string, Action<int>> ToolIndexUpdater = new()
     {
         {Pickaxe, index => PickaxeIndex = index},
@@ -37,8 +51,15 @@ public static class Patches
     private static int WateringCanIndex { get; set; } = -1;
     private static int SwordIndex { get; set; } = -1;
     private static int HoeIndex { get; set; } = -1;
-
     private static Dictionary<int, ToolData> ToolIndexToItemMap { get; } = new();
+    private static EnemyAI Enemy { get; set; }
+    private static NPCAI Npc { get; set; }
+    private static bool IsEnemy => Enemy is not null && Npc is null;
+    private static Rock Rock { get; set; }
+    private static Tree Tree { get; set; }
+    private static Crop Crop { get; set; }
+    private static Wood Wood { get; set; }
+    private static Plant Plant { get; set; }
 
     private static ToolData GetToolDataByToolIndex(int toolIndex)
     {
@@ -51,20 +72,21 @@ public static class Patches
     {
         if (Player.Instance is null || Player.Instance.PlayerInventory is null)
             return;
-        
+
         foreach (var tool in ToolIndexUpdater.Keys)
         {
             ToolIndexUpdater[tool](-1);
         }
 
         ToolIndexToItemMap.Clear();
-
-        foreach (var item in Player.Instance.PlayerInventory._actionBarIcons)
+        
+        foreach (var item in Player.Instance.PlayerInventory._actionBarIcons.Where(a => a.ItemImage is not null))
         {
             foreach (var kvp in ToolIndexUpdater.Where(kvp => item.ItemImage is not null && item.ItemImage._image.sprite.name.Contains(kvp.Key)))
             {
-                kvp.Value(item.ItemImage.slotIndex); // Update the tool's index
-                ToolIndexToItemMap[item.ItemImage.slotIndex] = ItemDatabase.GetItemData(item.ItemImage.item) as ToolData; // Map the tool's index to the item's index
+                kvp.Value(item.ItemImage.slotIndex);
+                var toolData = ItemDatabase.GetItemData(item.ItemImage.item) as ToolData;
+                ToolIndexToItemMap[item.ItemImage.slotIndex] = toolData;
                 break;
             }
         }
@@ -83,236 +105,105 @@ public static class Patches
         }
     }
 
-    [HarmonyPostfix]
+    private static bool IsInFarmTile()
+    {
+        return TileManager.Instance.HasFarmingTile(Player.Instance.Position, ScenePortalManager.ActiveSceneIndex);
+    }
+
+    private static void RunToolActions(Collider2D collider)
+    {
+        // Plugin.LOG.LogWarning($"SwordIndex: {SwordIndex}");
+        // Plugin.LOG.LogWarning($"PickaxeIndex: {PickaxeIndex}");
+        // Plugin.LOG.LogWarning($"AxeIndex: {AxeIndex}");
+        // Plugin.LOG.LogWarning($"ScytheIndex: {ScytheIndex}");
+        // Plugin.LOG.LogWarning($"WateringCanIndex: {WateringCanIndex}");
+        // Plugin.LOG.LogWarning($"FishingRodIndex: {FishingRodIndex}");
+        // Plugin.LOG.LogWarning($"HoeIndex: {HoeIndex}");
+        
+        ToolAction(SwordIndex, IsEnemy, Plugin.EnableAutoSword.Value, NoSwordOnActionBar);
+        ToolAction(PickaxeIndex, Rock is not null && Rock.Pickaxeable, Plugin.EnableAutoPickaxe.Value, NoPickaxeOnActionBar);
+        ToolAction(AxeIndex, (Tree is not null && Tree.Axeable) || (Wood is not null && Wood.Axeable), Plugin.EnableAutoAxe.Value, NoAxeOnActionBar);
+        ToolAction(ScytheIndex, Plant is not null || (collider.name.Contains(Foliage) && !collider.name.Contains(Prop)) || (Crop is not null && Crop.FullyGrown), Plugin.EnableAutoScythe.Value, NoScytheOnActionBar);
+        ToolAction(WateringCanIndex, Crop is not null && (!Crop.data.watered || Crop.data.onFire), Plugin.EnableAutoWateringCan.Value, NoWateringCanOnActionBar, () => GetToolDataByToolIndex(WateringCanIndex)?.GetItem() is WateringCanItem {WaterAmount: > 0}, YourWateringCanIsEmpty);
+        ToolAction(FishingRodIndex, Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < 20 && SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Utilities.MousePositionFloat().x, (int) Utilities.MousePositionFloat().y)), Plugin.EnableAutoFishingRod.Value, NoFishingRodOnActionBar);
+        ToolAction(HoeIndex, TileManager.Instance.IsHoeable(new Vector2Int((int) Player.Instance.ExactGraphicsPosition.x, (int) Player.Instance.ExactGraphicsPosition.y)), Plugin.EnableAutoHoe.Value, NoHoeOnActionBar);
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerInteractions), nameof(PlayerInteractions.OnTriggerEnter2D))]
-    public static void PlayerInteractions_OnTriggerEnter2D(ref PlayerInteractions __instance, ref Collider2D collider)
+    public static void PlayerInteractions_OnTriggerEnter2D(PlayerInteractions __instance, Collider2D collider)
     {
         if (!Plugin.EnableAutoTool.Value) return;
 
+        if (!EnableToolSwaps(__instance, collider)) return;
 
-        if (__instance is null || collider is null || SceneSettingsManager.Instance is null || TileManager.Instance is null) return;
+        if (!EnableAutoToolOnFarmTiles()) return;
 
-        if (Plugin.EnableDebug.Value)
+        UpdateColliders(collider);
+
+        UpdateToolIndexes();
+
+        RunToolActions(collider);
+    }
+
+
+    private static void UpdateColliders(Collider2D collider)
+    {
+        Enemy = collider.GetComponent<EnemyAI>();
+        Npc = collider.GetComponent<NPCAI>();
+        Rock = collider.GetComponent<Rock>();
+        Tree = collider.GetComponent<Tree>();
+        Crop = collider.GetComponent<Crop>();
+        Wood = collider.GetComponent<Wood>();
+        Plant = collider.GetComponent<Plant>();
+    }
+
+    private static bool EnableToolSwaps(PlayerInteractions __instance, Collider2D collider)
+    {
+        return __instance is not null || collider is not null || SceneSettingsManager.Instance is not null || TileManager.Instance is not null;
+    }
+
+    private static bool EnableAutoToolOnFarmTiles()
+    {
+        return !IsInFarmTile() || Plugin.EnableAutoToolOnFarmTiles.Value;
+    }
+
+    private static void ToolAction(int toolIndex, bool condition, bool pluginValue, string errorMessage, Func<bool> additionalCondition = null, string failedConditionMessage = null)
+    {
+        if (!condition || !pluginValue) return;
+        if (additionalCondition != null && !additionalCondition())
         {
-            Plugin.LOG.LogWarning($"PlayerInteractions_OnTriggerEnter2D: collider name: {collider.name}");
-        }
+            if (!string.IsNullOrEmpty(failedConditionMessage))
+            {
+                Notify(failedConditionMessage, true);
+            }
 
-
-        if (!Plugin.EnableAutoToolOnFarmTiles.Value && TileManager.Instance.HasFarmingTile(Player.Instance.Position, ScenePortalManager.ActiveSceneIndex))
-        {
             return;
         }
 
 
-        var enemy = collider.GetComponent<EnemyAI>();
-        var npc = collider.GetComponent<NPCAI>();
-        var isEnemy = enemy is not null && npc is null;
-        var rock = collider.GetComponent<Rock>();
-        var tree = collider.GetComponent<Tree>();
-        var crop = collider.GetComponent<Crop>();
-        var wood = collider.GetComponent<Wood>();
-        var plant = collider.GetComponent<Plant>();
-
-        // Only call UpdateToolIndexes() if one of the components is found.
-        if (enemy is not null || rock is not null || tree is not null || crop is not null || wood is not null || plant is not null)
+        var toolData = GetToolDataByToolIndex(toolIndex);
+        // Plugin.LOG.LogWarning($"Tool index: {toolIndex}, ToolData: {toolData}");
+        if (toolData != null)
         {
-            UpdateToolIndexes();
-        }
-
-        // if (isEnemy)
-        // {
-            ToolAction(SwordIndex, isEnemy, Plugin.EnableAutoSword.Value, "No sword on action bar!");
-            
-        //     if (Plugin.EnableAutoSword.Value)
-        //     {
-        //         var swordItemData = GetToolDataByToolIndex(SwordIndex);
-        //         if (swordItemData is not null)
-        //         {
-        //             if (CanUse(swordItemData))
-        //             {
-        //                 HandleToolInteraction(SwordIndex, "No sword on action bar!");   
-        //             }
-        //             else
-        //             {
-        //                 Notify($"Your {swordItemData.profession} level is too low to use {swordItemData.name}!",true);
-        //             }
-        //         }
-        //         else
-        //         {
-        //             Notify("Sword is null!", true); 
-        //         }
-        //
-        //        
-        //     }
-        // }
-        else if (rock && rock.Pickaxeable)
-        {
-            if (Plugin.EnableAutoPickaxe.Value)
+            if (CanUse(toolData))
             {
-                var pickAxeToolData = GetToolDataByToolIndex(PickaxeIndex);
-                if (pickAxeToolData is not null)
-                {
-                    if (CanUse(pickAxeToolData))
-                    {
-                        HandleToolInteraction(PickaxeIndex, "No pickaxe on action bar!");   
-                    }
-                    else
-                    {
-                        Notify($"Your {pickAxeToolData.profession} level is too low to use {pickAxeToolData.name}!",true);
-                    }
-                }
-                else
-                {
-                    Notify("PickAxe is null!", true); 
-                }
-            }
-        }
-        else if ((tree && tree.Axeable) || (wood && wood.Axeable))
-        {
-            if (Plugin.EnableAutoAxe.Value)
-            {
-                var axeToolData = GetToolDataByToolIndex(AxeIndex);
-                if (axeToolData is not null)
-                {
-                    if (CanUse(axeToolData))
-                    {
-                        HandleToolInteraction(AxeIndex, "No axe on action bar!");   
-                    }
-                    else
-                    {
-                        Notify($"Your {axeToolData.profession} level is too low to use {axeToolData.name}!",true);
-                    }
-                }
-                else
-                {
-                    Notify("Axe is null!", true); 
-                }
-            }
-        }
-        else if (plant is not null || (collider.name.Contains("foliage") && !collider.name.Contains("prop")))
-        {
-            if (Plugin.EnableAutoScythe.Value)
-            {
-                var scytheToolData = GetToolDataByToolIndex(ScytheIndex);
-                if (scytheToolData is not null)
-                {
-                    if (CanUse(scytheToolData))
-                    {
-                        HandleToolInteraction(ScytheIndex, "No scythe on action bar!");   
-                    }
-                    else
-                    {
-                        Notify($"Your {scytheToolData.profession} level is too low to use {scytheToolData.name}!",true);
-                    }
-                }
-                else
-                {
-                    Notify("Scythe is null!", true); 
-                }
-                
-            }
-        }
-        else if (crop is not null)
-        {
-            // Specific logic for crops, as it has additional conditions
-            if (!crop.data.watered || crop.data.onFire)
-            {
-                if (Plugin.EnableAutoWateringCan.Value)
-                {
-                    var wateringCanToolData = GetToolDataByToolIndex(WateringCanIndex);
-                    if (wateringCanToolData.GetItem() is WateringCanItem wc)
-                    {
-                        if(wc.WaterAmount > 0)
-                        {
-                            if (CanUse(wateringCanToolData))
-                            {
-                                HandleToolInteraction(WateringCanIndex, "No watering can on action bar!");   
-                            }
-                            else
-                            {
-                                Notify($"Your {wateringCanToolData.profession} level is too low to use {wateringCanToolData.name}!",true);
-                            }
-                        }
-                        else
-                        {
-                            Notify($"Your {wateringCanToolData.name} is empty!",true);
-                        }
-                    }
-                    else
-                    {
-                        Notify("Watering Can is null!", true); 
-                    }
-                }
-            }
-            else if (crop.FullyGrown)
-            {
-                if (Plugin.EnableAutoScythe.Value)
-                {
-                    var scytheToolData = GetToolDataByToolIndex(ScytheIndex);
-                    if (scytheToolData is not null)
-                    {
-                        if (CanUse(scytheToolData))
-                        {
-                            HandleToolInteraction(ScytheIndex, "No scythe on action bar!");   
-                        }
-                        else
-                        {
-                            Notify($"Your {scytheToolData.profession} level is too low to use {scytheToolData.name}!",true);
-                        }
-                    }
-                    else
-                    {
-                        Notify("Scythe is null!", true); 
-                    }
-                }
-            }
-        }
-        else if (Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < 20 &&
-                 SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Utilities.MousePositionFloat().x, (int) Utilities.MousePositionFloat().y)))
-        {
-            if (Plugin.EnableAutoFishingRod.Value)
-            {
-                var rodToolData = GetToolDataByToolIndex(FishingRodIndex);
-                if (rodToolData is not null)
-                {
-                    if (CanUse(rodToolData))
-                    {
-                        HandleToolInteraction(ScytheIndex, "No fishing rod on action bar!");   
-                    }
-                    else
-                    {
-                        Notify($"Your {rodToolData.profession} level is too low to use {rodToolData.name}!",true);
-                    }
-                }
-                else
-                {
-                    Notify("Fishing Rod is null!", true); 
-                }
-            }
-        }
-    }
-    
-    private static void ToolAction(int tool, bool condition, bool pluginValue, string errorMessage)
-    {
-        if (condition && pluginValue)
-        {
-            var toolData = GetToolDataByToolIndex(tool);
-            if (toolData != null)
-            {
-                if (CanUse(toolData))
-                {
-                    HandleToolInteraction(tool, errorMessage);
-                }
-                else
-                {
-                    Notify($"Your {toolData.profession} level is too low to use {toolData.name}!", true);
-                }
+                HandleToolInteraction(toolIndex, errorMessage);
             }
             else
             {
-                Notify($"{tool} is null!", true);
+                Notify(ToolLevelTooLow(toolData), true);
             }
         }
+        else
+        {
+            Notify(NoSuitableToolFoundOnActionBar, true);
+        }
+    }
+
+    private static string ToolLevelTooLow(ToolData toolData)
+    {
+        return $"Your {toolData.profession} level is too low to use {toolData.name}!";
     }
 
     private static bool CanUse(ToolData toolData)

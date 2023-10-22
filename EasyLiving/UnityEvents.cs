@@ -1,15 +1,21 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 using Wish;
 
 namespace EasyLiving;
 
 public partial class Plugin
 {
+    private const string LoadScreen = "LoadScreen";
+    private const string SkippingLoadOfLastModifiedSave = "Skipping load of last modified save.";
+    private const string GameSaved = "Game Saved!";
+
     private static void Notify()
     {
         if (SingletonBehaviour<NotificationStack>.Instance is not null)
         {
-            SingletonBehaviour<NotificationStack>.Instance.SendNotification($"Movement Speed: {Player.Instance.FinalMovementSpeed}");
+            SingletonBehaviour<NotificationStack>.Instance.SendNotification($"Movement Speed Multiplier: {MoveSpeedMultiplier.Value}");
         }
     }
 
@@ -18,7 +24,23 @@ public partial class Plugin
         if (EnableSaveShortcut.Value && SaveShortcut.Value.IsUp() && Player.Instance is not null && GameSave.Instance is not null)
         {
             SingletonBehaviour<GameSave>.Instance.SaveGame(true);
-            SingletonBehaviour<NotificationStack>.Instance.SendNotification("Game Saved!");
+            SingletonBehaviour<NotificationStack>.Instance.SendNotification(GameSaved);
+        }
+        
+        if(MoveSpeedMultiplierIncrease.Value.IsUp())
+        {
+            MoveSpeedMultiplier.Value += 0.25f;
+            Notify();
+        }
+        else if(MoveSpeedMultiplierDecrease.Value.IsUp())
+        {
+            MoveSpeedMultiplier.Value -= 0.25f;
+            Notify();
+        }
+
+        if (Input.GetKey(SkipAutoLoadMostRecentSaveShortcut.Value.MainKey) && SceneManager.GetActiveScene().name.Equals(LoadScreen, StringComparison.InvariantCultureIgnoreCase))
+        {
+            Patches.SkipAutoLoad = true;
         }
     }
 }

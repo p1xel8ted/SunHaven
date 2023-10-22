@@ -9,7 +9,7 @@ namespace KeepAlive;
 public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "p1xel8ted.sunhaven.keepalive";
-    private const string PluginName = "KeepAlive";
+    private const string PluginName = "Keep Alive";
     private const string PluginVersion = "0.0.4";
     internal static ManualLogSource LOG { get; private set; }
     
