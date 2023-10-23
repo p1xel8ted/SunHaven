@@ -133,7 +133,7 @@ public static class Patches
 
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(Wish.Utilities), nameof(Wish.Utilities.Chance))]
+    [HarmonyPatch(typeof(Utilities), nameof(Utilities.Chance))]
     public static void Utilities_Chance(ref bool __result)
     {
         if (Player.Instance.IsFishing && Plugin.NoMoreNibbles.Value)

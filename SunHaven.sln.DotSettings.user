@@ -389,7 +389,7 @@
   &lt;Assembly Path="C:\Users\Ben\OneDrive\Development\SunHavenMods\libs\SunHaven.Core.dll" /&gt;&#xD;
   &lt;Assembly Path="C:\Users\Ben\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\mscorlib.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
-	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=82aa2ad4_002D8264_002D4400_002Dace3_002D401ce26764a5_0023CheatEnabler/@EntryIndexedValue">True</s:Boolean>
+	
 	
 	
 	
