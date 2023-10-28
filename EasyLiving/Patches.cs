@@ -13,7 +13,7 @@ namespace EasyLiving;
 [HarmonyPatch]
 public static class Patches
 {
-    internal const float BaseMoveSpeed = 4.5f;
+    private const float BaseMoveSpeed = 4.5f;
     private const string SkippingLoadOfLastModifiedSave = "Skipping load of last modified save.";
     private static GameObject _newButton;
     private static bool PlayerReturnedToMenu { get; set; }
@@ -49,6 +49,15 @@ public static class Patches
     {
         if (!Plugin.ApplyMoveSpeedMultiplier.Value) return;
        __result = BaseMoveSpeed * Plugin.MoveSpeedMultiplier.Value;
+    }
+    
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CraftingTable), nameof(CraftingTable.Interact))]
+    public static void CraftingPanel_Interact(ref CraftingTable __instance)
+    {
+        if (!Plugin.MaterialsOnlyDefault.Value) return;
+        __instance.craftingUI.sortHasMats.isOn = true;
+        __instance.hasMats = true;
     }
 
     internal static bool SkipAutoLoad { get; set; }= false;

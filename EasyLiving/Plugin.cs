@@ -6,6 +6,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Wish;
 
 namespace EasyLiving;
 
@@ -14,7 +15,7 @@ public partial class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "p1xel8ted.sunhaven.easyliving";
     private const string PluginName = "Easy Living";
-    private const string PluginVersion = "0.0.6";
+    private const string PluginVersion = "0.0.7";
     private static ConfigEntry<KeyboardShortcut> SaveShortcut { get; set; }
     private static ConfigEntry<bool> EnableSaveShortcut { get; set; }
     public static ConfigEntry<bool> SkipMuseumMissingItemsDialogue { get; private set; }
@@ -29,6 +30,8 @@ public partial class Plugin : BaseUnityPlugin
     public static ConfigEntry<float> MoveSpeedMultiplier { get; private set; }
     public static ConfigEntry<KeyboardShortcut> MoveSpeedMultiplierIncrease { get; private set; }
     public static ConfigEntry<KeyboardShortcut> MoveSpeedMultiplierDecrease { get; private set; }
+    public static ConfigEntry<bool> MaterialsOnlyDefault { get; private set; }
+    
     internal static ManualLogSource LOG { get; private set; }
 
     private void Awake()
@@ -54,11 +57,15 @@ public partial class Plugin : BaseUnityPlugin
         };
         MoveSpeedMultiplierIncrease = Config.Bind("05. Player", "Move Speed Multiplier Increase", new KeyboardShortcut(KeyCode.LeftBracket), new ConfigDescription("Keybind to increase the player's move speed multiplier.", null, new ConfigurationManagerAttributes {Order = 11}));
         MoveSpeedMultiplierDecrease = Config.Bind("05. Player", "Move Speed Multiplier Decrease", new KeyboardShortcut(KeyCode.RightBracket), new ConfigDescription("Keybind to decrease the player's move speed multiplier.", null, new ConfigurationManagerAttributes {Order = 10}));
-        AutoLoadMostRecentSave = Config.Bind("06. Saves", "Auto Load Most Recent Save", true, new ConfigDescription("Automatically load the most recent save when starting the game.", null, new ConfigurationManagerAttributes {Order = 11}));
-        SkipAutoLoadMostRecentSaveShortcut = Config.Bind("06. Saves", "Skip Auto Load Most Recent Save Shortcut", new KeyboardShortcut(KeyCode.LeftShift), new ConfigDescription("Keybind to hold to skip auto loading the most recent save.", null, new ConfigurationManagerAttributes {Order = 10}));
-
+        AutoLoadMostRecentSave = Config.Bind("06. Saves", "Auto Load Most Recent Save", true, new ConfigDescription("Automatically load the most recent save when starting the game.", null, new ConfigurationManagerAttributes {Order = 9}));
+        SkipAutoLoadMostRecentSaveShortcut = Config.Bind("06. Saves", "Skip Auto Load Most Recent Save Shortcut", new KeyboardShortcut(KeyCode.LeftShift), new ConfigDescription("Keybind to hold to skip auto loading the most recent save.", null, new ConfigurationManagerAttributes {Order = 8}));
+        MaterialsOnlyDefault = Config.Bind("07. Crafting", "Materials Only Default", true, new ConfigDescription("Set the default crafting filter to 'Materials Only' when opening a crafting table.", null, new ConfigurationManagerAttributes {Order = 7}));
+        
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
         LOG.LogInfo($"Plugin {PluginName} is loaded!");
+        
+       
+        
     }
 
     private static void SceneManagerOnSceneLoaded(Scene arg0, LoadSceneMode arg1)
