@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KeepAlive", "KeepAlive\Keep
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoTools", "AutoTools\AutoTools.csproj", "{F18B025C-BA42-45A8-AB8D-2F0467A42944}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MuseumSellPrice", "MuseumSellPrice\MuseumSellPrice.csproj", "{0FB260D3-92C5-43D5-B234-6BDBA793EF9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MuseumSellPriceRedux", "MuseumSellPriceRedux\MuseumSellPriceRedux.csproj", "{0FB260D3-92C5-43D5-B234-6BDBA793EF9C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreScythesRedux", "MoreScythesRedux\MoreScythesRedux.csproj", "{15756077-200B-421B-8116-1C8021293792}"
 EndProject

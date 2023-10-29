@@ -32,7 +32,7 @@ public static class ItemHandler
         var useItem = Object.Instantiate(original.useItem);
         if (!useItem)
         {
-            Plugin.Log.LogError("Original scythe has no useItem");
+            Plugin.LOG.LogError("Original scythe has no useItem");
             return;
         }
 
@@ -46,7 +46,7 @@ public static class ItemHandler
         ItemDatabase.ids[item.name.RemoveWhitespace().ToLower()] = item.id;
         ItemDatabase.itemDatas[item.id] = item;
 
-        Plugin.Log.LogInfo($"Created item {item.id} with name {item.name}");
+        Plugin.LOG.LogInfo($"Created item {item.id} with name {item.name}");
     }
 
     private static void ConfigureRecipe(int itemId, string recipeListName, List<ItemInfo> inputs, float craftingHours)
@@ -69,7 +69,7 @@ public static class ItemHandler
             recipe.hoursToCraft = craftingHours;
 
             rl.craftingRecipes.Add(recipe);
-            Plugin.Log.LogInfo($"Added item {itemId} to {recipeListName}");
+            Plugin.LOG.LogInfo($"Added item {itemId} to {recipeListName}");
         }
     }
 

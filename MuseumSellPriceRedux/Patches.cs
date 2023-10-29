@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using HarmonyLib;
 using Wish;
 
-namespace MuseumSellPrice;
+namespace MuseumSellPriceRedux;
 
 [Harmony]
 public static class Patches
@@ -29,6 +31,10 @@ public static class Patches
     private const string OriginsOfTheGrandTree = "Origins of the Grand Tree";
     private const string OriginsOfDynus = "Origins of Dynus";
 
+    private static Dictionary<int, float> BackUpSellPrices { get; } = new();
+    private static Dictionary<int, float> BackUpTicketPrices { get; } = new();
+    private static Dictionary<int, float> BackUpOrbPrices { get; } = new();
+
     private static readonly HashSet<string> ExcludedNames = new()
     {
         AncientNelVarian,
@@ -48,16 +54,14 @@ public static class Patches
         AncientAngelQuill
     };
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(ItemDatabase), nameof(ItemDatabase.ConstructDatabase), typeof(ItemData[]))]
-    private static void ItemDatabase_ConstructDatabase()
+
+    internal static void ApplyPriceChanges()
     {
-        if (!Plugin.Enabled.Value) return;
-        
+        Plugin.Log("Applying price changes...");
         foreach (var item in ItemDatabase.items.Where(a => a != null))
         {
             if (item.description != null && !item.description.Contains(WouldLookGoodInAMuseum)) continue;
-        
+
             if (item.sellPrice <= 11f)
             {
                 if (ExcludedNames.Contains(item.name))
@@ -73,8 +77,63 @@ public static class Patches
                     item.sellPrice *= Plugin.Multiplier.Value;
                 }
             }
-        
+
             AdjustOtherConditions(item);
+        }
+
+        Plugin.SendNotification("Prices adjusted!");
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPriority(1)]
+    [HarmonyPatch(typeof(ItemDatabase), nameof(ItemDatabase.ConstructDatabase), typeof(ItemData[]))]
+    private static void ItemDatabase_ConstructDatabase()
+    {
+        BackupPrices();
+
+        if (!Plugin.Enabled.Value) return;
+
+        ApplyPriceChanges();
+    }
+
+    private static void BackupPrices()
+    {
+        Plugin.Log("Backing up prices...");
+        BackUpSellPrices.Clear();
+        foreach (var item in ItemDatabase.items.Where(a => a != null))
+        {
+            BackUpSellPrices.TryAdd(item.id, item.sellPrice);
+            BackUpOrbPrices.TryAdd(item.id, item.orbsSellPrice);
+            BackUpTicketPrices.TryAdd(item.id, item.ticketSellPrice);
+        }
+    }
+
+    internal static void RestorePrices(Action onComplete = null)
+    {
+        Plugin.Log("Restoring prices...");
+        foreach (var item in ItemDatabase.items.Where(a => a != null))
+        {
+            if (BackUpSellPrices.TryGetValue(item.id, out var sellPrice))
+            {
+                item.sellPrice = sellPrice;
+            }
+            if (BackUpOrbPrices.TryGetValue(item.id, out var orbPrice))
+            {
+                item.orbsSellPrice = orbPrice;
+            } 
+            if (BackUpTicketPrices.TryGetValue(item.id, out var ticketPrice))
+            {
+                item.ticketSellPrice = ticketPrice;
+            }
+        }
+
+        if (onComplete is null)
+        {
+            Plugin.SendNotification("Prices restored to default!");
+        }
+        else
+        {
+            onComplete.Invoke();
         }
     }
 
