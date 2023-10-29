@@ -50,14 +50,7 @@ public static class Patches
         if (!Plugin.ApplyMoveSpeedMultiplier.Value) return;
        __result = BaseMoveSpeed * Plugin.MoveSpeedMultiplier.Value;
     }
-    //
-    // [HarmonyPostfix]
-    // [HarmonyPatch(typeof(Input), nameof(Input.mousePresent), MethodType.Getter)]
-    // public static void Input_mousePresent(ref bool __result)
-    // {
-    //     __result = false;
-    // }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CraftingTable), nameof(CraftingTable.Interact))]
     public static void CraftingPanel_Interact(ref CraftingTable __instance)

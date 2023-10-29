@@ -23,16 +23,16 @@ public partial class Plugin : BaseUnityPlugin
     public static ConfigEntry<bool> AddQuitToDesktopButton { get; private set; }
     public static ConfigEntry<bool> EnableAdjustQuestTrackerHeightView { get; private set; }
     public static ConfigEntry<bool> AutoLoadMostRecentSave { get; private set; }
-    public static ConfigEntry<KeyboardShortcut> SkipAutoLoadMostRecentSaveShortcut { get; private set; }
+    private static ConfigEntry<KeyboardShortcut> SkipAutoLoadMostRecentSaveShortcut { get; set; }
     public static ConfigEntry<int> AdjustQuestTrackerHeightView { get; private set; }
     public static ConfigEntry<bool> ApplyMoveSpeedMultiplier { get; private set; }
     public static ConfigEntry<float> MoveSpeedMultiplier { get; private set; }
-    public static ConfigEntry<KeyboardShortcut> MoveSpeedMultiplierIncrease { get; private set; }
-    public static ConfigEntry<KeyboardShortcut> MoveSpeedMultiplierDecrease { get; private set; }
+    private static ConfigEntry<KeyboardShortcut> MoveSpeedMultiplierIncrease { get; set; }
+    private static ConfigEntry<KeyboardShortcut> MoveSpeedMultiplierDecrease { get; set; }
     public static ConfigEntry<bool> MaterialsOnlyDefault { get; private set; }
     public static ConfigEntry<bool> IncreaseWateringCanFillRange { get; private set; }
-    
-    public static ConfigEntry<bool> LockMouseToCenter { get; private set; }
+
+    private static ConfigEntry<bool> LockMouseToCenter { get; set; }
     internal static ManualLogSource LOG { get; private set; }
     private void Awake()
     {
@@ -60,7 +60,7 @@ public partial class Plugin : BaseUnityPlugin
         AutoLoadMostRecentSave = Config.Bind("06. Saves", "Auto Load Most Recent Save", true, new ConfigDescription("Automatically load the most recent save when starting the game.", null, new ConfigurationManagerAttributes {Order = 9}));
         SkipAutoLoadMostRecentSaveShortcut = Config.Bind("06. Saves", "Skip Auto Load Most Recent Save Shortcut", new KeyboardShortcut(KeyCode.LeftShift), new ConfigDescription("Keybind to hold to skip auto loading the most recent save.", null, new ConfigurationManagerAttributes {Order = 8}));
         MaterialsOnlyDefault = Config.Bind("07. Crafting", "Materials Only Default", true, new ConfigDescription("Set the default crafting filter to 'Materials Only' when opening a crafting table.", null, new ConfigurationManagerAttributes {Order = 7}));
-        LockMouseToCenter = Config.Bind("09. Controller", "Lock Mouse To Center", true, new ConfigDescription("Lock the mouse to the center of the screen when no UI is open. This is for controller players. Experimental feature.", null, new ConfigurationManagerAttributes {Order = 6}));
+        LockMouseToCenter = Config.Bind("09. Controller", "Lock Mouse To Center", false, new ConfigDescription("Lock the mouse to the center of the screen when no UI is open. This is for controller players. Experimental feature.", null, new ConfigurationManagerAttributes {Order = 6}));
         IncreaseWateringCanFillRange = Config.Bind("08. Farming", "Increase Watering Can Fill Range", true, new ConfigDescription("Increase the watering can fill range.", null, new ConfigurationManagerAttributes {Order = 5}));
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
         LOG.LogInfo($"Plugin {PluginName} is loaded!");
