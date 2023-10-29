@@ -31,7 +31,7 @@ public static class Patches
     private const string NoScytheOnActionBar = "No scythe on action bar!";
     private const string NoHoeOnActionBar = "No hoe on action bar!";
     private const string NoFishingRodOnActionBar = "No fishing rod on action bar!";
-    private const string YourWateringCanIsEmpty = "Your watering can is empty!";
+    internal const string YourWateringCanIsEmpty = "Your watering can is empty!";
     
     private static readonly Dictionary<string, Action<int>> ToolIndexUpdater = new()
     {
@@ -112,20 +112,14 @@ public static class Patches
 
     private static void RunToolActions(Collider2D collider)
     {
-        // Plugin.LOG.LogWarning($"SwordIndex: {SwordIndex}");
-        // Plugin.LOG.LogWarning($"PickaxeIndex: {PickaxeIndex}");
-        // Plugin.LOG.LogWarning($"AxeIndex: {AxeIndex}");
-        // Plugin.LOG.LogWarning($"ScytheIndex: {ScytheIndex}");
-        // Plugin.LOG.LogWarning($"WateringCanIndex: {WateringCanIndex}");
-        // Plugin.LOG.LogWarning($"FishingRodIndex: {FishingRodIndex}");
-        // Plugin.LOG.LogWarning($"HoeIndex: {HoeIndex}");
         ToolAction(SwordIndex, IsEnemy, Plugin.EnableAutoSword.Value, NoSwordOnActionBar);
         ToolAction(PickaxeIndex, Rock is not null && Rock.Pickaxeable, Plugin.EnableAutoPickaxe.Value, NoPickaxeOnActionBar);
         ToolAction(AxeIndex, (Tree is not null && Tree.Axeable) || (Wood is not null && Wood.Axeable), Plugin.EnableAutoAxe.Value, NoAxeOnActionBar);
         ToolAction(ScytheIndex, Plant is not null || (collider.name.Contains(Foliage) && !collider.name.Contains(Prop)) || (Crop is not null && Crop.FullyGrown), Plugin.EnableAutoScythe.Value, NoScytheOnActionBar);
-        ToolAction(WateringCanIndex, Crop is not null && (!Crop.data.watered || Crop.data.onFire), Plugin.EnableAutoWateringCan.Value, NoWateringCanOnActionBar, () => GetToolDataByToolIndex(WateringCanIndex)?.GetItem() is WateringCanItem {WaterAmount: > 0}, YourWateringCanIsEmpty);
         ToolAction(FishingRodIndex, Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < 20 && SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Utilities.MousePositionFloat().x, (int) Utilities.MousePositionFloat().y)), Plugin.EnableAutoFishingRod.Value, NoFishingRodOnActionBar);
         ToolAction(HoeIndex, TileManager.Instance.IsHoeable(new Vector2Int((int) Player.Instance.ExactGraphicsPosition.x, (int) Player.Instance.ExactGraphicsPosition.y)), Plugin.EnableAutoHoe.Value, NoHoeOnActionBar);
+        ToolAction(WateringCanIndex, !WateringCanHasWater() && (Wish.WateringCan.OverWaterSource || Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < 10 && SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Utilities.MousePositionFloat().x, (int) Utilities.MousePositionFloat().y))), Plugin.EnableAutoWateringCan.Value, NoWateringCanOnActionBar);   
+        ToolAction(WateringCanIndex, Crop is not null && (!Crop.data.watered || Crop.data.onFire), Plugin.EnableAutoWateringCan.Value, NoWateringCanOnActionBar, WateringCanHasWater, YourWateringCanIsEmpty);
     }
     
     [HarmonyPrefix]
@@ -162,9 +156,21 @@ public static class Patches
         return __instance is not null || collider is not null || SceneSettingsManager.Instance is not null || TileManager.Instance is not null;
     }
 
+    private static bool WateringCanHasWater()
+    {
+        if(WateringCanIndex == -1) return false;
+        var item = Player.Instance.PlayerInventory._actionBarIcons[WateringCanIndex].ItemImage.item;
+        if (item is not WateringCanItem wc)
+        {
+            return false;
+        }
+        return wc.WaterAmount > 0;
+    }
+
     private static void ToolAction(int toolIndex, bool condition, bool pluginValue, string errorMessage, Func<bool> additionalCondition = null, string failedConditionMessage = null)
     {
         if (!condition || !pluginValue) return;
+        
         if (additionalCondition != null && !additionalCondition())
         {
             if (!string.IsNullOrEmpty(failedConditionMessage))
@@ -177,7 +183,6 @@ public static class Patches
 
 
         var toolData = GetToolDataByToolIndex(toolIndex);
-        // Plugin.LOG.LogWarning($"Tool index: {toolIndex}, ToolData: {toolData}");
         if (toolData != null)
         {
             if (CanUse(toolData))
@@ -204,9 +209,16 @@ public static class Patches
     {
         return SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.Professions[toolData.profession].level >= toolData.requiredLevel;
     }
+    
+    private const float TimeBetweenNotifications = 5f;
+    private static float LastNotificationTime { get; set; }
+    private static string PreviousMessage { get; set; }
 
-    private static void Notify(string message, bool error = false)
+    internal static void Notify(string message, bool error = false)
     {
+        if (message == PreviousMessage && Time.time - LastNotificationTime < TimeBetweenNotifications) return;
+        LastNotificationTime = Time.time;
+        PreviousMessage = message;
         SingletonBehaviour<NotificationStack>.Instance.SendNotification(message, error: error);
     }
 

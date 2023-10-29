@@ -4,6 +4,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine.SceneManagement;
+using Wish;
 
 namespace AutoTools;
 
@@ -12,9 +13,8 @@ public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "p1xel8ted.sunhaven.autotools";
     private const string PluginName = "Auto Tools";
-    private const string PluginVersion = "0.0.2";
-    private static ManualLogSource LOG { get; set; }
-
+    private const string PluginVersion = "0.0.3";
+    internal static ManualLogSource LOG { get; set; }
     internal static ConfigEntry<bool> EnableAutoTool { get; private set; }
     internal static ConfigEntry<bool> EnableAutoToolOnFarmTiles { get; private set; }
     internal static ConfigEntry<bool> EnableAutoPickaxe { get; private set; }
@@ -28,10 +28,10 @@ public class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
-        LOG = new ManualLogSource("AutoTools");
+        LOG = new ManualLogSource("Auto Tools");
         BepInEx.Logging.Logger.Sources.Add(LOG);
         SceneManager.sceneLoaded += SceneManagerOnSceneLoaded;
-
+        WateringCan.onWateringCanEmpty += EmptyWateringCanMessage;
         EnableAutoTool = Config.Bind("01. General", "Enable AutoTools", true, new ConfigDescription("Enable AutoTools.", null, new ConfigurationManagerAttributes {Order = 26}));
         EnableAutoToolOnFarmTiles = Config.Bind("01. General", "Enable AutoTools On Farm Tiles", true, new ConfigDescription("Enable AutoTools On Farm Tiles.", null, new ConfigurationManagerAttributes {Order = 25}));
         EnableAutoPickaxe = Config.Bind("02. Specific Tools", "Enable AutoPickaxe", true, new ConfigDescription("Enable AutoPickaxe.", null, new ConfigurationManagerAttributes {Order = 24}));
@@ -47,21 +47,26 @@ public class Plugin : BaseUnityPlugin
         LOG.LogInfo($"Plugin {PluginName} is loaded!");
     }
 
+    private static void EmptyWateringCanMessage()
+    {
+        Patches.Notify(Patches.YourWateringCanIsEmpty, true);
+    }
     private static void SceneManagerOnSceneLoaded(Scene arg0, LoadSceneMode arg1)
     {
         Patches.UpdateToolIndexes();
-       
     }
-    
+
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= SceneManagerOnSceneLoaded;
+        WateringCan.onWateringCanEmpty -= EmptyWateringCanMessage;
         LOG.LogError($"{PluginName} has been destroyed!");
     }
 
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= SceneManagerOnSceneLoaded;
+        WateringCan.onWateringCanEmpty -= EmptyWateringCanMessage;
         LOG.LogError($"{PluginName} has been disabled!");
     }
 }

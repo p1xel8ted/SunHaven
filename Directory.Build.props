@@ -16,6 +16,8 @@
         <Company>$(Authors)</Company>
         <Product>$(MSBuildProjectName)</Product>
         <PackageId>$(MSBuildProjectName)</PackageId>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>portable</DebugType>
     </PropertyGroup>
 
     <!--Default all references to CopyLocal False.-->
@@ -39,12 +41,9 @@
         <OutputPath>F:\Games\steamapps\common\Sun Haven\BepInEx\plugins\$(MSBuildProjectName)</OutputPath>
     </PropertyGroup>
 
-    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all"/>
-    </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="BepInEx.Core" Version="5.*"/>
+        <PackageReference Include="BepInEx.Core" Version="5.4.21"/>
         <PackageReference Include="Resource.Embedder" Version="2.2.0"/>
     </ItemGroup>
 

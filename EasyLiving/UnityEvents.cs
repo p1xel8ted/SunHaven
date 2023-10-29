@@ -2,13 +2,13 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Wish;
+using Player = Wish.Player;
 
 namespace EasyLiving;
 
 public partial class Plugin
 {
     private const string LoadScreen = "LoadScreen";
-    private const string SkippingLoadOfLastModifiedSave = "Skipping load of last modified save.";
     private const string GameSaved = "Game Saved!";
 
     private static void Notify()
@@ -19,8 +19,27 @@ public partial class Plugin
         }
     }
 
+
+
     private void Update()
     {
+        if (LockMouseToCenter.Value)
+        {
+            if (UIHandler.Instance != null)
+            {
+                if (UIHandler.InventoryOpen || UIHandler.Instance.uiOpen || UIHandler.Instance._inventoryUI.gameObject.activeSelf || UIHandler.Instance.ExternalUI.activeSelf)
+                {
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+                }
+                else
+                {
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                }
+            }
+        }
+
         if (EnableSaveShortcut.Value && SaveShortcut.Value.IsUp() && Player.Instance is not null && GameSave.Instance is not null)
         {
             SingletonBehaviour<GameSave>.Instance.SaveGame(true);
