@@ -81,9 +81,12 @@ public static class ToolDictionaries
 
     private static readonly Dictionary<int, string> ScytheData = new()
     {
-        {3000,	"Scythe"},
-        {30007,	"Dev Scythe"},
-
+        {3000, "Scythe"},
+        {30000, "Adamant Scythe"},
+        {30020, "Mithril Scythe"},
+        {30030, "Sunite Scythe"},
+        {30090, "Glorite Scythe"},
+        {30007, "Dev Scythe"},
     };
 
     private static readonly Dictionary<int, string> FishingRodData = new()
@@ -95,19 +98,6 @@ public static class ToolDictionaries
         {3404, "Golden Fishing Rod"},
         {3405, "Withergate Fishing Rod"},
         {3406, "Enchanted Fishing Rod"}
-    };
-
-    private static readonly Dictionary<int, string> SwordData = new()
-    {
-        {4000, "Copper Sword"},
-        {4001, "Iron Sword"},
-        {4002, "Adamant Sword"},
-        {4003, "Mithril Sword"},
-        {4004, "Sunite Sword"},
-        {4005, "Glorite Sword"},
-        {4006, "Carrot Sword"},
-        {6225, "Shang's Sealed Sword"},
-        {30008, "Dev Sword"}
     };
     
     private static readonly Dictionary<int, string> HoeData = new()
@@ -133,6 +123,5 @@ public static class ToolDictionaries
     public static ReadOnlyDictionary<int, string> Scythes { get; } = new(ScytheData);
 
     public static ReadOnlyDictionary<int, string> FishingRods { get; } = new(FishingRodData);
-
-    public static ReadOnlyDictionary<int, string> Swords { get; } = new(SwordData);
+    
 }

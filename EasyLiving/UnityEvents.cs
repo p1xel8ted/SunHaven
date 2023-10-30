@@ -27,7 +27,7 @@ public partial class Plugin
         {
             if (UIHandler.Instance != null)
             {
-                if (UIHandler.InventoryOpen || UIHandler.Instance.uiOpen || UIHandler.Instance._inventoryUI.gameObject.activeSelf || UIHandler.Instance.ExternalUI.activeSelf)
+                if (DialogueController.Instance.DialogueOnGoing || DialogueController.Instance._dialoguePanel.activeSelf || QuestRewards.Instance.AcceptingRewards || UIHandler.InventoryOpen || UIHandler.Instance.uiOpen || UIHandler.Instance._inventoryUI.gameObject.activeSelf || UIHandler.Instance.ExternalUI.activeSelf)
                 {
                     Cursor.lockState = CursorLockMode.None;
                     Cursor.visible = true;
@@ -38,6 +38,11 @@ public partial class Plugin
                     Cursor.visible = false;
                 }
             }
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;   
         }
 
         if (EnableSaveShortcut.Value && SaveShortcut.Value.IsUp() && Player.Instance is not null && GameSave.Instance is not null)

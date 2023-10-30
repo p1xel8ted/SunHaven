@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+  </PropertyGroup>
+  <Import Project="..\zip.target"/>
+  <ItemGroup>
+    <PackageReference Update="BepInEx.Core" Version="5.4.21"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Sirenix.Serialization">
+      <HintPath>..\..\SunHavenMods\libs\Sirenix.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="SunHaven.Core">
+      <HintPath>..\..\SunHavenMods\libs\SunHaven.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.ResourceManager">
+      <HintPath>..\..\SunHavenMods\libs\Unity.ResourceManager.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\SunHavenMods\libs\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\SunHavenMods\libs\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>..\..\SunHavenMods\libs\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
