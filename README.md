@@ -13,7 +13,7 @@ All except mods except for `Custom Textures Redux` are available on the [NexusMo
   - Removes all use of reflection
   - Only checks for texture replacements based on the textures in the CustomTextures folder (instead of all game textures)
   - Changed some loops and dictionaries to their multithreaded counterparts where safe to do so.
-  - Remove case sensitivity from texture replacement.
+  - Removed case sensitivity from texture replacement.
   - No more `Material doesn't have a texture property '_MainTex'` spam.
 - With the changes above, for around 150 textures shaved off between 100 and 200ms on my machine. 
 - Only available on my GitHub for now as it's more of a personal project.
