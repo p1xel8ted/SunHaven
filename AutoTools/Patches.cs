@@ -13,7 +13,7 @@ namespace AutoTools;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public static class Patches
 {
-    private const string NoSuitableToolFoundOnActionBar = $"No suitable tool found on action bar!";
+    private const string NoSuitableToolFoundOnActionBar = "No suitable tool found on action bar!";
     private const string NoPickaxeOnActionBar = "No pickaxe on action bar!";
     private const string NoAxeOnActionBar = "No axe on action bar!";
     private const string Prop = "prop";
@@ -22,7 +22,7 @@ public static class Patches
     private const string NoScytheOnActionBar = "No scythe on action bar!";
     private const string NoHoeOnActionBar = "No hoe on action bar!";
     private const string NoFishingRodOnActionBar = "No fishing rod on action bar!";
-    internal const string YourWateringCanIsEmpty = "Your watering can is empty!";
+    private const string YourWateringCanIsEmpty = "Your watering can is empty!";
 
     private static int WateringCanIndex { get; set; } = -1;
     private static Rock Rock { get; set; }
@@ -31,7 +31,7 @@ public static class Patches
     private static Wood Wood { get; set; }
     private static Plant Plant { get; set; }
 
-    private enum Tool
+    internal enum Tool
     {
         Pickaxe,
         Axe,
@@ -41,7 +41,7 @@ public static class Patches
         Hoe,
     }
 
-    private static (int index, ToolData toolData) FindBestTool(Tool tool)
+    internal static (int index, ToolData toolData) FindBestTool(Tool tool)
     {
         var toolDict = tool switch
         {
@@ -54,24 +54,53 @@ public static class Patches
             _ => throw new ArgumentOutOfRangeException(nameof(tool), tool, null)
         };
 
+        // Loop through each tool entry starting from the highest
         foreach (var toolEntry in toolDict.OrderByDescending(a => a.Key))
         {
-            Plugin.LOG.LogWarning($"Checking if we have and can use a {toolEntry.Value}");
             foreach (var item in Player.Instance.PlayerInventory._actionBarIcons.Where(a => a.ItemImage is not null))
             {
                 var toolData = ItemDatabase.GetItemData(item.ItemImage.item) as ToolData;
-                if (toolData == null || toolData.id != toolEntry.Key || !CanUse(toolData)) continue;
+                if (toolData == null || toolData.id != toolEntry.Key || !CanUse(toolData))
+                    continue;
+
                 if (tool == Tool.WateringCan)
                 {
+                    if (item.ItemImage.item is WateringCanItem {WaterAmount: <= 0})
+                    {
+                        Plugin.DebugLog($"Found a {toolEntry.Value} but it's empty!");
+                        continue;
+                    }
+
                     WateringCanIndex = item.ItemImage.slotIndex;
+                    Plugin.DebugLog($"Found a {toolEntry.Value} with water. Setting as best tool.");
+                    return (item.ItemImage.slotIndex, toolData);
                 }
 
-                Plugin.LOG.LogWarning($"Found a {toolEntry.Value} that we can use on the action bar!");
+                Plugin.DebugLog($"Found a suitable {toolEntry.Value}. Setting as best tool.");
                 return (item.ItemImage.slotIndex, toolData);
             }
         }
 
-        Plugin.LOG.LogWarning($"No suitable tool found on action bar!");
+        // Specific check for watering can if we didn't find any with water above
+        if (tool == Tool.WateringCan)
+        {
+            Notify(YourWateringCanIsEmpty, true);
+            Plugin.DebugLog("No filled watering cans found. Searching for the best empty one.");
+            foreach (var toolEntry in toolDict.OrderByDescending(a => a.Key))
+            {
+                foreach (var item in Player.Instance.PlayerInventory._actionBarIcons.Where(a => a.ItemImage is not null))
+                {
+                    var toolData = ItemDatabase.GetItemData(item.ItemImage.item) as ToolData;
+                    if (toolData == null || toolData.id != toolEntry.Key || !CanUse(toolData))
+                        continue;
+
+                    WateringCanIndex = item.ItemImage.slotIndex;
+                    return (item.ItemImage.slotIndex, toolData);
+                }
+            }
+        }
+
+        Plugin.DebugLog("No suitable tool found on action bar!");
         return (-1, null);
     }
 
@@ -100,9 +129,9 @@ public static class Patches
         ToolAction(Tool.Scythe, Plant is not null || (collider.name.Contains(Foliage) && !collider.name.Contains(Prop)) || (Crop is not null && Crop.FullyGrown), Plugin.EnableAutoScythe.Value, NoScytheOnActionBar);
         ToolAction(Tool.FishingRod, Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < Plugin.FishingRodWaterDetectionDistance.Value && SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Utilities.MousePositionFloat().x, (int) Utilities.MousePositionFloat().y)), Plugin.EnableAutoFishingRod.Value, NoFishingRodOnActionBar);
         ToolAction(Tool.Hoe, TileManager.Instance.IsHoeable(new Vector2Int((int) Player.Instance.ExactGraphicsPosition.x, (int) Player.Instance.ExactGraphicsPosition.y)), Plugin.EnableAutoHoe.Value, NoHoeOnActionBar);
-        
-        FindBestTool(Tool.WateringCan);
-        ToolAction(Tool.WateringCan, !WateringCanHasWater() && (Wish.WateringCan.OverWaterSource || Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < 10 && SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Utilities.MousePositionFloat().x, (int) Utilities.MousePositionFloat().y))), Plugin.EnableAutoWateringCan.Value, NoWateringCanOnActionBar);
+
+        FindBestTool(Tool.WateringCan); //this is here to update the watering can index prior to running the conditions below
+        ToolAction(Tool.WateringCan, !WateringCanHasWater() && (WateringCan.OverWaterSource || Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < 10 && SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Utilities.MousePositionFloat().x, (int) Utilities.MousePositionFloat().y))), Plugin.EnableAutoWateringCan.Value, NoWateringCanOnActionBar);
         ToolAction(Tool.WateringCan, Crop is not null && (!Crop.data.watered || Crop.data.onFire), Plugin.EnableAutoWateringCan.Value, NoWateringCanOnActionBar, WateringCanHasWater, YourWateringCanIsEmpty);
     }
 
@@ -112,6 +141,7 @@ public static class Patches
     {
         if (!Plugin.EnableAutoTool.Value) return;
 
+        
         if (!EnableToolSwaps(__instance, collider)) return;
 
         if (IsInFarmTile() && !Plugin.EnableAutoToolOnFarmTiles.Value) return;
@@ -133,16 +163,17 @@ public static class Patches
 
     private static bool EnableToolSwaps(PlayerInteractions __instance, Collider2D collider)
     {
-        return __instance is not null || collider is not null || SceneSettingsManager.Instance is not null || TileManager.Instance is not null;
+        return __instance is not null || collider is not null || SceneSettingsManager.Instance is not null || TileManager.Instance is not null || !Player.Instance.InCombat;
     }
 
     private static bool WateringCanHasWater()
     {
         if (WateringCanIndex == -1)
         {
-            Plugin.LOG.LogWarning($"No watering can on action bar!");
+            Plugin.DebugLog("No watering can on action bar!");
             return false;
         }
+
         var item = Player.Instance.PlayerInventory._actionBarIcons[WateringCanIndex].ItemImage.item;
         if (item is not WateringCanItem wc)
         {
@@ -187,6 +218,7 @@ public static class Patches
 
     private static string ToolLevelTooLow(ToolData toolData)
     {
+        Plugin.DebugLog($"Your {toolData.profession} level is too low to use {toolData.name}!");
         return $"Your {toolData.profession} level is too low to use {toolData.name}!";
     }
 
@@ -199,7 +231,7 @@ public static class Patches
     private static float LastNotificationTime { get; set; }
     private static string PreviousMessage { get; set; }
 
-    internal static void Notify(string message, bool error = false)
+    private static void Notify(string message, bool error = false)
     {
         if (message == PreviousMessage && Time.time - LastNotificationTime < TimeBetweenNotifications) return;
         LastNotificationTime = Time.time;

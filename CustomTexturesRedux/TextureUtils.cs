@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Threading.Tasks;
+using BepInEx;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using Wish;
-using System.Collections.Concurrent;
 
 namespace CustomTexturesRedux;
 
@@ -17,7 +18,7 @@ internal static class TextureUtils
     internal static void LoadCustomTextures()
     {
         CustomTextureDict.Clear();
-        var path = Path.Combine(BepInEx.Paths.PluginPath, "CustomTextures");
+        var path = Path.Combine(Paths.PluginPath, "CustomTextures");
         Plugin.Log.LogInfo($"Loading custom textures from {path}");
         try
         {

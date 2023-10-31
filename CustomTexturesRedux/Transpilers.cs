@@ -46,11 +46,11 @@ public static class Transpilers
 
         if (found)
         {
-            Plugin.Log.LogInfo($"Successfully patched ClothingLayerData.LoadClothingSprites!");
+            Plugin.Log.LogInfo("Successfully patched ClothingLayerData.LoadClothingSprites!");
         }
         else
         {
-            Plugin.Log.LogError($"Failed to patch ClothingLayerData.LoadClothingSprites!");
+            Plugin.Log.LogError("Failed to patch ClothingLayerData.LoadClothingSprites!");
         }
         
         return codes.AsEnumerable();
