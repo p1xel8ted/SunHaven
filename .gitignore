@@ -622,4 +622,14 @@ FodyWeavers.xsd
 
 !COTL_API/Debug/
 build/
-*.zip
+*.zip!/global.json
+!/ItemData.xlsx
+!/SunHaven.sln.DotSettings
+
+!/SunHaven.sln.DotSettings.user
+!/libs/
+!/.idea/
+
+!/.vs/
+
+!/AAA_Releases/

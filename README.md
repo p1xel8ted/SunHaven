@@ -1,6 +1,6 @@
 ### Sun Haven Mods
 
-![Game Logo](header.jpg)<br>
+![Game Logo](NexusImages/header.jpg)<br>
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/F2F2DI3WA)<br>
 
@@ -15,7 +15,7 @@ All except mods except for `Custom Textures Redux` are available on the [NexusMo
   - Changed some loops and dictionaries to their multithreaded counterparts where safe to do so.
   - Remove case sensitivity from texture replacement.
   - No more `Material doesn't have a texture property '_MainTex'` spam.
-- Changes above, for around 150 textures shaved off between 100-200ms on my machine. 
+- With the changes above, for around 150 textures shaved off between 100 and 200ms on my machine. 
 - Only available on my GitHub for now as it's more of a personal project.
 
 [Download Here](https://github.com/p1xel8ted/SunHaven/releases)
