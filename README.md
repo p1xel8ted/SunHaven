@@ -6,7 +6,7 @@
 
 All except mods except for `Custom Textures Redux` are available on the [NexusMods](https://www.nexusmods.com/sunhaven/users/4404677?tab=user+files&BH=1) page.
 
-**Custom Textures Redux**
+### **Custom Textures Redux**
 
 - I noticed on my machine (i9 9900k, NVME) that there was a delay on game load where there were no textures.
 - This is a custom build of [Custom Textures](https://www.nexusmods.com/sunhaven/mods/6) that:
