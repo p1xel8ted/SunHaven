@@ -35,6 +35,8 @@ obj/
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/**
+/.idea/
 
 # AWS User-specific
 .idea/**/aws.xml
@@ -109,6 +111,10 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+ItemData.xlsx
+SunHaven.sln.DotSettings
+SunHaven.sln.DotSettings.user
 
 # Editor-based Rest Client
 .idea/httpRequests
