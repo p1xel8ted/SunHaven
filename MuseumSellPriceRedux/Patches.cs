@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using HarmonyLib;
 using Wish;
@@ -35,7 +34,7 @@ public static class Patches
     private static Dictionary<int, float> BackUpTicketPrices { get; } = new();
     private static Dictionary<int, float> BackUpOrbPrices { get; } = new();
 
-    private static readonly HashSet<string> ExcludedNames = new()
+    private static readonly HashSet<string> ExcludedNames = new(StringComparer.OrdinalIgnoreCase)
     {
         AncientNelVarian,
         AncientWithergate,
@@ -60,15 +59,16 @@ public static class Patches
         Plugin.Log("Applying price changes...");
         foreach (var item in ItemDatabase.items.Where(a => a != null))
         {
-            if (item.description != null && !item.description.Contains(WouldLookGoodInAMuseum)) continue;
-
+           
+            if (item.description != null && !item.description.Contains(WouldLookGoodInAMuseum,StringComparison.OrdinalIgnoreCase)) continue;
+            
             if (item.sellPrice <= 11f)
             {
                 if (ExcludedNames.Contains(item.name))
                 {
                     AdjustSellPriceForExcludedNames(item);
                 }
-                else if (item.name == LeafieTrinket)
+                else if (item.name.Equals(LeafieTrinket,StringComparison.OrdinalIgnoreCase))
                 {
                     item.sellPrice *= Plugin.Multiplier.Value / 3;
                 }
@@ -136,38 +136,39 @@ public static class Patches
             onComplete.Invoke();
         }
     }
-
+    
     private static void AdjustSellPriceForExcludedNames(ItemData item)
     {
-        if (item.name.Contains(FairyWings) || item.name.Contains(ManaSap) || item.name.Contains(MysteriousAntler))
+
+        if (item.name.Contains(FairyWings,StringComparison.OrdinalIgnoreCase) || item.name.Contains(ManaSap,StringComparison.OrdinalIgnoreCase) || item.name.Contains(MysteriousAntler,StringComparison.OrdinalIgnoreCase))
         {
             item.sellPrice = 0f;
             item.orbsSellPrice = Plugin.Multiplier.Value;
         }
-        else if (item.name.Contains(MonsterCandy) || item.name.Contains(DragonFang) || item.name.Contains(UnicornHairTuft))
+        else if (item.name.Contains(MonsterCandy,StringComparison.OrdinalIgnoreCase) || item.name.Contains(DragonFang,StringComparison.OrdinalIgnoreCase) || item.name.Contains(UnicornHairTuft,StringComparison.OrdinalIgnoreCase))
         {
             item.sellPrice = 0f;
             item.ticketSellPrice = Plugin.Multiplier.Value;
         }
-        else if (item.name.Contains(NelVarianRunestone) || item.name.Contains(AncientElvenHeaddress) || item.name.Contains(AncientMagicStaff))
+        else if (item.name.Contains(NelVarianRunestone,StringComparison.OrdinalIgnoreCase) || item.name.Contains(AncientElvenHeaddress,StringComparison.OrdinalIgnoreCase) || item.name.Contains(AncientMagicStaff,StringComparison.OrdinalIgnoreCase))
         {
             item.sellPrice = 0f;
             item.orbsSellPrice = Plugin.Multiplier.Value;
         }
-        else if (item.name.Contains(TentacleMonsterEmblem) || item.name.Contains(AncientNagaCrook) || item.name.Contains(AncientAngelQuill))
+        else if (item.name.Contains(TentacleMonsterEmblem,StringComparison.OrdinalIgnoreCase) || item.name.Contains(AncientNagaCrook,StringComparison.OrdinalIgnoreCase) || item.name.Contains(AncientAngelQuill,StringComparison.OrdinalIgnoreCase))
         {
             item.sellPrice = 0f;
             item.ticketSellPrice = Plugin.Multiplier.Value;
         }
-        else if (item.name.Contains(AncientNelVarian) && item.sellPrice <= 101f)
+        else if (item.name.Contains(AncientNelVarian,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 101f)
         {
             item.orbsSellPrice *= Plugin.Multiplier.Value / 2;
         }
-        else if (item.name.Contains(AncientWithergate) && item.sellPrice <= 101f)
+        else if (item.name.Contains(AncientWithergate,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 101f)
         {
             item.ticketSellPrice *= Plugin.Multiplier.Value / 2;
         }
-        else if (item.name.Contains(AncientSunHaven) && item.sellPrice <= 101f)
+        else if (item.name.Contains(AncientSunHaven,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 101f)
         {
             item.sellPrice *= Plugin.Multiplier.Value / 3;
         }
@@ -175,16 +176,16 @@ public static class Patches
 
     private static void AdjustOtherConditions(ItemData item)
     {
-        if (item.name.Contains(OriginsOfSunHavenAndElios) && item.sellPrice <= 2f)
+        if (item.name.Contains(OriginsOfSunHavenAndElios,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 2f)
         {
             item.sellPrice *= 10 * Plugin.Multiplier.Value / 2;
         }
-        else if (item.name.Contains(OriginsOfTheGrandTree) && item.sellPrice <= 2f)
+        else if (item.name.Contains(OriginsOfTheGrandTree,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 2f)
         {
             item.orbsSellPrice = Plugin.Multiplier.Value / 2;
             item.sellPrice = 0f;
         }
-        else if (item.name.Contains(OriginsOfDynus) && item.sellPrice <= 2f)
+        else if (item.name.Contains(OriginsOfDynus,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 2f)
         {
             item.ticketSellPrice = Plugin.Multiplier.Value / 2;
             item.sellPrice = 0f;

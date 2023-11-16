@@ -1,4 +1,4 @@
-﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
@@ -13,127 +13,72 @@ namespace AutoTools;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public static class Patches
 {
-    private const string NoSuitableToolFoundOnActionBar = "No suitable tool found on action bar!";
-    private const string NoPickaxeOnActionBar = "No pickaxe on action bar!";
-    private const string NoAxeOnActionBar = "No axe on action bar!";
-    private const string Prop = "prop";
-    private const string Foliage = "foliage";
-    private const string NoWateringCanOnActionBar = "No watering can on action bar!";
-    private const string NoScytheOnActionBar = "No scythe on action bar!";
-    private const string NoHoeOnActionBar = "No hoe on action bar!";
-    private const string NoFishingRodOnActionBar = "No fishing rod on action bar!";
-    private const string YourWateringCanIsEmpty = "Your watering can is empty!";
+    private static Dictionary<EnemyAI, float> EnemyAIDictionary { get; } = new();
 
-    private static int WateringCanIndex { get; set; } = -1;
-    private static Rock Rock { get; set; }
-    private static Tree Tree { get; set; }
-    private static Crop Crop { get; set; }
-    private static Wood Wood { get; set; }
-    private static Plant Plant { get; set; }
-
-    internal enum Tool
+    internal static float ClosestDistance
     {
-        Pickaxe,
-        Axe,
-        Scythe,
-        FishingRod,
-        WateringCan,
-        Hoe,
-    }
-
-    internal static (int index, ToolData toolData) FindBestTool(Tool tool)
-    {
-        var toolDict = tool switch
+        get
         {
-            Tool.Pickaxe => ToolDictionaries.PickAxes,
-            Tool.Axe => ToolDictionaries.Axes,
-            Tool.Scythe => ToolDictionaries.Scythes,
-            Tool.FishingRod => ToolDictionaries.FishingRods,
-            Tool.WateringCan => ToolDictionaries.WateringCans,
-            Tool.Hoe => ToolDictionaries.Hoes,
-            _ => throw new ArgumentOutOfRangeException(nameof(tool), tool, null)
-        };
-
-        // Loop through each tool entry starting from the highest
-        foreach (var toolEntry in toolDict.OrderByDescending(a => a.Key))
-        {
-            foreach (var item in Player.Instance.PlayerInventory._actionBarIcons.Where(a => a.ItemImage is not null))
-            {
-                var toolData = ItemDatabase.GetItemData(item.ItemImage.item) as ToolData;
-                if (toolData == null || toolData.id != toolEntry.Key || !CanUse(toolData))
-                    continue;
-
-                if (tool == Tool.WateringCan)
-                {
-                    if (item.ItemImage.item is WateringCanItem {WaterAmount: <= 0})
-                    {
-                        Plugin.DebugLog($"Found a {toolEntry.Value} but it's empty!");
-                        continue;
-                    }
-
-                    WateringCanIndex = item.ItemImage.slotIndex;
-                    Plugin.DebugLog($"Found a {toolEntry.Value} with water. Setting as best tool.");
-                    return (item.ItemImage.slotIndex, toolData);
-                }
-
-                Plugin.DebugLog($"Found a suitable {toolEntry.Value}. Setting as best tool.");
-                return (item.ItemImage.slotIndex, toolData);
-            }
-        }
-
-        // Specific check for watering can if we didn't find any with water above
-        if (tool == Tool.WateringCan)
-        {
-            Notify(YourWateringCanIsEmpty, true);
-            Plugin.DebugLog("No filled watering cans found. Searching for the best empty one.");
-            foreach (var toolEntry in toolDict.OrderByDescending(a => a.Key))
-            {
-                foreach (var item in Player.Instance.PlayerInventory._actionBarIcons.Where(a => a.ItemImage is not null))
-                {
-                    var toolData = ItemDatabase.GetItemData(item.ItemImage.item) as ToolData;
-                    if (toolData == null || toolData.id != toolEntry.Key || !CanUse(toolData))
-                        continue;
-
-                    WateringCanIndex = item.ItemImage.slotIndex;
-                    return (item.ItemImage.slotIndex, toolData);
-                }
-            }
-        }
-
-        Plugin.DebugLog("No suitable tool found on action bar!");
-        return (-1, null);
-    }
-
-
-    private static void HandleToolInteraction(int toolIndex, string errorMessage)
-    {
-        if (toolIndex != -1)
-        {
-            SetActionBar(toolIndex);
-        }
-        else
-        {
-            Notify(errorMessage, true);
+            UpdateDistances();
+            return EnemyAIDictionary.Any() ? EnemyAIDictionary.Min(a => a.Value) : float.MaxValue;
         }
     }
 
-    private static bool IsInFarmTile()
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.FixedUpdate))]
+    private static void EnemyAI_FixedUpdate(EnemyAI __instance)
     {
-        return TileManager.Instance.HasTileOrFarmingTile(Player.Instance.Position, ScenePortalManager.ActiveSceneIndex);
+        if (__instance is NPCAI || !__instance.SameScene || __instance.freezeMovementAnimation) return;
+        EnemyAIDictionary.RemoveAll(a => a == null || a._dead || a.gameObject.activeSelf == false);
+        EnemyAIDictionary[__instance] = Utilities.GetDistance(__instance);
     }
 
-    private static void RunToolActions(Collider2D collider)
-    {
-        ToolAction(Tool.Pickaxe, Rock is not null && Rock.Pickaxeable, Plugin.EnableAutoPickaxe.Value, NoPickaxeOnActionBar);
-        ToolAction(Tool.Axe, (Tree is not null && Tree.Axeable) || (Wood is not null && Wood.Axeable), Plugin.EnableAutoAxe.Value, NoAxeOnActionBar);
-        ToolAction(Tool.Scythe, Plant is not null || (collider.name.Contains(Foliage) && !collider.name.Contains(Prop)) || (Crop is not null && Crop.FullyGrown), Plugin.EnableAutoScythe.Value, NoScytheOnActionBar);
-        ToolAction(Tool.FishingRod, Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < Plugin.FishingRodWaterDetectionDistance.Value && SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Utilities.MousePositionFloat().x, (int) Utilities.MousePositionFloat().y)), Plugin.EnableAutoFishingRod.Value, NoFishingRodOnActionBar);
-        ToolAction(Tool.Hoe, TileManager.Instance.IsHoeable(new Vector2Int((int) Player.Instance.ExactGraphicsPosition.x, (int) Player.Instance.ExactGraphicsPosition.y)), Plugin.EnableAutoHoe.Value, NoHoeOnActionBar);
 
-        FindBestTool(Tool.WateringCan); //this is here to update the watering can index prior to running the conditions below
-        ToolAction(Tool.WateringCan, !WateringCanHasWater() && (WateringCan.OverWaterSource || Vector2.Distance(Player.Instance.ExactGraphicsPosition, Utilities.MousePositionFloat()) < 10 && SingletonBehaviour<GameManager>.Instance.HasWater(new Vector2Int((int) Utilities.MousePositionFloat().x, (int) Utilities.MousePositionFloat().y))), Plugin.EnableAutoWateringCan.Value, NoWateringCanOnActionBar);
-        ToolAction(Tool.WateringCan, Crop is not null && (!Crop.data.watered || Crop.data.onFire), Plugin.EnableAutoWateringCan.Value, NoWateringCanOnActionBar, WateringCanHasWater, YourWateringCanIsEmpty);
+    private static void UpdateDistances()
+    {
+        // var s = Stopwatch.StartNew();
+        // Remove all invalid or dead enemies or inactive game objects.
+        var keysToRemove = EnemyAIDictionary.Keys
+            .Where(enemy => enemy == null || enemy._dead || !enemy.gameObject.activeSelf)
+            .ToList();
+
+        foreach (var key in keysToRemove)
+        {
+            EnemyAIDictionary.Remove(key);
+        }
+
+        // Update distances for the remaining enemies.
+        foreach (var enemy in EnemyAIDictionary.Keys.ToList()) // ToList creates a stable snapshot of the keys
+        {
+            var newDistance = Utilities.GetDistance(enemy);
+            EnemyAIDictionary[enemy] = newDistance;
+        }
+
+        // s.Stop();
+        // Plugin.LOG.LogWarning($"UpdateDistances took {s.ElapsedMilliseconds} ms, {s.ElapsedTicks} ticks)");
     }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ScenePortalSpot), nameof(ScenePortalSpot.OnTriggerEnter2D))]
+    private static void ScenePortalSpot_OnTriggerEnter2D(ScenePortalSpot __instance)
+    {
+        UpdateDistances();
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.Awake))]
+    private static void EnemyAI_Awake(ref EnemyAI __instance)
+    {
+        if (__instance is NPCAI) return;
+        var distance = Utilities.GetDistance(__instance);
+        EnemyAIDictionary.TryAdd(__instance, distance);
+        var ai = __instance;
+        __instance.onDie += () => { EnemyAIDictionary.RemoveAll(a => a == ai); };
+        __instance.onDestinationReached += () => { EnemyAIDictionary[ai] = Utilities.GetDistance(ai); };
+
+        __instance.onFinishedPath += () => { EnemyAIDictionary[ai] = Utilities.GetDistance(ai); };
+    }
+
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerInteractions), nameof(PlayerInteractions.OnTriggerEnter2D))]
@@ -141,108 +86,13 @@ public static class Patches
     {
         if (!Plugin.EnableAutoTool.Value) return;
 
-        
-        if (!EnableToolSwaps(__instance, collider)) return;
 
-        if (IsInFarmTile() && !Plugin.EnableAutoToolOnFarmTiles.Value) return;
+        if (!Tools.EnableToolSwaps(__instance, collider)) return;
 
-        UpdateColliders(collider);
+        if (Utilities.IsInFarmTile() && !Plugin.EnableAutoToolOnFarmTiles.Value) return;
 
-        RunToolActions(collider);
-    }
+        Tools.UpdateColliders(collider);
 
-
-    private static void UpdateColliders(Collider2D collider)
-    {
-        Rock = collider.GetComponent<Rock>();
-        Tree = collider.GetComponent<Tree>();
-        Crop = collider.GetComponent<Crop>();
-        Wood = collider.GetComponent<Wood>();
-        Plant = collider.GetComponent<Plant>();
-    }
-
-    private static bool EnableToolSwaps(PlayerInteractions __instance, Collider2D collider)
-    {
-        return __instance is not null || collider is not null || SceneSettingsManager.Instance is not null || TileManager.Instance is not null || !Player.Instance.InCombat;
-    }
-
-    private static bool WateringCanHasWater()
-    {
-        if (WateringCanIndex == -1)
-        {
-            Plugin.DebugLog("No watering can on action bar!");
-            return false;
-        }
-
-        var item = Player.Instance.PlayerInventory._actionBarIcons[WateringCanIndex].ItemImage.item;
-        if (item is not WateringCanItem wc)
-        {
-            return false;
-        }
-
-        return wc.WaterAmount > 0;
-    }
-
-    private static void ToolAction(Tool tool, bool condition, bool pluginValue, string errorMessage, Func<bool> additionalCondition = null, string failedConditionMessage = null)
-    {
-        if (!condition || !pluginValue) return;
-
-        if (additionalCondition != null && !additionalCondition())
-        {
-            if (!string.IsNullOrEmpty(failedConditionMessage))
-            {
-                Notify(failedConditionMessage, true);
-            }
-
-            return;
-        }
-
-
-        var toolData = FindBestTool(tool);
-        if (toolData.toolData != null)
-        {
-            if (CanUse(toolData.toolData))
-            {
-                HandleToolInteraction(toolData.index, errorMessage);
-            }
-            else
-            {
-                Notify(ToolLevelTooLow(toolData.toolData), true);
-            }
-        }
-        else
-        {
-            Notify(NoSuitableToolFoundOnActionBar, true);
-        }
-    }
-
-    private static string ToolLevelTooLow(ToolData toolData)
-    {
-        Plugin.DebugLog($"Your {toolData.profession} level is too low to use {toolData.name}!");
-        return $"Your {toolData.profession} level is too low to use {toolData.name}!";
-    }
-
-    private static bool CanUse(ToolData toolData)
-    {
-        return SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.Professions[toolData.profession].level >= toolData.requiredLevel;
-    }
-
-    private const float TimeBetweenNotifications = 5f;
-    private static float LastNotificationTime { get; set; }
-    private static string PreviousMessage { get; set; }
-
-    private static void Notify(string message, bool error = false)
-    {
-        if (message == PreviousMessage && Time.time - LastNotificationTime < TimeBetweenNotifications) return;
-        LastNotificationTime = Time.time;
-        PreviousMessage = message;
-        SingletonBehaviour<NotificationStack>.Instance.SendNotification(message, error: error);
-    }
-
-    private static void SetActionBar(int index)
-    {
-        PlayerInput.AllowChangeActionBarItem = true;
-        Player.Instance.PlayerInventory.SetActionBarSlot(index);
-        Player.Instance.PlayerInventory.SetIndex(index);
+        Tools.RunToolActions(collider);
     }
 }

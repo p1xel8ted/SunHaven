@@ -13,12 +13,12 @@ public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "p1xel8ted.sunhaven.museumsellpriceredux";
     private const string PluginName = "Museum Sell Price Redux";
-    private const string PluginVersion = "0.1.0";
+    private const string PluginVersion = "0.1.1";
 
     internal static ConfigEntry<bool> Enabled { get; private set; }
     private static ConfigEntry<bool> Debug { get; set; }
     internal static ConfigEntry<float> Multiplier { get; private set; }
-    private static ManualLogSource LOG { get; set; }
+    internal static ManualLogSource LOG { get; set; }
 
     private void Awake()
     {

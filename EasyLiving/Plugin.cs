@@ -6,6 +6,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Wish;
 
 namespace EasyLiving;
 
@@ -32,8 +33,11 @@ public partial class Plugin : BaseUnityPlugin
     public static ConfigEntry<bool> MaterialsOnlyDefault { get; private set; }
     public static ConfigEntry<bool> IncreaseWateringCanFillRange { get; private set; }
 
-    private static ConfigEntry<bool> LockMouseToCenter { get; set; }
+    public static ConfigEntry<bool> Emotes { get; private set; }
+    public static ConfigEntry<bool> FastDialogue { get; set; }
+
     internal static ManualLogSource LOG { get; private set; }
+
     private void Awake()
     {
         LOG = new ManualLogSource("Easy Living");
@@ -51,26 +55,33 @@ public partial class Plugin : BaseUnityPlugin
         AdjustQuestTrackerHeightView = Config.Bind("04. UI", "Adjust Quest Tracker Height", Display.main.systemHeight / 3, new ConfigDescription("Adjust the height of the quest tracker.", new AcceptableValueRange<int>(-2000, 2000), new ConfigurationManagerAttributes {Order = 14}));
         ApplyMoveSpeedMultiplier = Config.Bind("05. Player", "Apply Move Speed Multiplier", true, new ConfigDescription("Apply a multiplier to the players base speed.", null, new ConfigurationManagerAttributes {Order = 13}));
         MoveSpeedMultiplier = Config.Bind("05. Player", "Move Speed Multiplier", 1.5f, new ConfigDescription("Adjust the player's move speed.", new AcceptableValueRange<float>(1f, 10f), new ConfigurationManagerAttributes {Order = 12}));
-        MoveSpeedMultiplier.SettingChanged += (_, _) =>
-        {
-            MoveSpeedMultiplier.Value = Mathf.Clamp(MoveSpeedMultiplier.Value, 1f, 10f);
-        };
+        MoveSpeedMultiplier.SettingChanged += (_, _) => { MoveSpeedMultiplier.Value = Mathf.Clamp(MoveSpeedMultiplier.Value, 1f, 10f); };
         MoveSpeedMultiplierIncrease = Config.Bind("05. Player", "Move Speed Multiplier Increase", new KeyboardShortcut(KeyCode.LeftBracket), new ConfigDescription("Keybind to increase the player's move speed multiplier.", null, new ConfigurationManagerAttributes {Order = 11}));
         MoveSpeedMultiplierDecrease = Config.Bind("05. Player", "Move Speed Multiplier Decrease", new KeyboardShortcut(KeyCode.RightBracket), new ConfigDescription("Keybind to decrease the player's move speed multiplier.", null, new ConfigurationManagerAttributes {Order = 10}));
         AutoLoadMostRecentSave = Config.Bind("06. Saves", "Auto Load Most Recent Save", true, new ConfigDescription("Automatically load the most recent save when starting the game.", null, new ConfigurationManagerAttributes {Order = 9}));
         SkipAutoLoadMostRecentSaveShortcut = Config.Bind("06. Saves", "Skip Auto Load Most Recent Save Shortcut", new KeyboardShortcut(KeyCode.LeftShift), new ConfigDescription("Keybind to hold to skip auto loading the most recent save.", null, new ConfigurationManagerAttributes {Order = 8}));
         MaterialsOnlyDefault = Config.Bind("07. Crafting", "Materials Only Default", true, new ConfigDescription("Set the default crafting filter to 'Materials Only' when opening a crafting table.", null, new ConfigurationManagerAttributes {Order = 7}));
-        LockMouseToCenter = Config.Bind("09. Controller", "Lock Mouse To Center", false, new ConfigDescription("Lock the mouse to the center of the screen when no UI is open. This is for controller players. Experimental feature.", null, new ConfigurationManagerAttributes {Order = 6}));
         IncreaseWateringCanFillRange = Config.Bind("08. Farming", "Increase Watering Can Fill Range", true, new ConfigDescription("Increase the watering can fill range.", null, new ConfigurationManagerAttributes {Order = 5}));
+        Emotes = Config.Bind("09. Player Settings", "Emotes", true, new ConfigDescription("Enable emotes.", null, new ConfigurationManagerAttributes {Order = 4}));
+        Emotes.SettingChanged += (_, _) => { UpdatePlayerPref(); };
+        FastDialogue = Config.Bind("09. Player Settings", "Fast Dialogue", true, new ConfigDescription("According to game code increases dialogue speed, but I have my doubts. Try for yourself.", null, new ConfigurationManagerAttributes {Order = 2}));
+        FastDialogue.SettingChanged += (_, _) => { UpdatePlayerPref(); };
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
         LOG.LogInfo($"Plugin {PluginName} is loaded!");
-        
-       
-        
+    }
+
+    private static void UpdatePlayerPref()
+    {
+        if (PlaySettingsManager.Instance != null && PlaySettingsManager.PlaySettings != null)
+        {
+            PlaySettingsManager.PlaySettings.enableEmotes = Emotes.Value;
+            PlaySettingsManager.PlaySettings.fastDialogue = FastDialogue.Value;
+        }
     }
 
     private static void SceneManagerOnSceneLoaded(Scene arg0, LoadSceneMode arg1)
     {
+        UpdatePlayerPref();
         var refreshRate = Screen.resolutions.Max(a => a.refreshRate);
         Screen.SetResolution(Display.main.systemWidth, Display.main.systemHeight, Screen.fullScreenMode == FullScreenMode.FullScreenWindow, refreshRate);
         Time.fixedDeltaTime = 1f / refreshRate;

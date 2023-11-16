@@ -18,45 +18,21 @@ public partial class Plugin
             SingletonBehaviour<NotificationStack>.Instance.SendNotification($"Movement Speed Multiplier: {MoveSpeedMultiplier.Value}");
         }
     }
-
-
-
     private void Update()
     {
-        if (LockMouseToCenter.Value)
-        {
-            if (UIHandler.Instance != null)
-            {
-                if (DialogueController.Instance.DialogueOnGoing || DialogueController.Instance._dialoguePanel.activeSelf || QuestRewards.Instance.AcceptingRewards || UIHandler.InventoryOpen || UIHandler.Instance.uiOpen || UIHandler.Instance._inventoryUI.gameObject.activeSelf || UIHandler.Instance.ExternalUI.activeSelf)
-                {
-                    Cursor.lockState = CursorLockMode.None;
-                    Cursor.visible = true;
-                }
-                else
-                {
-                    Cursor.lockState = CursorLockMode.Locked;
-                    Cursor.visible = false;
-                }
-            }
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;   
-        }
 
         if (EnableSaveShortcut.Value && SaveShortcut.Value.IsUp() && Player.Instance is not null && GameSave.Instance is not null)
         {
             SingletonBehaviour<GameSave>.Instance.SaveGame(true);
             SingletonBehaviour<NotificationStack>.Instance.SendNotification(GameSaved);
         }
-        
-        if(MoveSpeedMultiplierIncrease.Value.IsUp())
+
+        if (MoveSpeedMultiplierIncrease.Value.IsUp())
         {
             MoveSpeedMultiplier.Value += 0.25f;
             Notify();
         }
-        else if(MoveSpeedMultiplierDecrease.Value.IsUp())
+        else if (MoveSpeedMultiplierDecrease.Value.IsUp())
         {
             MoveSpeedMultiplier.Value -= 0.25f;
             Notify();

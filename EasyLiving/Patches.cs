@@ -15,9 +15,14 @@ public static class Patches
 {
     private const float BaseMoveSpeed = 4.5f;
     private const string SkippingLoadOfLastModifiedSave = "Skipping load of last modified save.";
+    private const float RegenerationInterval = 3f; // Example value for regeneration interval
     private static GameObject _newButton;
-    private static bool PlayerReturnedToMenu { get; set; }
     private static readonly WriteOnce<Vector2> OriginalSize = new();
+
+    private static float _regenerationTimer;
+    private static bool PlayerReturnedToMenu { get; set; }
+
+    internal static bool SkipAutoLoad { get; set; }= false;
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UIHandler), nameof(UIHandler.ExitGame))]
@@ -39,14 +44,43 @@ public static class Patches
     [HarmonyPatch(typeof(Player), nameof(Player.FixedUpdate))]
     public static void Player_FixedUpdate(ref Player __instance)
     {
-        if (!Plugin.ApplyMoveSpeedMultiplier.Value) return;
-        __instance.moveSpeed = BaseMoveSpeed * Plugin.MoveSpeedMultiplier.Value;
+        if(__instance == null ||Player.Instance == null) return;
+        ApplyMoveSpeed(__instance);
+        RegenerateHealthAndMana(__instance);
     }
-    
+
+    private static void ApplyMoveSpeed(Player player)
+    {  
+        if(player == null ||Player.Instance == null) return;
+        if (!Plugin.ApplyMoveSpeedMultiplier.Value) return;
+        var newSpeed = BaseMoveSpeed * Plugin.MoveSpeedMultiplier.Value;
+        if (!Mathf.Approximately(player.moveSpeed,newSpeed))
+        {
+            player.moveSpeed = newSpeed;
+        }
+    }
+
+    private static void RegenerateHealthAndMana(Player player)
+    {
+        if(player == null ||Player.Instance == null) return;
+        _regenerationTimer += Time.deltaTime;
+        if (!(_regenerationTimer >= RegenerationInterval)) return;
+        _regenerationTimer = 0f;
+        player.Health = RegenerateStat(player.Health, player.MaxHealth, 1f);
+        player.Mana = RegenerateStat(player.Mana, player.MaxMana, 1f);
+    }
+
+    private static float RegenerateStat(float currentStat, float maxStat, float regenerationAmount)
+    {
+        return currentStat < maxStat ? currentStat + regenerationAmount : currentStat;
+    }
+
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Player), nameof(Player.MoveSpeed), MethodType.Getter)]
     public static void Player_MoveSpeed(ref Player __instance, ref float __result)
     {
+        if(__instance == null ||Player.Instance == null) return;
         if (!Plugin.ApplyMoveSpeedMultiplier.Value) return;
        __result = BaseMoveSpeed * Plugin.MoveSpeedMultiplier.Value;
     }
@@ -60,8 +94,6 @@ public static class Patches
         __instance.hasMats = true;
     }
 
-    internal static bool SkipAutoLoad { get; set; }= false;
-    
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.Start))]
     public static void GameSave_LoadAllCharacters(ref MainMenuController __instance)

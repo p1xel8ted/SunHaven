@@ -99,7 +99,7 @@ public static class ToolDictionaries
         {3405, "Withergate Fishing Rod"},
         {3406, "Enchanted Fishing Rod"}
     };
-    
+
     private static readonly Dictionary<int, string> HoeData = new()
     {
         {3200, "Rusty Hoe"},
@@ -123,5 +123,4 @@ public static class ToolDictionaries
     public static ReadOnlyDictionary<int, string> Scythes { get; } = new(ScytheData);
 
     public static ReadOnlyDictionary<int, string> FishingRods { get; } = new(FishingRodData);
-    
 }
