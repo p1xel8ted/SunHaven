@@ -59,10 +59,7 @@ public static class Patches
         Plugin.Log("Applying price changes...");
         foreach (var item in ItemDatabase.items.Where(a => a != null))
         {
-           
-            if (item.description != null && !item.description.Contains(WouldLookGoodInAMuseum,StringComparison.OrdinalIgnoreCase)) continue;
-            
-            if (item.sellPrice <= 11f)
+            if (item.description.Contains(WouldLookGoodInAMuseum,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 11f)
             {
                 if (ExcludedNames.Contains(item.name))
                 {
@@ -71,10 +68,12 @@ public static class Patches
                 else if (item.name.Equals(LeafieTrinket,StringComparison.OrdinalIgnoreCase))
                 {
                     item.sellPrice *= Plugin.Multiplier.Value / 3;
+                    Plugin.Log($"Adjusted price for {item.name} to {item.sellPrice}", debug:true);
                 }
                 else
                 {
                     item.sellPrice *= Plugin.Multiplier.Value;
+                    Plugin.Log($"Adjusted price for {item.name} to {item.sellPrice}", debug:true);
                 }
             }
 
@@ -116,14 +115,17 @@ public static class Patches
             if (BackUpSellPrices.TryGetValue(item.id, out var sellPrice))
             {
                 item.sellPrice = sellPrice;
+                Plugin.Log($"Restored price for {item.name} to {item.sellPrice}", debug:true);
             }
             if (BackUpOrbPrices.TryGetValue(item.id, out var orbPrice))
             {
                 item.orbsSellPrice = orbPrice;
+                Plugin.Log($"Restored price for {item.name} to {item.orbsSellPrice}", debug:true);
             } 
             if (BackUpTicketPrices.TryGetValue(item.id, out var ticketPrice))
             {
                 item.ticketSellPrice = ticketPrice;
+                Plugin.Log($"Restored price for {item.name} to {item.ticketSellPrice}", debug:true);
             }
         }
 
@@ -144,33 +146,41 @@ public static class Patches
         {
             item.sellPrice = 0f;
             item.orbsSellPrice = Plugin.Multiplier.Value;
+            Plugin.Log($"Adjusted price for {item.name} to {item.orbsSellPrice}", debug:true);
         }
         else if (item.name.Contains(MonsterCandy,StringComparison.OrdinalIgnoreCase) || item.name.Contains(DragonFang,StringComparison.OrdinalIgnoreCase) || item.name.Contains(UnicornHairTuft,StringComparison.OrdinalIgnoreCase))
         {
             item.sellPrice = 0f;
             item.ticketSellPrice = Plugin.Multiplier.Value;
+            Plugin.Log($"Adjusted price for {item.name} to {item.ticketSellPrice}", debug:true);   
         }
         else if (item.name.Contains(NelVarianRunestone,StringComparison.OrdinalIgnoreCase) || item.name.Contains(AncientElvenHeaddress,StringComparison.OrdinalIgnoreCase) || item.name.Contains(AncientMagicStaff,StringComparison.OrdinalIgnoreCase))
         {
             item.sellPrice = 0f;
             item.orbsSellPrice = Plugin.Multiplier.Value;
+            Plugin.Log($"Adjusted price for {item.name} to {item.orbsSellPrice}", debug:true);
         }
         else if (item.name.Contains(TentacleMonsterEmblem,StringComparison.OrdinalIgnoreCase) || item.name.Contains(AncientNagaCrook,StringComparison.OrdinalIgnoreCase) || item.name.Contains(AncientAngelQuill,StringComparison.OrdinalIgnoreCase))
         {
             item.sellPrice = 0f;
             item.ticketSellPrice = Plugin.Multiplier.Value;
+            Plugin.Log($"Adjusted price for {item.name} to {item.ticketSellPrice}", debug:true);
         }
         else if (item.name.Contains(AncientNelVarian,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 101f)
         {
             item.orbsSellPrice *= Plugin.Multiplier.Value / 2;
+            Plugin.Log($"Adjusted price for {item.name} to {item.orbsSellPrice}", debug:true);
+                
         }
         else if (item.name.Contains(AncientWithergate,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 101f)
         {
             item.ticketSellPrice *= Plugin.Multiplier.Value / 2;
+            Plugin.Log($"Adjusted price for {item.name} to {item.ticketSellPrice}", debug:true);
         }
         else if (item.name.Contains(AncientSunHaven,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 101f)
         {
             item.sellPrice *= Plugin.Multiplier.Value / 3;
+            Plugin.Log($"Adjusted price for {item.name} to {item.sellPrice}", debug:true);
         }
     }
 
@@ -179,16 +189,19 @@ public static class Patches
         if (item.name.Contains(OriginsOfSunHavenAndElios,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 2f)
         {
             item.sellPrice *= 10 * Plugin.Multiplier.Value / 2;
+            Plugin.Log($"Adjusted price for {item.name} to {item.sellPrice}", debug:true);
         }
         else if (item.name.Contains(OriginsOfTheGrandTree,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 2f)
         {
             item.orbsSellPrice = Plugin.Multiplier.Value / 2;
             item.sellPrice = 0f;
+            Plugin.Log($"Adjusted price for {item.name} to {item.orbsSellPrice}", debug:true);
         }
         else if (item.name.Contains(OriginsOfDynus,StringComparison.OrdinalIgnoreCase) && item.sellPrice <= 2f)
         {
             item.ticketSellPrice = Plugin.Multiplier.Value / 2;
             item.sellPrice = 0f;
+            Plugin.Log($"Adjusted price for {item.name} to {item.ticketSellPrice}", debug:true);
         }
     }
 }

@@ -61,7 +61,6 @@ public class Plugin : BaseUnityPlugin
     {
         if (SingletonBehaviour<NotificationStack>.Instance is null)
         {
-            Log("NotificationStack is null!", true);
             return;
         }
         SingletonBehaviour<NotificationStack>.Instance.SendNotification($"{PluginName}: {message}");

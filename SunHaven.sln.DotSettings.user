@@ -243,6 +243,7 @@
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CGames_005Csteamapps_005Ccommon_005CSun_0020Haven_005CSun_0020Haven_005FData_005CManaged_005Cwhere_002Dallocations_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CGames_005Csteamapps_005Ccommon_005CSun_0020Haven_005CSun_0020Haven_005FData_005CManaged_005CZeroFormatter_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CGames_005Csteamapps_005Ccommon_005CSun_0020Haven_005CSun_0020Haven_005FData_005CManaged_005CZeroFormatter_002EInterfaces_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=0FB260D3_002D92C5_002D43D5_002DB234_002D6BDBA793EF9C_002Ff_003APatches_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7470CC60_002DD980_002D4796_002DADF1_002DFDC282982B36_002Fd_003AEnhancedPickups_002Ff_003AEnhancedPickupsPlugin_002Ecs/@EntryIndexedValue">ExplicitlyExcluded</s:String>
 	
 	
