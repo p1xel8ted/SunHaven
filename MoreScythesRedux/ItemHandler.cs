@@ -63,9 +63,9 @@ public static class ItemHandler
             var recipe = ScriptableObject.CreateInstance<Recipe>();
             recipe.output = new ItemInfo { item = ItemDatabase.GetItemData(itemId), amount = 1 };
             recipe.input = inputs;
-            recipe.worldProgressTokens = new List<Progress>();
-            recipe.characterProgressTokens = new List<Progress>();
-            recipe.questProgressTokens = new List<QuestAsset>();
+            recipe.worldProgressTokens = [];
+            recipe.characterProgressTokens = [];
+            recipe.questProgressTokens = [];
             recipe.hoursToCraft = craftingHours;
 
             rl.craftingRecipes.Add(recipe);
@@ -77,10 +77,10 @@ public static class ItemHandler
     {
         var scytheDefinitions = new List<(int id, int speed, int damage, string recipeList, List<ItemInfo> inputs, float craftingHours)>
         {
-            (AdamantScytheId, 13, 14, RecipeListAnvil, new List<ItemInfo> { new() { item = ItemDatabase.GetItemData(ItemID.AdamantBar), amount = 10 } }, 6f),
-            (MithrilScytheId, 14, 18, RecipeListAnvil, new List<ItemInfo> { new() { item = ItemDatabase.GetItemData(ItemID.MithrilBar), amount = 10 } }, 12f),
-            (SuniteScytheId, 15, 22, RecipeListAnvil, new List<ItemInfo> { new() { item = ItemDatabase.GetItemData(ItemID.SuniteBar), amount = 10 } }, 24f),
-            (GloriteScytheId, 16, 26, RecipeListMonsterAnvil, new List<ItemInfo> { new() { item = ItemDatabase.GetItemData(ItemID.GloriteBar), amount = 10 } }, 48f),
+            (AdamantScytheId, 13, 14, RecipeListAnvil, [new ItemInfo {item = ItemDatabase.GetItemData(ItemID.AdamantBar), amount = 10}], 6f),
+            (MithrilScytheId, 14, 18, RecipeListAnvil, [new ItemInfo {item = ItemDatabase.GetItemData(ItemID.MithrilBar), amount = 10}], 12f),
+            (SuniteScytheId, 15, 22, RecipeListAnvil, [new ItemInfo {item = ItemDatabase.GetItemData(ItemID.SuniteBar), amount = 10}], 24f),
+            (GloriteScytheId, 16, 26, RecipeListMonsterAnvil, [new ItemInfo {item = ItemDatabase.GetItemData(ItemID.GloriteBar), amount = 10}], 48f),
         };
 
         foreach (var (id, speed, damage, recipeList, inputs, craftingHours) in scytheDefinitions)

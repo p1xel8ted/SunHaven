@@ -16,7 +16,7 @@ namespace CheatEnabler
 
         private void Awake()
         {
-            LOG = new ManualLogSource("Cheat Enabler");
+            LOG = new ManualLogSource(PluginName);
             BepInEx.Logging.Logger.Sources.Add(LOG);
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
             LOG.LogInfo($"Plugin {PluginName} is loaded!");

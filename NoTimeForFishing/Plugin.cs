@@ -55,7 +55,7 @@ namespace NoTimeForFishing
 
         private void Awake()
         {
-            LOG = new ManualLogSource("No Time For Fishing");
+            LOG = new ManualLogSource(PluginName);
             BepInEx.Logging.Logger.Sources.Add(LOG);
 
 // 01. Bobber Dynamics

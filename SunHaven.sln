@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreScythesRedux", "MoreScy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControllerTweaks", "ControllerTweaks\ControllerTweaks.csproj", "{D574C4D0-B65A-40BB-8018-D31C14A83295}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoTimeToStopAndEat", "NoTimeToStopAndEat\NoTimeToStopAndEat.csproj", "{991BBE68-47C9-4495-8551-0DDE7F265602}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{D574C4D0-B65A-40BB-8018-D31C14A83295}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D574C4D0-B65A-40BB-8018-D31C14A83295}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D574C4D0-B65A-40BB-8018-D31C14A83295}.Release|Any CPU.Build.0 = Release|Any CPU
+		{991BBE68-47C9-4495-8551-0DDE7F265602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{991BBE68-47C9-4495-8551-0DDE7F265602}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{991BBE68-47C9-4495-8551-0DDE7F265602}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{991BBE68-47C9-4495-8551-0DDE7F265602}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

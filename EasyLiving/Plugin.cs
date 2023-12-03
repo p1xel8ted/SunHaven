@@ -40,7 +40,7 @@ public partial class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
-        LOG = new ManualLogSource("Easy Living");
+        LOG = new ManualLogSource(PluginName);
         BepInEx.Logging.Logger.Sources.Add(LOG);
         SceneManager.sceneLoaded += SceneManagerOnSceneLoaded;
         UnityLogging = Config.Bind("01. Debug", "Unity Logging", false, new ConfigDescription("Toggle Unity logging. Useful for debugging.", null, new ConfigurationManagerAttributes {IsAdvanced = true, Order = -1}));

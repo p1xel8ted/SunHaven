@@ -33,7 +33,7 @@ public class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
-        LOG = new ManualLogSource("Easy Living");
+        LOG = new ManualLogSource(PluginName);
         BepInEx.Logging.Logger.Sources.Add(LOG);
         LockMouseToCenter = Config.Bind("01. Controller", "Lock Mouse To Center", false, new ConfigDescription("Lock the mouse to the center of the screen when no UI is open. This is for controller players. Experimental feature.", null, new ConfigurationManagerAttributes {Order = 6}));
 

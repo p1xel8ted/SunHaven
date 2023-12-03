@@ -15,7 +15,7 @@ public class Plugin : BaseUnityPlugin
     
     private void Awake()
     {
-        LOG = new ManualLogSource("Keep Alive");
+        LOG = new ManualLogSource(PluginName);
         BepInEx.Logging.Logger.Sources.Add(LOG);
 
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);

@@ -39,7 +39,7 @@ namespace UIScales
         private void Awake()
         {
             SceneManager.sceneLoaded += SceneManagerOnSceneLoaded;
-            LOG = new ManualLogSource("UI Scales");
+            LOG = new ManualLogSource(PluginName);
             BepInEx.Logging.Logger.Sources.Add(LOG);
 
             UIKeyboardShortcutIncrease = Config.Bind("Keyboard Shortcuts", "UI Scale Increase", new KeyboardShortcut(KeyCode.Keypad8, KeyCode.LeftControl));

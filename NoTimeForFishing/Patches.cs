@@ -321,7 +321,7 @@ public static class Patches
     public static IEnumerable<CodeInstruction> Fish_TargetBobber_Transpiler(IEnumerable<CodeInstruction> instructions,
         MethodBase originalMethod)
     {
-        List<FieldInfo> colliders = new();
+        List<FieldInfo> colliders = [];
         colliders.Clear();
         var innerTypes = typeof(Fish).GetNestedTypes(AccessTools.all);
         var innerColliders = innerTypes.Where(type =>
