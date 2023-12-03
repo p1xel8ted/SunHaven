@@ -161,14 +161,42 @@ public static class Tools
 
     internal static bool EnableToolSwaps(PlayerInteractions __instance, Collider2D collider)
     {
-        if (Patches.ClosestDistance <= Plugin.CombatRange.Value)
+        Plugin.DebugLog("EnableToolSwaps called.");
+        
+        if (Plugin.EnableEnemyDetection.Value)
         {
-            //Plugin.LOG.LogInfo($"Closest enemy is {Patches.ClosestDistance} away. Threshold is {Plugin.CombatRange.Value}. Not swapping tools.");
-            return false;
+            Plugin.DebugLog("Enemy detection is enabled.");
+            
+            if (Plugin.UseCombatRange.Value)
+            {
+                var distance = Patches.ClosestDistance;
+                var limit = Plugin.CombatRange.Value;
+                if (distance <= limit)
+                {
+                    Plugin.DebugLog($"Closest distance ({distance}) is within combat range ({limit}). Returning false.");
+                    
+                    return false;
+                }
+            }
+            else
+            {
+                Plugin.DebugLog("Not using combat range.");
+                
+                if (Patches.EnemyInArea)
+                {
+                    Plugin.DebugLog("Enemy in area. Returning false.");
+                    
+                    return false;
+                }
+            }
         }
-
-        return __instance is not null || collider is not null || SceneSettingsManager.Instance is not null || TileManager.Instance is not null || !Player.Instance.InCombat;
+        
+        var isValid = __instance != null && collider != null && SceneSettingsManager.Instance != null && TileManager.Instance != null && !Player.Instance.InCombat;
+        
+        Plugin.DebugLog($"Validity check: {isValid}. Returning {isValid}.");
+        return isValid;
     }
+
 
     private static bool WateringCanHasWater(bool refill = false)
     {

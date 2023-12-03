@@ -15,6 +15,8 @@ public static class Patches
 {
     private static Dictionary<EnemyAI, float> EnemyAIDictionary { get; } = new();
 
+    internal static bool EnemyInArea => EnemyAIDictionary.Any();
+    
     internal static float ClosestDistance
     {
         get
