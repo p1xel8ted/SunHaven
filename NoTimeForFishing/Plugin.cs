@@ -1,25 +1,18 @@
-﻿using System.Reflection;
-using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
-using HarmonyLib;
-using UnityEngine;
-
-namespace NoTimeForFishing
+﻿namespace NoTimeForFishing
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     public class Plugin : BaseUnityPlugin
     {
         private const string PluginGuid = "p1xel8ted.sunhaven.notimeforfishing";
         private const string PluginName = "No Time For Fishing!";
-        private const string PluginVersion = "0.0.6";
+        private const string PluginVersion = "0.0.7";
 
         public static ConfigEntry<bool> DisableCaughtFishWindow;
         public static ConfigEntry<bool> SkipFishingMiniGame;
         public static ConfigEntry<bool> AutoReel;
         public static ConfigEntry<bool> InstantAutoReel;
 
-        internal static ConfigEntry<bool> NoMoreNibbles;
+        internal static ConfigEntry<bool> NibblingBehaviour;
 
         internal static ConfigEntry<bool> ModifyFishingRodCastSpeed;
         internal static ConfigEntry<int> FishingRodCastSpeed;
@@ -46,6 +39,14 @@ namespace NoTimeForFishing
 
         internal static ConfigEntry<bool> InstantAttraction;
 
+        internal static ConfigEntry<bool> ModifyFishOdds;
+        internal static ConfigEntry<float> FishOddsMultiplier;
+        internal static ConfigEntry<bool> MaximizeFishOdds;
+        
+        internal static ConfigEntry<bool> IncreaseMuseumFishChance;
+        internal static ConfigEntry<float> IncreaseMuseumFishChanceValue;
+        
+        
         public static ConfigEntry<bool> Debug;
 
         private static bool _showConfirmationDialog = false;
@@ -58,7 +59,7 @@ namespace NoTimeForFishing
             LOG = new ManualLogSource(PluginName);
             BepInEx.Logging.Logger.Sources.Add(LOG);
 
-// 01. Bobber Dynamics
+            // 01. Bobber Dynamics
             InstantAttraction = Config.Bind("01. Bobber Dynamics", "Immediate Fish Attraction", true,
                 new ConfigDescription("Ensures that fish are instantly attracted to the bobber.", null,
                     new ConfigurationManagerAttributes {Order = 100}));
@@ -69,8 +70,8 @@ namespace NoTimeForFishing
                     "Enhances the base attraction radius of the bobber. Talent bonuses are applied afterward.",
                     null, new ConfigurationManagerAttributes {Order = 99}));
 
-// 02. Fish Behavior & Spawning
-            NoMoreNibbles = Config.Bind("02. Fish Behavior & Spawning", "Disable Nibbling Behavior", true,
+            // 02. Fish Behavior & Spawning
+            NibblingBehaviour = Config.Bind("02. Fish Behavior & Spawning", "Nibbling Behavior", false,
                 new ConfigDescription("Prevents fish from nibbling and fleeing.", null,
                     new ConfigurationManagerAttributes {Order = 98}));
 
@@ -94,8 +95,26 @@ namespace NoTimeForFishing
             FishSpawnMultiplier = Config.Bind("02. Fish Behavior & Spawning", "Fish Spawn Rate", 1500,
                 new ConfigDescription("Set the rate at which fish spawn in the environment.",
                     new AcceptableValueRange<int>(1, 1500), new ConfigurationManagerAttributes {Order = 93}));
+            
+            ModifyFishOdds = Config.Bind("02. Fish Behavior & Spawning", "Adjustable Fish Odds", true,
+                new ConfigDescription("Toggle the ability to adjust the fish odds. Changing any of these settings will only apply to newly spawned fish.", null,
+                    new ConfigurationManagerAttributes {Order = 92}));
+            MaximizeFishOdds = Config.Bind("02. Fish Behavior & Spawning", "Maximize Fish Odds", false,
+                new ConfigDescription("Maximize the chance of getting higher odds. Changing any of these settings will only apply to newly spawned fish.",
+                    null, new ConfigurationManagerAttributes {Order = 91}));
+            FishOddsMultiplier = Config.Bind("02. Fish Behavior & Spawning", "Fish Odds Multiplier", 1.50f,
+                new ConfigDescription("Apply a multiplier to the fish odds. Changing any of these settings will only apply to newly spawned fish.",
+                    new AcceptableValueRange<float>(1.1f, 10f), new ConfigurationManagerAttributes {Order = 91}));
 
-// 03. Rod Capabilities
+            IncreaseMuseumFishChance = Config.Bind("02. Fish Behavior & Spawning", "Increase Museum Fish Chance", true,
+                new ConfigDescription("Increase the chance of getting a select few museum items when catching fish.",
+                    null, new ConfigurationManagerAttributes {Order = 90}));
+            IncreaseMuseumFishChanceValue = Config.Bind("02. Fish Behavior & Spawning", "Increase Museum Fish Chance Value", 0.10f,           
+                new ConfigDescription("Set the chance of getting a select few museum items when catching fish. Game default is 0.04",
+                    new AcceptableValueRange<float>(0.1f, 0.25f), new ConfigurationManagerAttributes {Order = 89}));
+            
+            
+            // 03. Rod Capabilities
             ModifyFishingRodCastSpeed = Config.Bind("03. Rod Capabilities", "Adjustable Rod Casting Speed", true,
                 new ConfigDescription("Toggle the ability to modify the fishing rod's casting speed.", null,
                     new ConfigurationManagerAttributes {Order = 92}));
@@ -132,7 +151,7 @@ namespace NoTimeForFishing
                 }
             };
 
-// 04. Mini-Game Adjustments
+            // 04. Mini-Game Adjustments
             SkipFishingMiniGame = Config.Bind("04. Mini-Game Adjustments", "Bypass Fishing Mini-Game", true,
                 new ConfigDescription("Omits the fishing mini-game entirely for quicker fishing.", null,
                     new ConfigurationManagerAttributes {Order = 86}));
@@ -155,7 +174,7 @@ namespace NoTimeForFishing
                 new ConfigDescription("Determine the size of the successful catch zone in the mini-game.",
                     new AcceptableValueRange<float>(1, 20), new ConfigurationManagerAttributes {Order = 82}));
 
-// 05. Spell Adjustments
+            // 05. Spell Adjustments
             ModifyBubbleSpell = Config.Bind("05. Spell Adjustments", "Customize Bubble Spell", true,
                 new ConfigDescription(
                     "Modify the bubble spell to cap the number of fish the bubble can contain based on your skill level. Check Bubble Spell tooltip for details.",
@@ -168,7 +187,7 @@ namespace NoTimeForFishing
                     new ConfigurationManagerAttributes {Order = 80}));
 
 
-// 06. General Settings
+            // 06. General Settings
             DisableCaughtFishWindow = Config.Bind("06. General Settings", "Disable Fish Catch Display", true,
                 new ConfigDescription(
                     "Deactivates the pop-up window displaying information about the fish you've caught.", null,
@@ -241,15 +260,21 @@ namespace NoTimeForFishing
             InstantAttraction.Value = true;
 
             // 02. Fish Behavior & Spawning
-            NoMoreNibbles.Value = true;
+            NibblingBehaviour.Value = false;
             DoubleBaseFishSwimSpeed.Value = true;
             ModifyFishSpawnLimit.Value = true;
             FishSpawnLimit.Value = 1500;
             ModifyFishSpawnMultiplier.Value = true;
             FishSpawnMultiplier.Value = 1500;
+            ModifyFishOdds.Value = true;
+            FishOddsMultiplier.Value = 1.50f;
+            MaximizeFishOdds.Value = false;
+            IncreaseMuseumFishChance.Value = true;
+            IncreaseMuseumFishChanceValue.Value = 0.10f;
+            
 
             // 03. Rod Capabilities
-            AutoReel.Value = true;
+            AutoReel.Value = false;
             InstantAutoReel.Value = true;
             EnhanceBaseCastLength.Value = true;
             ModifyFishingRodCastSpeed.Value = true;

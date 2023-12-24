@@ -1,19 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using DG.Tweening;
-using HarmonyLib;
-using UnityEngine;
-using UnityEngine.Events;
-using Wish;
-
-namespace NoTimeForFishing;
+﻿namespace NoTimeForFishing;
 
 [HarmonyPatch]
 public static class Patches
 {
+
     private static int MaxFishCount { get; set; }
 
     //fix
@@ -26,7 +16,7 @@ public static class Patches
 
     private static int GetBubbleSpellCap()
     {
-        var fishingSkill = GameSave.Fishing.GetNodeAmount("Fishing7a");
+        var fishingSkill = GameSave.Fishing.GetNodeAmount(Const.Fishing7A);
         var amount = fishingSkill switch
         {
             1 => Plugin.IncreaseBubbleSpellCap.Value ? 8 : 6,
@@ -42,7 +32,7 @@ public static class Patches
     public static void FishingBubble_Awake(ref FishingBubble __instance)
     {
         if (!Plugin.ModifyBubbleSpell.Value) return;
-        var fishingSkill = GameSave.Fishing.GetNodeAmount("Fishing7a");
+        var fishingSkill = GameSave.Fishing.GetNodeAmount(Const.Fishing7A);
         MaxFishCount = GetBubbleSpellCap();
         Plugin.LOG.LogInfo(
             $"BubbleSkillLevel: {fishingSkill}/3, Max fish count: {MaxFishCount}.");
@@ -53,7 +43,7 @@ public static class Patches
     public static void Tooltip_SetText(ref string name, ref string description, int lineHeight = 100)
     {
         if (!Plugin.ModifyBubbleSpell.Value) return;
-        if (name.Contains("Bubble Net"))
+        if (name.Contains(Const.BubbleNet))
         {
             var low = Plugin.IncreaseBubbleSpellCap.Value ? 8 : 6;
             var medium = Plugin.IncreaseBubbleSpellCap.Value ? 10 : 8;
@@ -86,9 +76,9 @@ public static class Patches
 
         message += $"New base radius: {Plugin.DoubleBaseBobberAttractionRadius.Value}\n";
 
-        if (GameSave.Fishing.GetNode("Fishing1b"))
+        if (GameSave.Fishing.GetNode(Const.Fishing1B))
         {
-            radius = newBaseRadius * (1f + 0.1f * GameSave.Fishing.GetNodeAmount("Fishing1b"));
+            radius = newBaseRadius * (1f + 0.1f * GameSave.Fishing.GetNodeAmount(Const.Fishing1B));
             message += $"Final radius due to talent increase: {radius}\n";
         }
         else
@@ -131,22 +121,6 @@ public static class Patches
         }
     }
 
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(Utilities), nameof(Utilities.Chance))]
-    public static void Utilities_Chance(ref bool __result)
-    {
-        if (Player.Instance.IsFishing && Plugin.NoMoreNibbles.Value)
-        {
-            if (Plugin.Debug.Value)
-            {
-                Plugin.LOG.LogInfo("Player is fishing and no more nibbles true!");
-            }
-
-            __result = false;
-        }
-    }
-
     [HarmonyPostfix]
     [HarmonyPatch(typeof(FishSpawnManager), nameof(FishSpawnManager.Start))]
     private static void FishSpawnManager_Start(ref int ___spawnLimit)
@@ -166,6 +140,12 @@ public static class Patches
             FishSpawnManager.Instance.spawnLimit = Plugin.FishSpawnLimit.Value;
             ___spawnLimit = Plugin.FishSpawnLimit.Value;
         }
+
+        foreach (var itemData in FishingRod.fishingMuseumItems.Select(ItemDatabase.GetItemData))
+        {
+            var caught = !GameSave.CurrentCharacter.Encylopdeia.ContainsKey((short) itemData.id);
+            Plugin.LOG.LogInfo($"Fishing Museum Items: {itemData.name} - Caught?: {caught}");
+        }
     }
 
 
@@ -174,7 +154,7 @@ public static class Patches
     public static void FishingRod_HasFish(ref Fish fish, ref FishingRod __instance)
     {
         if (!Plugin.SkipFishingMiniGame.Value) return;
-        if (Plugin.AutoReel.Value)
+        if (Plugin.AutoReel.Value || Plugin.InstantAutoReel.Value)
         {
             if (Plugin.Debug.Value)
             {
@@ -223,7 +203,7 @@ public static class Patches
             Plugin.LOG.LogInfo("Player is fishing! Modify dialogue if their settings allow...");
         }
 
-        var caughtFish = dialogue.dialogueText.Any(line => line.ToLowerInvariant().Contains("caught"));
+        var caughtFish = dialogue.dialogueText.Any(line => line.ToLowerInvariant().Contains(Const.Caught));
 
         if (caughtFish)
         {
@@ -241,6 +221,36 @@ public static class Patches
 
         return true;
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(RandomFishArray), nameof(RandomFishArray.AdjustedOddsBasedOnRarityAndLevel))]
+    private static void RandomFishArray_AdjustedOddsBasedOnRarityAndLevel_Prefix(ref ItemRarity rarity, ref float level)
+    {
+        if (Plugin.MaximizeFishOdds.Value && rarity is not ItemRarity.Common)
+        {
+            if (Plugin.Debug.Value)
+            {
+                Plugin.LOG.LogInfo($"Maximizing {rarity} fish odds...");
+            }
+            level = 120;
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(RandomFishArray), nameof(RandomFishArray.AdjustedOddsBasedOnRarityAndLevel))]
+    private static void RandomFishArray_AdjustedOddsBasedOnRarityAndLevel_Postfix(ref ItemRarity rarity, ref float __result)
+    {
+        if (Plugin.ModifyFishOdds.Value && rarity is not ItemRarity.Common)
+        {
+            var original = __result;
+            __result *= Plugin.FishOddsMultiplier.Value;
+            if (Plugin.Debug.Value)
+            {
+                Plugin.LOG.LogInfo($"{rarity} fish odds changed from {original} to {__result}.");
+            }
+        }
+    }
+
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(FishingRod), nameof(FishingRod.UseDown1))]
@@ -285,99 +295,36 @@ public static class Patches
     }
 
 
-    public static float GetPathMoveSpeed(float defaultSpeed, Collider2D collider, Bobber bobber)
+
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Bobber), nameof(Bobber.Bite))]
+    [HarmonyPatch(typeof(Bobber), nameof(Bobber.SmallBite))]
+    public static bool Bobber_Bite()
     {
-        const float baseMoveSpeed = 1.25f;
-        var newSpeed = baseMoveSpeed;
-
-        var message = $"\nOriginal base path move speed: {baseMoveSpeed}";
-
-        message += $"\nPassed in default path move speed: {defaultSpeed}";
-
-        if (Plugin.DoubleBaseFishSwimSpeed.Value)
-        {
-            newSpeed = baseMoveSpeed * 2f;
-            message += $"\nNew base path move speed: {newSpeed}";
-        }
-
-        if (SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.Professions[ProfessionType.Fishing]
-            .GetNode("Fishing1b"))
-        {
-            newSpeed *= 1.3f;
-            message += $"\nNew base path move speed (talented): {newSpeed}";
-        }
-
-        if (Plugin.Debug.Value)
-        {
-            Plugin.LOG.LogWarning(message);
-        }
-
-        return newSpeed;
+        return Plugin.NibblingBehaviour.Value;
     }
 
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(Fish), nameof(Fish.TargetBobber))]
-    public static IEnumerable<CodeInstruction> Fish_TargetBobber_Transpiler(IEnumerable<CodeInstruction> instructions,
-        MethodBase originalMethod)
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Fish), nameof(Fish.BiteRoutine))]
+    private static void Food_BiteRoutine(ref IEnumerator __result)
     {
-        List<FieldInfo> colliders = [];
-        colliders.Clear();
-        var innerTypes = typeof(Fish).GetNestedTypes(AccessTools.all);
-        var innerColliders = innerTypes.Where(type =>
-            type.GetFields(AccessTools.all).Any(field => field.FieldType == typeof(Collider2D))).ToList();
-        colliders.AddRange(innerColliders.SelectMany(type =>
-            type.GetFields(AccessTools.all).Where(field => field.FieldType == typeof(Collider2D))));
+        if (Plugin.NibblingBehaviour.Value) return; 
+        __result = CustomBiteRoutine(__result);
+    }
 
-        if (colliders.Count == 0)
+    private static IEnumerator CustomBiteRoutine(IEnumerator original)
+    {
+        while (original.MoveNext())
         {
-            Plugin.LOG.LogError(
-                $"Failed to find any colliders in {originalMethod.Name}. Fish swim speed will not be modified.");
-            return instructions.AsEnumerable();
-        }
-
-        var field = colliders[0];
-
-        var codes = new List<CodeInstruction>(instructions);
-        var foundMatchingSequence = false;
-
-        for (var i = 0; i < codes.Count - 2; i++)
-        {
-            if (codes[i].opcode == OpCodes.Stfld && (FieldInfo) codes[i].operand ==
-                AccessTools.Field(typeof(Fish), nameof(Fish._targetBobber)) &&
-                codes[i + 1].opcode == OpCodes.Ldarg_2)
+            var current = original.Current;
+            if (current is not WaitForSeconds)
             {
-                foundMatchingSequence = true;
-
-                var insertInstructions = new List<CodeInstruction>
-                {
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldfld, AccessTools.Field(typeof(Fish), nameof(Fish._pathMoveSpeed))),
-                    new(OpCodes.Ldloc_0),
-                    new(OpCodes.Ldfld, field),
-                    new(OpCodes.Ldarg_2),
-                    new(OpCodes.Call, AccessTools.Method(typeof(Patches), nameof(GetPathMoveSpeed))),
-                    new(OpCodes.Stfld, AccessTools.Field(typeof(Fish), nameof(Fish._pathMoveSpeed))),
-                };
-
-                codes.InsertRange(i + 2, insertInstructions);
-                break;
+                yield return current;
             }
+            //Plugin.LOG.LogWarning($"Skipped {current}");
         }
-
-        if (foundMatchingSequence)
-        {
-            Plugin.LOG.LogInfo(
-                $"Found the matching opcode sequence in {originalMethod.Name}. Fish swim speed will modified.");
-        }
-        else
-        {
-            Plugin.LOG.LogError(
-                $"Failed to find the matching opcode sequence in {originalMethod.Name}. Fish swim speed will not be modified.");
-        }
-
-
-        return codes.AsEnumerable();
     }
+
+
 }
