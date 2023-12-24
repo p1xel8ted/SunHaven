@@ -247,6 +247,18 @@
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7470CC60_002DD980_002D4796_002DADF1_002DFDC282982B36_002Fd_003AEnhancedPickups_002Ff_003AEnhancedPickupsPlugin_002Ecs/@EntryIndexedValue">ExplicitlyExcluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=991BBE68_002D47C9_002D4495_002D8551_002D0DDE7F265602_002Ff_003ANewNewTranspiler_002Ecs/@EntryIndexedValue">ExplicitlyExcluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=991BBE68_002D47C9_002D4495_002D8551_002D0DDE7F265602_002Ff_003ANewTranspiler_002Ecs/@EntryIndexedValue">ExplicitlyExcluded</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/PredefinedNamingRules/=Parameters/@EntryIndexedValue">&lt;Policy Inspect="True" Prefix="__" Suffix="" Style="aaBb"&gt;&lt;ExtraRule Prefix="___" Suffix="" Style="aaBb" /&gt;&lt;ExtraRule Prefix="" Suffix="" Style="aaBb" /&gt;&lt;/Policy&gt;</s:String>
+	
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=0fb260d3_002D92c5_002D43d5_002Db234_002D6bdba793ef9c_0023MuseumSellPriceRedux/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=15756077_002D200b_002D421b_002D8116_002D1c8021293792_0023MoreScythesRedux/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=56cfc0ad_002D5af0_002D47c4_002D9f30_002D9743b8c7a9b4_0023EasyLiving/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=82aa2ad4_002D8264_002D4400_002Dace3_002D401ce26764a5_0023CheatEnabler/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=977fb946_002D2a30_002D43d8_002Dae7c_002Dde76e5c2bbc7_0023KeepAlive/@EntryIndexedValue">True</s:Boolean>
+	
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=ccb1b95a_002D1593_002D4b13_002Dbefc_002Dee95040ffe71_0023NoTimeForFishing/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=d574c4d0_002Db65a_002D40bb_002D8018_002Dd31c14a83295_0023ControllerTweaks/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=f18b025c_002Dba42_002D45a8_002Dab8d_002D2f0467a42944_0023AutoTools/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=f7754a48_002D0055_002D46e9_002D9037_002D9f765087b414_0023UIScales/@EntryIndexedValue">True</s:Boolean>
 	
 	
 	

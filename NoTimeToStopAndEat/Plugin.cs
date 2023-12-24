@@ -1,25 +1,19 @@
-﻿using System.Reflection;
-using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
-using HarmonyLib;
-using Wish;
-
-namespace NoTimeToStopAndEat;
+﻿namespace NoTimeToStopAndEat;
 
 [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
 public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "p1xel8ted.sunhaven.notimetoeat";
     private const string PluginName = "No Time To Stop & Eat!";
-    private const string PluginVersion = "0.1.0";
+    private const string PluginVersion = "0.1.1";
     internal static ManualLogSource LOG { get; set; }
+    
+    internal static ConfigEntry<bool> HideFoodItemWhenEating { get; private set; }
 
     private void Awake()
     {
-        LOG = new ManualLogSource(PluginName);
-        BepInEx.Logging.Logger.Sources.Add(LOG);
-
+        LOG = Logger;
+        HideFoodItemWhenEating = Config.Bind("General", "Hide Food Item When Eating", true, "Hide the food item when eating.");
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
         LOG.LogInfo($"Plugin {PluginName} is loaded!");
     }
