@@ -6,12 +6,13 @@ namespace MoreJewelry;
 [Harmony]
 public static class Patches
 {
+
     /// <summary>
     /// A list of custom gear slots added by the mod.
     /// </summary>
-    [UsedImplicitly]public static List<Slot> GearSlots = [];
-    
-    
+    [UsedImplicitly] public static List<Slot> GearSlots = [];
+
+
     /// <summary>
     /// Harmony prefix patch for PlayerInventory's LoadPlayerInventory method.
     /// </summary>
@@ -51,7 +52,54 @@ public static class Patches
         UI.UpdatePanelVisibility();
         UI.SlotsCreated = true;
     }
+    
+    /// <summary>
+    /// Harmony prefix patch for the SwapItems method of the Inventory class.
+    /// </summary>
+    /// <param name="__instance">The instance of the Inventory being patched.</param>
+    /// <param name="slot1">The first slot involved in the swap operation.</param>
+    /// <remarks>
+    /// This method modifies the behavior of the item swapping process in the inventory.
+    /// It includes custom logic for handling the swapping of items in keepsake, amulet, and ring slots.
+    /// <para>The method checks if the main slot for each item type is filled and attempts to swap with an alternate empty slot if available.</para>
+    /// <para>Uses <see cref="Utils.SlotFilled"/> to check if a slot is filled and <see cref="Utils.GetSlotName"/> for logging purposes.</para>
+    /// </remarks>
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Inventory), nameof(Inventory.SwapItems))]
+    private static void Inventory_SwapItems(ref Inventory __instance, ref int slot1)
+    {
+        if (!Plugin.UseAdjustedEquipping.Value)
+        {
+            Utils.Log("Adjusted equipping disabled. Skipping slot swapping logic.");
+            return;
+        }
+        
+        // Helper method to handle slot swapping
+        var inv = __instance;
 
+        // Keepsake slot handling
+        TrySwapSlot(ref slot1, Const.MainKeepsakeSlot, Const.NewKeepsakeSlotOne, Const.NewKeepsakeSlotTwo);
+
+        // Amulet slot handling
+        TrySwapSlot(ref slot1, Const.MainAmuletSlot, Const.NewAmuletSlotOne, Const.NewAmuletSlotTwo);
+
+        // Ring slot handling
+        TrySwapSlot(ref slot1, Const.MainRingSlot, Const.SecondaryRingSlot, Const.NewRingSlotOne, Const.NewRingSlotTwo);
+        return;
+
+        void TrySwapSlot(ref int slot, int mainSlot, params int[] alternateSlots)
+        {
+            if (slot != mainSlot || !Utils.SlotFilled(inv, mainSlot)) return;
+            foreach (var altSlot in alternateSlots)
+            {
+                if (Utils.SlotFilled(inv, altSlot)) continue;
+                slot = altSlot;
+                Utils.Log($"Redirecting to empty slot: {Utils.GetSlotName(altSlot)}");
+                return;
+            }
+            Utils.Log($"No empty slots found for {Utils.GetSlotName(mainSlot)}. Redirect aborted.");
+        }
+    }
 
     /// <summary>
     /// Harmony postfix patch for TranslationLayer's ChangeLanguage method.
@@ -67,7 +115,6 @@ public static class Patches
         UI.UpdatePopupText();
     }
 
-
     /// <summary>
     /// Harmony postfix patch for PlayerInventory's GetStat method.
     /// </summary>
@@ -81,12 +128,12 @@ public static class Patches
     [HarmonyPatch(typeof(PlayerInventory), nameof(PlayerInventory.GetStat))]
     public static void PlayerInventory_GetStat(ref PlayerInventory __instance, StatType stat, ref float __result)
     {
-        __result += __instance.GetStatValueFromSlot(ArmorType.Ring, 65, 2, stat);
-        __result += __instance.GetStatValueFromSlot(ArmorType.Ring, 66, 3, stat);
-        __result += __instance.GetStatValueFromSlot(ArmorType.Keepsake, 67, 1, stat);
-        __result += __instance.GetStatValueFromSlot(ArmorType.Keepsake, 68, 2, stat);
-        __result += __instance.GetStatValueFromSlot(ArmorType.Amulet, 69, 1, stat);
-        __result += __instance.GetStatValueFromSlot(ArmorType.Amulet, 70, 2, stat);
+        __result += __instance.GetStatValueFromSlot(ArmorType.Ring, Const.NewRingSlotOne, 2, stat);
+        __result += __instance.GetStatValueFromSlot(ArmorType.Ring, Const.NewRingSlotTwo, 3, stat);
+        __result += __instance.GetStatValueFromSlot(ArmorType.Keepsake, Const.NewKeepsakeSlotOne, 1, stat);
+        __result += __instance.GetStatValueFromSlot(ArmorType.Keepsake, Const.NewKeepsakeSlotTwo, 2, stat);
+        __result += __instance.GetStatValueFromSlot(ArmorType.Amulet, Const.NewAmuletSlotOne, 1, stat);
+        __result += __instance.GetStatValueFromSlot(ArmorType.Amulet, Const.NewAmuletSlotTwo, 2, stat);
     }
 
     /// <summary>
@@ -119,6 +166,7 @@ public static class Patches
         };
     }
 
+
     /// <summary>
     /// Harmony postfix patch for PlayerInventory's LateUpdate method.
     /// </summary>
@@ -131,12 +179,12 @@ public static class Patches
     private static void PlayerInventory_EquipNonVisualArmor(ref PlayerInventory __instance)
     {
         if (!UI.SlotsCreated) return;
-        __instance.EquipNonVisualArmor(65, ArmorType.Ring, 2);
-        __instance.EquipNonVisualArmor(66, ArmorType.Ring, 3);
-        __instance.EquipNonVisualArmor(67, ArmorType.Keepsake, 1);
-        __instance.EquipNonVisualArmor(68, ArmorType.Keepsake, 2);
-        __instance.EquipNonVisualArmor(69, ArmorType.Amulet, 1);
-        __instance.EquipNonVisualArmor(70, ArmorType.Amulet, 2);
+        __instance.EquipNonVisualArmor(Const.NewRingSlotOne, ArmorType.Ring, 2);
+        __instance.EquipNonVisualArmor(Const.NewRingSlotTwo, ArmorType.Ring, 3);
+        __instance.EquipNonVisualArmor(Const.NewKeepsakeSlotOne, ArmorType.Keepsake, 1);
+        __instance.EquipNonVisualArmor(Const.NewKeepsakeSlotTwo, ArmorType.Keepsake, 2);
+        __instance.EquipNonVisualArmor(Const.NewAmuletSlotOne, ArmorType.Amulet, 1);
+        __instance.EquipNonVisualArmor(Const.NewAmuletSlotTwo, ArmorType.Amulet, 2);
     }
 
     /// <summary>

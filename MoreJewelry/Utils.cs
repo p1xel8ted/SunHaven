@@ -115,8 +115,48 @@ public static class Utils
             _ => Const.PutTheJewelryPouchAway
         };
     }
-
-
+    
+    /// <summary>
+    /// Retrieves the name of the inventory slot based on its index.
+    /// </summary>
+    /// <param name="slotIndex">The index of the slot in the inventory.</param>
+    /// <returns>The name of the slot corresponding to the given index.</returns>
+    /// <remarks>
+    /// This method uses a switch expression to map slot indices to their respective names.
+    /// It covers various types of slots including main, secondary, and new slots for rings, keepsakes, and amulets.
+    /// Returns "Unknown Slot" for indices that do not match any predefined slot.
+    /// </remarks>
+    public static string GetSlotName(int slotIndex)
+    {
+        return slotIndex switch
+        {
+            Const.MainRingSlot => "Main Ring Slot",
+            Const.SecondaryRingSlot => "Secondary Ring Slot",
+            Const.MainKeepsakeSlot => "Main Keepsake Slot",
+            Const.MainAmuletSlot => "Main Amulet Slot",
+            Const.NewRingSlotOne => "New Ring Slot One",
+            Const.NewRingSlotTwo => "New Ring Slot Two",
+            Const.NewKeepsakeSlotOne => "New Keepsake Slot One",
+            Const.NewKeepsakeSlotTwo => "New Keepsake Slot Two",
+            Const.NewAmuletSlotOne => "New Amulet Slot One",
+            Const.NewAmuletSlotTwo => "New Amulet Slot Two",
+            _ => "Unknown Slot"
+        };
+    }
+    
+    /// <summary>
+    /// Determines if a specific inventory slot is filled.
+    /// </summary>
+    /// <param name="inv">The inventory to check.</param>
+    /// <param name="slotIndex">The index of the slot to check in the inventory.</param>
+    /// <returns><c>true</c> if the slot at the specified index is filled; otherwise, <c>false</c>.</returns>
+    /// <remarks>
+    /// A slot is considered filled if the item ID in that slot is greater than 0.
+    /// </remarks>
+    internal static bool SlotFilled(Inventory inv, int slotIndex)
+    {
+        return inv.Items[slotIndex].id > 0;
+    }
 
     /// <summary>
     /// Gets the title text based on the current language setting. Translations provided by ChatGPT-4.

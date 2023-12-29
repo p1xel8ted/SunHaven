@@ -26,4 +26,17 @@ public static class Const
     internal readonly static Vector3 TitlePosition = new(3.2f, 63.84f, 0);
     internal readonly static Vector3 ArrowPosition = new(-260f, 0, 0);
     //internal readonly static Vector3 HidePosition = new(5000f, -5.5f, 0);
+
+    internal const int MainRingSlot = 62;
+    internal const int SecondaryRingSlot = 63;
+    internal const int MainKeepsakeSlot = 60;
+    internal const int MainAmuletSlot = 61;
+
+    internal const int NewRingSlotOne = 65;
+    internal const int NewRingSlotTwo = 66;
+    internal const int NewKeepsakeSlotOne = 67;
+    internal const int NewKeepsakeSlotTwo = 68;
+    internal const int NewAmuletSlotOne = 69;
+    internal const int NewAmuletSlotTwo = 70;
+
 }
