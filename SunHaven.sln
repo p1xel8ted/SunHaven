@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControllerTweaks", "Control
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoTimeToStopAndEat", "NoTimeToStopAndEat\NoTimeToStopAndEat.csproj", "{991BBE68-47C9-4495-8551-0DDE7F265602}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreJewelry", "MoreJewelry\MoreJewelry.csproj", "{C99E48B8-0C5B-4E9F-9CAF-3AD9943A3562}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{991BBE68-47C9-4495-8551-0DDE7F265602}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{991BBE68-47C9-4495-8551-0DDE7F265602}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{991BBE68-47C9-4495-8551-0DDE7F265602}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C99E48B8-0C5B-4E9F-9CAF-3AD9943A3562}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C99E48B8-0C5B-4E9F-9CAF-3AD9943A3562}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C99E48B8-0C5B-4E9F-9CAF-3AD9943A3562}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C99E48B8-0C5B-4E9F-9CAF-3AD9943A3562}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

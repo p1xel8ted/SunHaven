@@ -172,6 +172,22 @@ public static class Patches
     [HarmonyPatch(typeof(PlayerSettings), nameof(PlayerSettings.OnEnable))]
     public static void PlayerSettings_OnEnable(ref PlayerSettings __instance)
     {
+
+        var moneyInfo = GameObject.Find("Player(Clone)/UI/Inventory/Items/Money");
+        if (moneyInfo != null)
+        {
+            moneyInfo.SetActive(true);
+            Plugin.LOG.LogInfo("Money info is now visible.");
+        }
+
+        var characterBorder = GameObject.Find("Player(Clone)/UI/Inventory/Items/Slots/CharacterPanel/Border");
+        if (characterBorder != null)
+        {
+            characterBorder.SetActive(true);
+            Plugin.LOG.LogInfo("Character border is now visible.");
+        }
+        
+        
         if (!Plugin.AddQuitToDesktopButton.Value)
         {
             if (_newButton != null)

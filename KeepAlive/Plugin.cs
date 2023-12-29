@@ -1,17 +1,12 @@
-﻿using System.Reflection;
-using BepInEx;
-using BepInEx.Logging;
-using HarmonyLib;
-
-namespace KeepAlive;
+﻿namespace KeepAlive;
 
 [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
 public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "p1xel8ted.sunhaven.keepalive";
     private const string PluginName = "Keep Alive";
-    private const string PluginVersion = "0.0.4";
-    internal static ManualLogSource LOG { get; private set; }
+    private const string PluginVersion = "0.0.5";
+    private static ManualLogSource LOG { get; set; }
     
     private void Awake()
     {
@@ -24,11 +19,11 @@ public class Plugin : BaseUnityPlugin
 
     private void OnDestroy()
     {
-        LOG.LogError($"{PluginName} has been destroyed!");
+        LOG.LogInfo($"{PluginName} prevented the death of BepInEx related objects {Patches.Counter} times!");
     }
 
     private void OnDisable()
     {
-        LOG.LogError($"{PluginName} has been disabled!");
+        LOG.LogInfo($"{PluginName} prevented the death of BepInEx related objects {Patches.Counter} times!");
     }
 }
