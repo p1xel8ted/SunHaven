@@ -1,7 +1,4 @@
-﻿using HarmonyLib;
-using Wish;
-
-namespace MoreScythesRedux;
+﻿namespace MoreScythesRedux;
 
 [Harmony]
 public static class Patches

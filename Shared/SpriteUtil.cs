@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MoreScythesRedux;
+namespace Shared;
 
 //credits to Morthy for the general code below
 public static class SpriteUtil

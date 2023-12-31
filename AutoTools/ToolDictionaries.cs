@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-
-namespace AutoTools;
+﻿namespace AutoTools;
 
 public static class ToolDictionaries
 {

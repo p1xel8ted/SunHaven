@@ -1,18 +1,11 @@
-﻿using System.Reflection;
-using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
-using HarmonyLib;
-using Wish;
-
-namespace AutoTools;
+﻿namespace AutoTools;
 
 [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
 public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "p1xel8ted.sunhaven.autotools";
     private const string PluginName = "Auto Tools";
-    private const string PluginVersion = "0.0.5";
+    private const string PluginVersion = "0.0.6";
     private const string CategoryGeneral = "01. General";
     private const string CategoryFarm = "02. Farm";
     private const string CategoryEnemies = "03. Enemies";

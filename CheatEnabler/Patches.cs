@@ -1,8 +1,4 @@
-﻿using HarmonyLib;
-using QFSW.QC;
-using Wish;
-
-namespace CheatEnabler;
+﻿namespace CheatEnabler;
 
 [HarmonyPatch]
 public partial class Plugin

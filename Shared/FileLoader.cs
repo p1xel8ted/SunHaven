@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace MoreScythesRedux;
+namespace Shared;
 
 public static class FileLoader
 {

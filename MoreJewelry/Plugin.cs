@@ -11,7 +11,7 @@ public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "p1xel8ted.sunhaven.morejewelry";
     private const string PluginName = "More Jewelry!";
-    private const string PluginVersion = "0.1.1";
+    private const string PluginVersion = "0.1.2";
 
     /// <summary>
     /// Gets the logging source for the plugin.
@@ -42,6 +42,12 @@ public class Plugin : BaseUnityPlugin
     /// Configuration entry for new ring/amulet/keepsake swap behaviour.
     /// </summary>
     internal static ConfigEntry<bool> UseAdjustedEquipping { get; private set; }
+    
+    
+    /// <summary>
+    ///    
+    /// </summary>
+    internal static ConfigEntry<bool> MakeSlotsStorageOnly { get; private set; }
 
     /// <summary>
     /// Initialization logic for the plugin.
@@ -50,7 +56,8 @@ public class Plugin : BaseUnityPlugin
     {
         UIHandler.OnInventoryOpened += UI.UIHandler_OpenInventory;
         UIHandler.OnInventoryClosed += UI.UIHandler_CloseInventory;
-        LOG = Logger;
+        LOG = new ManualLogSource(PluginName);
+        BepInEx.Logging.Logger.Sources.Add(LOG);
         Debug = Config.Bind("00. Debug", "Debug", false, new ConfigDescription("Enable debug logging.", null, new ConfigurationManagerAttributes {IsAdvanced = false, Order = 99}));
         UseAdjustedEquipping = Config.Bind("01. General", "Use Adjusted Equipping", true, new ConfigDescription("Use adjusted equipping logic for rings, amulets, and keepsakes.", null, new ConfigurationManagerAttributes {Order = 0}));
         ShowPanelToggle = Config.Bind("01. General", "Show Panel Toggle", true, new ConfigDescription("Show the panel toggle in the character panel.", null, new ConfigurationManagerAttributes {Order = 1}));
@@ -76,6 +83,7 @@ public class Plugin : BaseUnityPlugin
         {
             UI.UpdateNavigationElements();
         };
+        MakeSlotsStorageOnly = Config.Bind("01. General", "Make Slots Storage Only", false, new ConfigDescription("Make slots storage only, disabling the granting of stats.", null, new ConfigurationManagerAttributes {Order = 4}));
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGuid);
         LOG.LogInfo($"Plugin {PluginName} is loaded!");
     }

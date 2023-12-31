@@ -1,10 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using Wish;
-using Object = UnityEngine.Object;
-using System.Reflection;
-
-namespace MoreScythesRedux;
+﻿namespace MoreScythesRedux;
 
 public static class ItemHandler
 {

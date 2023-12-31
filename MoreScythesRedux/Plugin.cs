@@ -1,10 +1,4 @@
-﻿using System.Reflection;
-using BepInEx;
-using BepInEx.Logging;
-using HarmonyLib;
-using Wish;
-
-namespace MoreScythesRedux;
+﻿namespace MoreScythesRedux;
 
 [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
 public class Plugin : BaseUnityPlugin

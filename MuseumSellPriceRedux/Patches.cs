@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using HarmonyLib;
-using Wish;
-
-namespace MuseumSellPriceRedux;
+﻿namespace MuseumSellPriceRedux;
 
 [Harmony]
 public static class Patches

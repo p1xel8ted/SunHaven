@@ -1,9 +1,4 @@
-﻿using System.Reflection;
-using BepInEx;
-using BepInEx.Logging;
-using HarmonyLib;
-
-namespace CheatEnabler
+﻿namespace CheatEnabler
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     public partial class Plugin : BaseUnityPlugin

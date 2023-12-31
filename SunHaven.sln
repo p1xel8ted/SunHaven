@@ -19,11 +19,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MuseumSellPriceRedux", "Mus
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreScythesRedux", "MoreScythesRedux\MoreScythesRedux.csproj", "{15756077-200B-421B-8116-1C8021293792}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControllerTweaks", "ControllerTweaks\ControllerTweaks.csproj", "{D574C4D0-B65A-40BB-8018-D31C14A83295}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoTimeToStopAndEat", "NoTimeToStopAndEat\NoTimeToStopAndEat.csproj", "{991BBE68-47C9-4495-8551-0DDE7F265602}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreJewelry", "MoreJewelry\MoreJewelry.csproj", "{C99E48B8-0C5B-4E9F-9CAF-3AD9943A3562}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{A74F4660-5CAC-44E7-8B09-60C53D1CF52B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,10 +63,6 @@ Global
 		{15756077-200B-421B-8116-1C8021293792}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15756077-200B-421B-8116-1C8021293792}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15756077-200B-421B-8116-1C8021293792}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D574C4D0-B65A-40BB-8018-D31C14A83295}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D574C4D0-B65A-40BB-8018-D31C14A83295}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D574C4D0-B65A-40BB-8018-D31C14A83295}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D574C4D0-B65A-40BB-8018-D31C14A83295}.Release|Any CPU.Build.0 = Release|Any CPU
 		{991BBE68-47C9-4495-8551-0DDE7F265602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{991BBE68-47C9-4495-8551-0DDE7F265602}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{991BBE68-47C9-4495-8551-0DDE7F265602}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -75,6 +71,8 @@ Global
 		{C99E48B8-0C5B-4E9F-9CAF-3AD9943A3562}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C99E48B8-0C5B-4E9F-9CAF-3AD9943A3562}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C99E48B8-0C5B-4E9F-9CAF-3AD9943A3562}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A74F4660-5CAC-44E7-8B09-60C53D1CF52B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A74F4660-5CAC-44E7-8B09-60C53D1CF52B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

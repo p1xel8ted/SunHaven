@@ -1,14 +1,10 @@
-﻿using QFSW.QC;
-using UnityEngine;
-using Wish;
-
-namespace CheatEnabler {
+﻿namespace CheatEnabler {
     [CommandPrefix("/")]
     public class CheatCs : MonoBehaviour
     {
         
         
-        [Command()]
+        [Command]
         private void savegame()
         {
             SingletonBehaviour<GameSave>.Instance.SaveGame(true);

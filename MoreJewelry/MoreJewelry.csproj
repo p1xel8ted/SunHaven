@@ -1,23 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Version>0.1.1</Version>
+        <Version>0.1.2</Version>
         <AssemblyVersion>$(Version)</AssemblyVersion>
         <FileVersion>$(Version)</FileVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DefineConstants>TRACE</DefineConstants>
+      <DefineConstants>TRACE;MJ</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DefineConstants>TRACE</DefineConstants>
+      <DefineConstants>TRACE;MJ</DefineConstants>
     </PropertyGroup>
     <Import Project="..\zip.target"/>
 
     <ItemGroup>
       <Reference Include="Assembly-CSharp">
         <HintPath>..\libs\Assembly-CSharp.dll</HintPath>
+      </Reference>
+      <Reference Include="Sirenix.Serialization">
+        <HintPath>..\libs\Sirenix.Serialization.dll</HintPath>
       </Reference>
       <Reference Include="SunHaven.Core">
         <HintPath>..\libs\SunHaven.Core.dll</HintPath>
@@ -217,5 +220,36 @@
       <Reference Include="UnityEngine.XRModule">
         <HintPath>..\libs\UnityEngine.XRModule.dll</HintPath>
       </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="..\Shared\ConfigurationManagerAttributes.cs">
+        <Link>Shared\ConfigurationManagerAttributes.cs</Link>
+      </Compile>
+      <Compile Include="..\Shared\Extensions.cs">
+        <Link>Shared\Extensions.cs</Link>
+      </Compile>
+      <Compile Include="..\Shared\FileLoader.cs">
+        <Link>Shared\FileLoader.cs</Link>
+      </Compile>
+      <Compile Include="..\Shared\SpriteUtil.cs">
+        <Link>Shared\SpriteUtil.cs</Link>
+      </Compile>
+      <Compile Include="..\Shared\Utils.cs">
+        <Link>Shared\Utils.cs</Link>
+      </Compile>
+      <Compile Include="..\Shared\WriteOnce.cs">
+        <Link>Shared\WriteOnce.cs</Link>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="header.png" />
+      <None Remove="hidden.png" />
+      <None Remove="empty.png" />
+      <None Remove="no_toggle.png" />
+      <None Remove="logo.png" />
+      <None Remove="settings.png" />
+      <None Remove="shown.png" />
     </ItemGroup>
 </Project>

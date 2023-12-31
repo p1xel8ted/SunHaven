@@ -1,14 +1,4 @@
-﻿using System;
-using System.Linq;
-using HarmonyLib;
-using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
-using Wish;
-using Button = UnityEngine.UI.Button;
-using Object = UnityEngine.Object;
-
-namespace EasyLiving;
+﻿namespace EasyLiving;
 
 [HarmonyPatch]
 public static class Patches
@@ -17,7 +7,7 @@ public static class Patches
     private const string SkippingLoadOfLastModifiedSave = "Skipping load of last modified save.";
     private const float RegenerationInterval = 3f; // Example value for regeneration interval
     private static GameObject _newButton;
-    private static readonly WriteOnce<Vector2> OriginalSize = new();
+    private readonly static WriteOnce<Vector2> OriginalSize = new();
 
     private static float _regenerationTimer;
     private static bool PlayerReturnedToMenu { get; set; }
@@ -169,17 +159,18 @@ public static class Patches
     }
 
     [HarmonyPostfix]
+    [HarmonyPatch(typeof(PlayerInventory), nameof(PlayerInventory.LoadPlayerInventory))]
     [HarmonyPatch(typeof(PlayerSettings), nameof(PlayerSettings.OnEnable))]
-    public static void PlayerSettings_OnEnable(ref PlayerSettings __instance)
+    public static void PlayerSettings_OnEnable()
     {
-
+     
         var moneyInfo = GameObject.Find("Player(Clone)/UI/Inventory/Items/Money");
         if (moneyInfo != null)
         {
             moneyInfo.SetActive(true);
             Plugin.LOG.LogInfo("Money info is now visible.");
         }
-
+        
         var characterBorder = GameObject.Find("Player(Clone)/UI/Inventory/Items/Slots/CharacterPanel/Border");
         if (characterBorder != null)
         {
@@ -208,7 +199,7 @@ public static class Patches
         pop.description = "Save progress and exit directly to the desktop.";
         pop.text = "Exit to Desktop";
 
-
+        _newButton.GetComponent<Button>().onClick.RemoveAllListeners();
         _newButton.GetComponent<Button>().onClick.AddListener(() =>
         {
             if (UIHandler.unloadingGame)
@@ -217,7 +208,7 @@ public static class Patches
             }
 
             Time.timeScale = 1f;
-            NotificationStack.Instance.SendNotification($"Game Saved! Exiting...");
+            NotificationStack.Instance.SendNotification("Game Saved! Exiting...");
             SingletonBehaviour<GameSave>.Instance.SaveGame();
             GC.Collect();
             Application.Quit();
@@ -240,7 +231,7 @@ public static class Patches
     public static void MainMenuController_EnableMenu(ref MainMenuController __instance)
     {
         string[] objectNames =
-        {
+        [
             "Canvas/[HomeMenu]/SmallPixelSproutButton",
             "Canvas/[HomeMenu]/TwitterButton",
             "Canvas/[HomeMenu]/DiscordButton",
@@ -248,7 +239,7 @@ public static class Patches
             "Canvas/[HomeMenu]/Image",
             "Canvas/[HomeMenu]/Image (1)",
             "Canvas/[HomeMenu]/Buttons/PlayButton (2)"
-        };
+        ];
 
         foreach (var name in objectNames)
         {

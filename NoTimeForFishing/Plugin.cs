@@ -5,7 +5,7 @@
     {
         private const string PluginGuid = "p1xel8ted.sunhaven.notimeforfishing";
         private const string PluginName = "No Time For Fishing!";
-        private const string PluginVersion = "0.0.7";
+        private const string PluginVersion = "0.0.8";
 
         public static ConfigEntry<bool> DisableCaughtFishWindow;
         public static ConfigEntry<bool> SkipFishingMiniGame;
@@ -49,7 +49,7 @@
         
         public static ConfigEntry<bool> Debug;
 
-        private static bool _showConfirmationDialog = false;
+        private static bool _showConfirmationDialog;
 
         internal static ManualLogSource LOG { get; set; }
 

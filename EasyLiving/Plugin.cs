@@ -1,21 +1,11 @@
-﻿using System.Linq;
-using System.Reflection;
-using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
-using HarmonyLib;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using Wish;
-
-namespace EasyLiving;
+﻿namespace EasyLiving;
 
 [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
 public partial class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "p1xel8ted.sunhaven.easyliving";
     private const string PluginName = "Easy Living";
-    private const string PluginVersion = "0.1.0";
+    private const string PluginVersion = "0.0.9";
     private static ConfigEntry<KeyboardShortcut> SaveShortcut { get; set; }
     private static ConfigEntry<bool> EnableSaveShortcut { get; set; }
     public static ConfigEntry<bool> SkipMuseumMissingItemsDialogue { get; private set; }

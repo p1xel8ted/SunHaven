@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyLiving;
+namespace Shared;
 
 public sealed class WriteOnce<T>
 {

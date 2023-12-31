@@ -1,10 +1,23 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
-namespace MuseumSellPriceRedux;
+namespace Shared;
 
 public static class Extensions
 {
+    public static string GetGameObjectPath(this GameObject obj)
+    {
+        var path = obj.name;
+        var parent = obj.transform.parent;
+        while (parent != null)
+        {
+            path = parent.name + "/" + path;
+            parent = parent.parent;
+        }
+
+        return path;
+    }
     public static bool Contains(this string source, string toCheck, StringComparison comp)
     {
         return source?.IndexOf(toCheck, comp) >= 0;

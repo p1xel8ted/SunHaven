@@ -19,11 +19,11 @@ public class Plugin : BaseUnityPlugin
 
     private void OnDestroy()
     {
-        LOG.LogInfo($"{PluginName} prevented the death of BepInEx related objects {Patches.Counter} times!");
+        LOG.LogInfo($"OnDestroy: {PluginName} prevented the death of BepInEx related objects {Patches.Counter} times!");
     }
 
     private void OnDisable()
     {
-        LOG.LogInfo($"{PluginName} prevented the death of BepInEx related objects {Patches.Counter} times!");
+        LOG.LogInfo($"OnDisable: {PluginName} prevented the death of BepInEx related objects {Patches.Counter} times!");
     }
 }

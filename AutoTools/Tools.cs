@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using HarmonyLib;
-using UnityEngine;
-using Wish;
+﻿
 
 // ReSharper disable SuggestBaseTypeForParameter
 
@@ -40,7 +34,7 @@ public static class Tools
             foreach (var item in Player.Instance.PlayerInventory._actionBarIcons.Where(a => a.ItemImage is not null))
             {
                 var toolData = ItemDatabase.GetItemData(item.ItemImage.item) as ToolData;
-                if (toolData == null || toolData.id != toolEntry.Key || !Utilities.CanUse(toolData)) continue;
+                if (toolData == null || toolData.id != toolEntry.Key || !Utils.CanUse(toolData)) continue;
 
                 if (item.ItemImage.item is WateringCanItem wc)
                 {
@@ -62,7 +56,7 @@ public static class Tools
             foreach (var item in Player.Instance.PlayerInventory._actionBarIcons.Where(a => a.ItemImage is not null))
             {
                 var toolData = ItemDatabase.GetItemData(item.ItemImage.item) as ToolData;
-                if (toolData == null || toolData.id != toolEntry.Key || !Utilities.CanUse(toolData))
+                if (toolData == null || toolData.id != toolEntry.Key || !Utils.CanUse(toolData))
                     continue;
 
                 if (tool == Tool.WateringCan)
@@ -92,7 +86,7 @@ public static class Tools
                 foreach (var item in Player.Instance.PlayerInventory._actionBarIcons.Where(a => a.ItemImage is not null))
                 {
                     var toolData = ItemDatabase.GetItemData(item.ItemImage.item) as ToolData;
-                    if (toolData == null || toolData.id != toolEntry.Key || !Utilities.CanUse(toolData))
+                    if (toolData == null || toolData.id != toolEntry.Key || !Utils.CanUse(toolData))
                         continue;
 
                     WateringCanIndex = item.ItemImage.slotIndex;
@@ -241,7 +235,7 @@ public static class Tools
         var toolData = FindBestTool(tool);
         if (toolData.toolData != null)
         {
-            if (Utilities.CanUse(toolData.toolData))
+            if (Utils.CanUse(toolData.toolData))
             {
                 HandleToolInteraction(toolData.index, toolData.toolData.id, errorMessage);
             }

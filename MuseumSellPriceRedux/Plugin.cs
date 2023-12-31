@@ -1,12 +1,4 @@
-﻿using System.Reflection;
-using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
-using HarmonyLib;
-using UnityEngine;
-using Wish;
-
-namespace MuseumSellPriceRedux;
+﻿namespace MuseumSellPriceRedux;
 
 [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
 public class Plugin : BaseUnityPlugin
@@ -22,7 +14,7 @@ public class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
-        LOG = new ManualLogSource("Museum Sell Price Redux");
+        LOG = new ManualLogSource(PluginName);
         BepInEx.Logging.Logger.Sources.Add(LOG);
         Enabled = Config.Bind("01. General", "Enabled", true, new ConfigDescription("Toggle mod. Click 'Apply' to save changes.", null, new ConfigurationManagerAttributes
             {Order = 51}));

@@ -1,9 +1,4 @@
-﻿using System;
-using HarmonyLib;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using Wish;
+﻿using Shared;
 
 namespace UIScales;
 
@@ -12,13 +7,38 @@ public static class Patches
 {
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.Start))]
+    [HarmonyPatch(typeof(MainMenuController), nameof(MainMenuController.HomeMenu))]
     public static void MainMenuController_Start(ref MainMenuController __instance)
     {
-        Plugin.UpdateUiScale(true);
-        Plugin.UpdateZoomLevel();
-        Plugin.UpdateCanvasScaleFactors();
+        Utils.UpdateUiScale(true);
+        Utils.UpdateZoomLevel();
+        Utils.UpdateCanvasScaleFactors();
+
+        __instance.logo.transform.localScale = __instance.logo.transform.localScale with {x = Shared.Utils.PositiveScaleFactor, y = Shared.Utils.PositiveScaleFactor};
     }
-    
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(UIHandler), nameof(UIHandler.ShowOvernightUI))]
+    [HarmonyPatch(typeof(UIHandler), nameof(UIHandler.ShowSleepUI))]
+    public static void UIHandler_ShowOvernightUI(ref UIHandler __instance)
+    {
+        
+        var overnight = GameObject.Find("Player(Clone)/UI/OvernightUI/Overnight");
+        var eod = GameObject.Find("Player(Clone)/UI/OvernightUI/EndOfDayDisplay/Background Image");
+
+        if (Plugin.CorrectEndOfDayScreen.Value)
+        {
+            var sf = Shared.Utils.PositiveScaleFactor;
+            overnight.transform.localScale = overnight.transform.localScale with {x = sf, y = sf};
+            eod.transform.localScale = eod.transform.localScale with {x = sf, y = sf};
+        }
+        else
+        {
+            overnight.transform.localScale = overnight.transform.localScale with {x = 1, y = 1};
+            eod.transform.localScale = eod.transform.localScale with {x = 1, y = 1};
+        }
+    }
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(LoadCharacterMenu), nameof(LoadCharacterMenu.SetupSavePanels))]
     public static void LoadCharacterMenu_SetupSavePanels(ref LoadCharacterMenu __instance)
@@ -46,33 +66,33 @@ public static class Patches
         {
             return;
         }
-    
+
         var name = __instance.name;
-        var path = Plugin.GetGameObjectPath(__instance.gameObject);
-    
+        var path = __instance.gameObject.GetGameObjectPath();
+
         switch (name)
         {
             case "UI" when Plugin.UIOneCanvas == null && path.Equals("Manager/UI"):
-                Plugin.LOG.LogInfo($"Found top left and right UI!");
+                Plugin.LOG.LogInfo($"Found top left and right UI! Existing mode and scale: {__instance.uiScaleMode} {__instance.scaleFactor}");
                 Plugin.UIOneCanvas = __instance;
-                Plugin.ConfigureCanvasScaler(Plugin.UIOneCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.InGameUiScale.Value);
+                Shared.Utils.ConfigureCanvasScaler(Plugin.UIOneCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.InGameUiScale.Value);
                 break;
             case "UI" when Plugin.UITwoCanvas == null && path.Equals("Player(Clone)/UI"):
             {
-                Plugin.LOG.LogInfo($"Found action bars/quest log etc!");
+                Plugin.LOG.LogInfo($"Found action bars/quest log etc! Existing mode and scale: {__instance.uiScaleMode} {__instance.scaleFactor}");
                 Plugin.UITwoCanvas = __instance;
-                Plugin.ConfigureCanvasScaler(Plugin.UITwoCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.InGameUiScale.Value);
+                Shared.Utils.ConfigureCanvasScaler(Plugin.UITwoCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.InGameUiScale.Value);
                 break;
             }
             case "Quantum Console" when path.Equals("SharedManager/Quantum Console"):
-                Plugin.LOG.LogInfo($"Found cheat console!");
+                Plugin.LOG.LogInfo($"Found cheat console! Existing mode and scale: {__instance.uiScaleMode} {__instance.scaleFactor}");
                 Plugin.QuantumCanvas = __instance;
-                Plugin.ConfigureCanvasScaler(Plugin.QuantumCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.CheatConsoleScale.Value);
+                Shared.Utils.ConfigureCanvasScaler(Plugin.QuantumCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.CheatConsoleScale.Value);
                 break;
             case "Canvas" when path.Equals("Canvas") && SceneManager.GetActiveScene().name == "MainMenu":
-                Plugin.LOG.LogInfo($"Found menu??");
+                Plugin.LOG.LogInfo($"Found menu?? Existing mode and scale: {__instance.uiScaleMode} {__instance.scaleFactor}");
                 Plugin.MainMenuCanvas = __instance;
-                Plugin.ConfigureCanvasScaler(Plugin.MainMenuCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.MainMenuUiScale.Value);
+                Shared.Utils.ConfigureCanvasScaler(Plugin.MainMenuCanvas, CanvasScaler.ScaleMode.ConstantPixelSize, Plugin.MainMenuUiScale.Value);
                 break;
         }
     }
@@ -84,12 +104,12 @@ public static class Patches
     {
         if (Plugin.Debug.Value)
         {
-            Plugin.LOG.LogInfo($"PlayerSetZoom running: overriding requested zoom level.");
+            Plugin.LOG.LogInfo("PlayerSetZoom running: overriding requested zoom level.");
         }
 
         zoomLevel = Plugin.ZoomLevel.Value;
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Player), nameof(Player.ResetPlayerCamera), new Type[] { })]
     public static void Player_ResetPlayerCamera()

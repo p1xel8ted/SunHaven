@@ -1,10 +1,4 @@
-﻿using System;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using Wish;
-using Player = Wish.Player;
-
-namespace EasyLiving;
+﻿namespace EasyLiving;
 
 public partial class Plugin
 {

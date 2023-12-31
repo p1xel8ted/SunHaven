@@ -122,12 +122,13 @@ public static class Patches
     /// <param name="stat">The type of stat being retrieved.</param>
     /// <param name="__result">The result value of the original GetStat method.</param>
     /// <remarks>
-    /// Modifies the stat calculation to include custom gear slots.
+    /// Modifies the stat calculation to include custom gear slots. This method is called every frame.
     /// </remarks>
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerInventory), nameof(PlayerInventory.GetStat))]
     public static void PlayerInventory_GetStat(ref PlayerInventory __instance, StatType stat, ref float __result)
     {
+        if (Plugin.MakeSlotsStorageOnly.Value) return;
         __result += __instance.GetStatValueFromSlot(ArmorType.Ring, Const.NewRingSlotOne, 2, stat);
         __result += __instance.GetStatValueFromSlot(ArmorType.Ring, Const.NewRingSlotTwo, 3, stat);
         __result += __instance.GetStatValueFromSlot(ArmorType.Keepsake, Const.NewKeepsakeSlotOne, 1, stat);

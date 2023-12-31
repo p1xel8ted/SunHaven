@@ -1,6 +1,3 @@
-using UnityEngine;
-using Wish;
-
 namespace AutoTools;
 
 public static class Utilities
@@ -9,10 +6,7 @@ public static class Utilities
     private static float LastNotificationTime { get; set; }
     private static string PreviousMessage { get; set; }
 
-    internal static bool CanUse(ToolData toolData)
-    {
-        return SingletonBehaviour<GameSave>.Instance.CurrentSave.characterData.Professions[toolData.profession].level >= toolData.requiredLevel;
-    }
+ 
 
     internal static void Notify(string message, int id = 0, bool error = false)
     {

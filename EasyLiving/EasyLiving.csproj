@@ -1,9 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Version>0.1.0</Version>
+        <Version>0.0.9</Version>
         <AssemblyVersion>$(Version)</AssemblyVersion>
         <FileVersion>$(Version)</FileVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DefineConstants>TRACE;EL</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DefineConstants>TRACE;EL</DefineConstants>
     </PropertyGroup>
     <Import Project="..\zip.target"/>
     <ItemGroup>
@@ -28,5 +36,19 @@
       <Reference Include="UnityEngine.UI">
         <HintPath>..\libs\UnityEngine.UI.dll</HintPath>
       </Reference>
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Include="..\Shared\ConfigurationManagerAttributes.cs">
+        <Link>Shared\ConfigurationManagerAttributes.cs</Link>
+      </Compile>
+      <Compile Include="..\Shared\Extensions.cs">
+        <Link>Shared\Extensions.cs</Link>
+      </Compile>
+      <Compile Include="..\Shared\Utils.cs">
+        <Link>Shared\Utils.cs</Link>
+      </Compile>
+      <Compile Include="..\Shared\WriteOnce.cs">
+        <Link>Shared\WriteOnce.cs</Link>
+      </Compile>
     </ItemGroup>
 </Project>

@@ -46,5 +46,5 @@
         <PackageReference Include="BepInEx.Core" Version="5.4.21"/>
         <PackageReference Include="Resource.Embedder" Version="2.2.0"/>
     </ItemGroup>
-
+    
 </Project>

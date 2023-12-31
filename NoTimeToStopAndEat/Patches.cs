@@ -3,6 +3,7 @@ namespace NoTimeToStopAndEat;
 [Harmony]
 public static class Patches
 {
+    private const string EatFoodRoutineB = "<EatFoodRoutine>b__20_2";
 
     /// <summary>
     /// Used to filter out certain types from an enumerator. For example, <see cref="WaitForSeconds"/> is used in the <see cref="Food.EatFoodRoutine"/> enumerator.
@@ -19,16 +20,6 @@ public static class Patches
                 yield return current;
             }
         }
-    }
-
-    /// <summary>
-    /// This is a finalizer for the <see cref="TweenExtensions.Kill"/> method. It is used to prevent the game from crashing when the tweens are killed.  
-    /// </summary>
-    [HarmonyFinalizer]
-    [HarmonyPatch(typeof(TweenExtensions), nameof(TweenExtensions.Kill), typeof(Tween), typeof(bool))]
-    private static Exception Finalizer()
-    {
-        return null;
     }
 
     /// <summary>
@@ -66,10 +57,10 @@ public static class Patches
             DOTween.Kill(itemGraphics);
         }
 
-        var player = __instance.player;
-        if (player == null) return;
-        player.CancelEmote();
-        player.FreezeWalkAnimations = false;
+
+        if (Player.Instance == null) return;
+        Player.Instance._emoteTween?.Kill();
+        Player.Instance.FreezeWalkAnimations = false;
     }
 
 
@@ -109,7 +100,7 @@ public static class Patches
     /// Stops the player from emoting while eating food.
     /// </summary>
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(Food), "<EatFoodRoutine>b__20_2")]
+    [HarmonyPatch(typeof(Food), EatFoodRoutineB)]
     private static bool Food_EatFoodRoutine_Prefix(ref Food __instance)
     {
         return false;

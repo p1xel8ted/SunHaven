@@ -17,3 +17,4 @@ global using System.Linq;
 global using JetBrains.Annotations;
 global using Object = UnityEngine.Object;
 global using Button = UnityEngine.UI.Button;
+global using Shared;
